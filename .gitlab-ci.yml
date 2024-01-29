@@ -43,13 +43,21 @@ mephit-job:
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
-    # TODO: Build and test
+    - mkdir build && cd build
+    - cmake ..
+    - make
+    # TODO: Install MFEM in Docker image
+    # TODO: Test
 
 kim-job:
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
-    # TODO: Build and test
+    - mkdir build && cd build
+    - cmake ..
+    - make
+    # TODO: Fix preprocessor error
+    # TODO: Test
 
 neo2-job:
   stage: codes
@@ -81,16 +89,24 @@ neort-job:
     - git clone https://github.com/itpplasma/spline
     - git clone https://github.com/itpplasma/BOOZER_MAGFIE
     - git clone https://github.com/itpplasma/NEO-RT
-    # TODO: Build and test
+    - cd NEO-RT
+    - mkdir build && cd build
+    - cmake ..
+    - make
+    # TODO: Test
 
 simple-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/SIMPLE
-    # TODO: Build and test
+    - cd SIMPLE
+    - ./build.sh
+    # TODO: Test
 
 gorilla-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/GORILLA
-    # TODO: Build and test
+    - cd GORILLA
+    - ./build.sh
+    # TODO: Test
