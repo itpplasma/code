@@ -9,8 +9,8 @@ before_script:
 
   - eval $(ssh-agent -s)
 
-  - chmod 400 "$NEO2_PRIVATE_KEY"
-  - ssh-add "$NEO2_PRIVATE_KEY"
+  - chmod 400 "$NEO2_DEPLOY_KEY"
+  - ssh-add "$NEO2_DEPLOY_KEY"
 
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
