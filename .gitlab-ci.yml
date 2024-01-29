@@ -1,0 +1,22 @@
+image: ghcr.io/itpplasma/devel-tex
+
+stages:
+  - libneo
+  - codes
+
+libneo-job:
+  stage: libneo
+  script:
+    - echo "Compiling the code..."
+    - echo "Compile complete."
+
+mephit-job:
+  stage: codes
+  script:
+    - git clone https://gitlab.tugraz.at/plasma/codes/MEPHIT.git
+
+kim-job:
+  stage: codes
+  script:
+    - git clone https://gitlab.tugraz.at/plasma/codes/kim.git
+
