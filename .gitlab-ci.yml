@@ -7,16 +7,44 @@ stages:
 libneo-job:
   stage: libneo
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - git clone https://github.com/itpplasma/libneo
+  artifacts:
+    paths:
+      - libneo/
 
 mephit-job:
   stage: codes
   script:
-    - git clone https://gitlab.tugraz.at/plasma/codes/MEPHIT.git
+    - git clone https://user:$CI_READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
 
 kim-job:
   stage: codes
   script:
-    - git clone https://gitlab.tugraz.at/plasma/codes/kim.git
+    - git clone https://user:$CI_READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
 
+neo2-job:
+  stage: codes
+  script:
+    - git clone https://github.com/itpplasma/NEO-2
+
+neort-job:
+  stage: codes
+  script:
+    - mkdir contrib
+    - cd contrib
+    - git clone git@github.com:itpplasma/quadpack
+    - git clone git@github.com:itpplasma/vode
+    - cd ..
+    - git clone git@github.com:itpplasma/spline
+    - git clone git@github.com:itpplasma/BOOZER_MAGFIE
+    - git clone git@github.com:itpplasma/NEO-RT
+
+simple-job:
+  stage: codes
+  script:
+    - git clone https://github.com/itpplasma/SIMPLE
+
+gorilla-job:
+  stage: codes
+  script:
+    - git clone https://github.com/itpplasma/GORILLA
