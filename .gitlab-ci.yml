@@ -10,6 +10,7 @@ libneo:
     - pwd
     - git clone https://github.com/itpplasma/libneo
     - cd libneo
+    - ../checkout_branch.sh
     - ./build.sh
   artifacts:
     paths:
@@ -30,30 +31,30 @@ mephit-job:
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
-    - # TODO: Build and test
+    # TODO: Build and test
 
 kim-job:
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
-    - # TODO: Build and test
+    # TODO: Build and test
 
 neo2-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/NEO-2
-    - # Build NEO-2-PAR
+    # Build NEO-2-PAR
     - cd NEO-2/NEO-2-PAR/Build-Debug
     - cmake .. -DNEO2_Libs=$HOME/libneo/build -DFGSL_LIB=$HOME/fgsl-1.5.0/.libs
     - make
-    - # TODO: Test NEO-2-PAR
-    - # Build NEO-2-QL
+    # TODO: Test NEO-2-PAR
+    # Build NEO-2-QL
     - cd ../../NEO-2-QL
     - mkdir Build
     - cd Build
     - cmake .. -DNEO2_Libs=$HOME/libneo/build -DFGSL_LIB=$HOME/fgsl-1.5.0/.libs
     - make
-    - # TODO: Test NEO-2-QL
+    # TODO: Test NEO-2-QL
 
 neort-job:
   stage: codes
@@ -66,16 +67,16 @@ neort-job:
     - git clone https://github.com/itpplasma/spline
     - git clone https://github.com/itpplasma/BOOZER_MAGFIE
     - git clone https://github.com/itpplasma/NEO-RT
-    - # TODO: Build and test
+    # TODO: Build and test
 
 simple-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/SIMPLE
-    - # TODO: Build and test
+    # TODO: Build and test
 
 gorilla-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/GORILLA
-    - # TODO: Build and test
+    # TODO: Build and test
