@@ -15,12 +15,12 @@ libneo-job:
 mephit-job:
   stage: codes
   script:
-    - git clone https://user:$CI_READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
+    - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
 
 kim-job:
   stage: codes
   script:
-    - git clone https://user:$CI_READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
+    - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
 
 neo2-job:
   stage: codes
