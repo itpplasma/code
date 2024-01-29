@@ -8,6 +8,8 @@ libneo-job:
   stage: libneo
   script:
     - git clone https://github.com/itpplasma/libneo
+    - cd libneo
+    - ./build.sh
   artifacts:
     paths:
       - libneo/
@@ -16,35 +18,41 @@ mephit-job:
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
+    - # TODO: Build and test
 
 kim-job:
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
+    - # TODO: Build and test
 
 neo2-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/NEO-2
+    - # TODO: Build and test NEO-2-PAR and NEO-2-QL
 
 neort-job:
   stage: codes
   script:
     - mkdir contrib
     - cd contrib
-    - git clone git@github.com:itpplasma/quadpack
-    - git clone git@github.com:itpplasma/vode
+    - git clone https://github.com/itpplasma/quadpack
+    - git clone https://github.com/itpplasma/vode
     - cd ..
-    - git clone git@github.com:itpplasma/spline
-    - git clone git@github.com:itpplasma/BOOZER_MAGFIE
-    - git clone git@github.com:itpplasma/NEO-RT
+    - git clone https://github.com/itpplasma/spline
+    - git clone https://github.com/itpplasma/BOOZER_MAGFIE
+    - git clone https://github.com/itpplasma/NEO-RT
+    - # TODO: Build and test
 
 simple-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/SIMPLE
+    - # TODO: Build and test
 
 gorilla-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/GORILLA
+    - # TODO: Build and test
