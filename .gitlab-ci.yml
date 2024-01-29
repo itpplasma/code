@@ -1,18 +1,30 @@
 image: ghcr.io/itpplasma/devel-tex
 
 stages:
-  - libneo
+  - libs
   - codes
 
-libneo-job:
-  stage: libneo
+libneo:
+  stage: libs
   script:
+    - pwd
     - git clone https://github.com/itpplasma/libneo
     - cd libneo
     - ./build.sh
   artifacts:
     paths:
       - libneo/
+
+fgsl:
+  stage: libs
+  script:
+    - wget https://doku.lrz.de/files/10746505/10746508/1/1684600947173/fgsl-1.5.0.tar.gz
+    - tar xzvf fgsl-1.5.0.tar.gz
+    - cd fgsl-1.5.0
+    - ./configure && make
+  artifacts:
+    paths:
+      - fgsl-1.5.0/
 
 mephit-job:
   stage: codes
@@ -30,7 +42,18 @@ neo2-job:
   stage: codes
   script:
     - git clone https://github.com/itpplasma/NEO-2
-    - # TODO: Build and test NEO-2-PAR and NEO-2-QL
+    - # Build NEO-2-PAR
+    - cd NEO-2/NEO-2-PAR/Build-Debug
+    - cmake .. -DNEO2_Libs=$HOME/libneo/build -DFGSL_LIB=$HOME/fgsl-1.5.0/.libs
+    - make
+    - # TODO: Test NEO-2-PAR
+    - # Build NEO-2-QL
+    - cd ../../NEO-2-QL
+    - mkdir Build
+    - cd Build
+    - cmake .. -DNEO2_Libs=$HOME/libneo/build -DFGSL_LIB=$HOME/fgsl-1.5.0/.libs
+    - make
+    - # TODO: Test NEO-2-QL
 
 neort-job:
   stage: codes
