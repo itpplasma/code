@@ -57,19 +57,17 @@ kim-job:
 neo2-job:
   stage: codes
   script:
-    - git clone oauth2:$GITHUB_TOKEN@github.com/itpplasma/NEO-2
+    - git clone https://oauth2:$GITHUB_TOKEN@github.com/itpplasma/NEO-2
     # Build NEO-2-PAR
     - cd NEO-2/NEO-2-PAR/Build-Debug
-    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build \
-               -DFGSL_LIB=$CI_PROJECT_DIR/fgsl-1.5.0/.libs
+    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build -DFGSL_LIB=$CI_PROJECT_DIR/fgsl-1.5.0/.libs
     - make
     # TODO: Test NEO-2-PAR
     # Build NEO-2-QL
     - cd ../../NEO-2-QL
     - mkdir Build
     - cd Build
-    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build \
-               -DFGSL_LIB=$CI_PROJECT_DIR/fgsl-1.5.0/.libs
+    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build -DFGSL_LIB=$CI_PROJECT_DIR/fgsl-1.5.0/.libs
     - make
     # TODO: Test NEO-2-QL
 
