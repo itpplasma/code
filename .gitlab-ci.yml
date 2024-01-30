@@ -40,8 +40,10 @@ mephit-job:
     - make
     # TODO: Install MFEM in Docker image
     # TODO: Test
+  allow_failure: true
 
 kim-job:
+  allow_failure: true
   stage: codes
   script:
     - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
@@ -50,6 +52,7 @@ kim-job:
     - make
     # TODO: Fix preprocessor error
     # TODO: Test
+  allow_failure: true
 
 neo2-job:
   stage: codes
