@@ -14,6 +14,6 @@ done
 # Contributed libraries for NEO-RT
 mkdir contrib
 cd contrib
-scripts/clone_github.sh quadpack
-scripts/clone_github.sh vode
+../scripts/clone_github.sh quadpack
+../scripts/clone_github.sh vode
 cd ..

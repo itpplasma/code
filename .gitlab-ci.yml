@@ -81,8 +81,8 @@ neort-job:
   script:
     - mkdir contrib
     - cd contrib
-    - scripts/clone_github.sh quadpack
-    - scripts/clone_github.sh vode
+    - ../scripts/clone_github.sh quadpack
+    - ../scripts/clone_github.sh vode
     - cd ..
     - scripts/clone_github.sh spline
     - scripts/clone_github.sh BOOZER_MAGFIE
