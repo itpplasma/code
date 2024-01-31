@@ -1,5 +1,8 @@
 image: ghcr.io/itpplasma/devel-tex
 
+variables:
+  - GIT_HTTPS: true
+
 stages:
   - libs
   - codes
