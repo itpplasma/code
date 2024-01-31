@@ -16,5 +16,5 @@ else
 fi
 
 $PYTHON -m venv --system-site-packages .venv
-
-# TODO continue
+source .venv/bin/activate
+python -m pip install -r requirements.txt
