@@ -5,13 +5,13 @@
 *.so
 
 # Codes
-libneo/
-spline/
-BOOZER_MAGFIE/
-SIMPLE/
-GORILLA/
-NEO-2/
-NEO-RT/
-contrib/
-MEPHIT/
-kim/
+/libneo/
+/spline/
+/BOOZER_MAGFIE/
+/SIMPLE/
+/GORILLA/
+/NEO-2/
+/NEO-RT/
+/contrib/
+/MEPHIT/
+/kim/
