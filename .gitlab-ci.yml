@@ -13,7 +13,7 @@ libneo:
     - pwd
     - scripts/clone_github.sh libneo
     - cd libneo
-    - ../scripts/checkout_branch.sh
+    - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
   artifacts:
     paths:
