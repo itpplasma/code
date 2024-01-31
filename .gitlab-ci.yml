@@ -8,9 +8,9 @@ libneo:
   stage: libs
   script:
     - pwd
-    - git clone https://github.com/itpplasma/libneo
+    - scripts/clone_github.sh libneo
     - cd libneo
-    - ../checkout_branch.sh
+    - ../scripts/checkout_branch.sh
     - ./build.sh
   artifacts:
     paths:
@@ -34,7 +34,7 @@ fgsl:
 mephit-job:
   stage: codes
   script:
-    - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/MEPHIT.git
+    - scripts/clone_gitlab.sh mephit
     - cd MEPHIT
     - mkdir build && cd build
     - cmake ..
@@ -47,7 +47,7 @@ kim-job:
   allow_failure: true
   stage: codes
   script:
-    - git clone https://user:$READ_TOKEN@gitlab.tugraz.at/plasma/codes/kim.git
+    - scripts/clone_gitlab.sh kim
     - cd kim
     - mkdir build && cd build
     - cmake ..
@@ -59,7 +59,7 @@ kim-job:
 neo2-job:
   stage: codes
   script:
-    - git clone https://oauth2:$GITHUB_TOKEN@github.com/itpplasma/NEO-2
+    - scripts/clone_github.sh NEO-2
     # Build NEO-2-PAR
     - cd NEO-2/NEO-2-PAR/Build-Debug
     - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/fgsl-1.5.0/.libs
@@ -78,12 +78,12 @@ neort-job:
   script:
     - mkdir contrib
     - cd contrib
-    - git clone https://github.com/itpplasma/quadpack
-    - git clone https://github.com/itpplasma/vode
+    - scripts/clone_github.sh quadpack
+    - scripts/clone_github.sh vode
     - cd ..
-    - git clone https://github.com/itpplasma/spline
-    - git clone https://github.com/itpplasma/BOOZER_MAGFIE
-    - git clone https://github.com/itpplasma/NEO-RT
+    - scripts/clone_github.sh spline
+    - scripts/clone_github.sh BOOZER_MAGFIE
+    - scripts/clone_github.sh NEO-RT
     - cd NEO-RT
     - mkdir build && cd build
     - cmake ..
@@ -93,7 +93,7 @@ neort-job:
 simple-job:
   stage: codes
   script:
-    - git clone https://github.com/itpplasma/SIMPLE
+    - scripts/clone_github.sh SIMPLE
     - cd SIMPLE
     - ./build.sh
     # TODO: Test
@@ -101,7 +101,7 @@ simple-job:
 gorilla-job:
   stage: codes
   script:
-    - git clone https://github.com/itpplasma/GORILLA
+    - scripts/clone_github.sh GORILLA
     - cd GORILLA
     - ./build.sh
     # TODO: Test
