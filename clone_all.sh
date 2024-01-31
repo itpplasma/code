@@ -11,9 +11,9 @@ for REPO in $GITLAB_REPOS; do
     scripts/clone_gitlab.sh $REPO
 done
 
-
+# Contributed libraries for NEO-RT
 mkdir contrib
 cd contrib
-clone_github.sh quadpack
-clone_github.sh vode
+scripts/clone_github.sh quadpack
+scripts/clone_github.sh vode
 cd ..
