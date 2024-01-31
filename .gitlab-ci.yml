@@ -38,7 +38,7 @@ mephit-job:
   stage: codes
   script:
     - scripts/clone_gitlab.sh mephit
-    - cd MEPHIT
+    - cd mephit
     - mkdir build && cd build
     - cmake ..
     - make
