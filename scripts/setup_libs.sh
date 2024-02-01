@@ -3,7 +3,7 @@
 # If libneo dir doesnt exist, clone it
 if [ ! -d "libneo" ] ; then
     echo "Cloning 'libneo'..."
-    scripts/clone_libneo.sh
+    scripts/clone_github.sh libneo
 fi
 
 echo "Building and installing 'libneo'..."
