@@ -8,7 +8,7 @@ if [ ! -d "fgsl-1.5.0" ] ; then
     tar xzvf fgsl-1.5.0.tar.gz
     cd fgsl-1.5.0
     ./configure
-    make -j4
+    make 
     cd ..
 fi
 
