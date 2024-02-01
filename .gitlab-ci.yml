@@ -34,9 +34,6 @@ fgsl:
     - cd fgsl-1.5.0
     - ./configure
     - make
-    - find . -name "*.so"
-    - find . -name "*.a"
-    - pwd
   artifacts:
     paths:
       - fgsl-1.5.0/
@@ -48,7 +45,7 @@ mephit-job:
     - cd MEPHIT
     - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
-    # TODO: Install MFEM in Docker image
+    # TODO: Install MFEM
     # TODO: Test
   allow_failure: true
 
