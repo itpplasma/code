@@ -8,7 +8,7 @@ if [ ! -d "fgsl-1.5.0" ] ; then
     tar xzvf fgsl-1.5.0.tar.gz
     cd fgsl-1.5.0
     ./configure
-    make 
+    make
     cd ..
 fi
 
@@ -20,7 +20,7 @@ if [ ! -d "mfem-4.6" ] ; then
     cd mfem-4.6
     mkdir build
     cd build
-    cmake ..
+    cmake .. -DMFEM_USE_SUITESPARSE=1
     make -j4
     cd ../..
 fi

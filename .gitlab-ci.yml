@@ -48,7 +48,7 @@ mfem:
     - cd mfem-4.6
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake .. -DMFEM_USE_SUITESPARSE=1
     - make -j4
   artifacts:
     paths:
@@ -62,8 +62,10 @@ mephit-job:
     - ../scripts/checkout_branch.sh ${branch}
     - mkdir build
     - cd build
-    - export MFEM_DIR=$PWD/../libs/mfem-4.6/build
-    - cmake ..
+    - export LIBNEO_DIR=$PWD/../../libs/libneo/build
+    - export MFEM_DIR=$PWD/../../libs/mfem-4.6/build
+    - cmake .. -DFGSL_INC=$PWD/../../libs/fgsl-1.5.0 \
+               -DFGSL_LIB=$PWD/../../libs/fgsl-1.5.0/.libs
     - make
     # TODO: Test
   allow_failure: true

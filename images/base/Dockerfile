@@ -4,6 +4,10 @@ FROM debian:bookworm-slim
 # Prevent user inputs
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Enable non-free packages
+RUN sed -i -e's/ main/ main contrib non-free/g' \
+		/etc/apt/sources.list.d/debian.sources
+
 # Base
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
 		apt-transport-https \
