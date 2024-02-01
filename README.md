@@ -2,16 +2,20 @@
 
 ## Getting Started
 
-```bash
-./setup.sh
-source activate.sh
-```
+    ./setup.sh
+    source activate.sh
 
 This will install library dependencies in `libs` and create and activate
 a Python virtual environment in the hidden `.venv` directory.
 
 Then start Visual Studio Code via
 
-```bash
-code .
-```
+    code .
+
+## Tests
+
+Tests can currently be performed by using
+
+    pytest tests/
+
+This will perform all the tests in `tests/` and its subfolders.
