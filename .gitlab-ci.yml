@@ -44,11 +44,9 @@ fgsl:
 mephit-job:
   stage: codes
   script:
-    - scripts/clone_gitlab.sh mephit
-    - cd mephit
-    - mkdir build && cd build
-    - cmake ..
-    - make
+    - scripts/clone_gitlab.sh MEPHIT
+    - cd MEPHIT
+    - ./build.sh
     # TODO: Install MFEM in Docker image
     # TODO: Test
   allow_failure: true
@@ -59,9 +57,7 @@ kim-job:
   script:
     - scripts/clone_gitlab.sh kim
     - cd kim
-    - mkdir build && cd build
-    - cmake ..
-    - make
+    - ./build.sh
     # TODO: Fix preprocessor error
     # TODO: Test
   allow_failure: true
