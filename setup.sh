@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 scripts/setup_venv.sh
 source activate.sh
