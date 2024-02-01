@@ -75,22 +75,13 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
-# Python environment
-RUN mkdir -p /opt/venv/plasma && \
-	python3 -m venv --system-site-packages /opt/venv/plasma
-
-RUN . /opt/venv/plasma/bin/activate && \
-	python -m pip install pylance black f90wrap && \
-	python -m pip cache purge
-
 # Add a custom environment variable to .bashrc
 RUN echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc && \
 	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> ~/.bashrc && \
 	echo 'export STELLOPT_PATH="/src/STELLOPT"' >> ~/.bashrc && \
 	echo 'export MACHINE="ubuntu"' >> ~/.bashrc && \
 	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~/.bashrc && \
-	echo '. /opt/venv/plasma/bin/activate' >> ~/.bashrc
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~/.bashrc
 
 # Entry point (bash)
 CMD ["/bin/bash"]
