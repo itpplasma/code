@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GITHUB_REPOS="libneo spline BOOZER_MAGFIE SIMPLE GORILLA NEO-2 NEO-RT"
+GITHUB_REPOS="libneo spline BOOZER_MAGFIE SIMPLE GORILLA GORILLA_APPLETS NEO-2 NEO-RT"
 GITLAB_REPOS="MEPHIT kim"
 
 for REPO in $GITHUB_REPOS; do
@@ -14,6 +14,6 @@ done
 # Contributed libraries for NEO-RT
 mkdir contrib
 cd contrib
-scripts/clone_github.sh quadpack
-scripts/clone_github.sh vode
+../scripts/clone_github.sh quadpack
+../scripts/clone_github.sh vode
 cd ..
