@@ -1,7 +1,7 @@
 #!/bin/sh
 
 GITHUB_REPOS="libneo spline BOOZER_MAGFIE SIMPLE GORILLA GORILLA_APPLETS NEO-2 NEO-RT"
-GITLAB_REPOS="MEPHIT kim"
+GITLAB_REPOS="MEPHIT kim efit_to_boozer"
 
 for REPO in $GITHUB_REPOS; do
     scripts/clone_github.sh $REPO

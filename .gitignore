@@ -18,3 +18,8 @@
 /contrib/
 /MEPHIT/
 /kim/
+/efit_to_boozer/
+
+# tests
+tests/*/out.*
+tests/*.dat
