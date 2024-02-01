@@ -124,3 +124,13 @@ gorilla-job:
     - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
     # TODO: Test
+
+efit_to_boozer-job:
+  stage: codes
+  script:
+    - scripts/clone_github.sh efit_to_boozer
+    - cd efit_to_boozer
+    - make
+    - cd python
+    - make
+    # TODO: Test
