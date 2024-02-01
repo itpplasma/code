@@ -7,6 +7,13 @@ stages:
   - libs
   - codes
 
+test-setup:
+  stage: libs
+  script:
+    ./setup.sh
+    source activate.sh
+    python -c "import libneo"
+
 libneo:
   stage: libs
   script:
