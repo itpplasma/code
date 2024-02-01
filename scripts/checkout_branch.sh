@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BRANCH_NAME="${BRANCH_NAME:-main}" # Default branch name is "main"
+BRANCH_NAME="${1:-main}" # Default branch name is "main"
 
 # Check if the branch exists upstream
 if git fetch origin "$BRANCH_NAME" &>/dev/null; then

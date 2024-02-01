@@ -1,0 +1,45 @@
+# Basics
+wheel
+setuptools
+ipython
+jupyter
+sphinx
+
+# File formats
+openpyxl
+xlrd
+h5py
+netcdf4
+
+# Scientific computing
+sympy
+uncertainties
+numpy
+scipy
+numba
+matplotlib
+
+# Statistics
+pandas
+scikit-learn
+torch
+
+# For OMFIT
+boto3
+lmfit
+configobj
+dill
+pyodbc
+pyotp
+
+# Development tools
+pylance
+black
+fortls
+
+# Misc
+tqdm
+pytest
+mpi4py
+scikit-build
+f90wrap

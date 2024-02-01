@@ -3,6 +3,8 @@
 *.mod
 *.a
 *.so
+.pytest_cache
+.venv
 
 # Codes
 /libneo/
