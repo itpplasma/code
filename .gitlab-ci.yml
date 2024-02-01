@@ -46,6 +46,7 @@ mephit-job:
   script:
     - scripts/clone_gitlab.sh MEPHIT
     - cd MEPHIT
+    - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
     # TODO: Install MFEM in Docker image
     # TODO: Test
@@ -57,6 +58,7 @@ kim-job:
   script:
     - scripts/clone_gitlab.sh kim
     - cd kim
+    - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
     # TODO: Fix preprocessor error
     # TODO: Test
@@ -91,6 +93,7 @@ neort-job:
     - scripts/clone_github.sh BOOZER_MAGFIE
     - scripts/clone_github.sh NEO-RT
     - cd NEO-RT
+    - ../scripts/checkout_branch.sh ${branch}
     - mkdir build && cd build
     - cmake ..
     - make
@@ -101,6 +104,7 @@ simple-job:
   script:
     - scripts/clone_github.sh SIMPLE
     - cd SIMPLE
+    - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
     # TODO: Test
 
@@ -109,5 +113,6 @@ gorilla-job:
   script:
     - scripts/clone_github.sh GORILLA
     - cd GORILLA
+    - ../scripts/checkout_branch.sh ${branch}
     - ./build.sh
     # TODO: Test
