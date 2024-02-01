@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check if 'python' exists in the PATH
 if command -v python &> /dev/null; then
