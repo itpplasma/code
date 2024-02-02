@@ -60,7 +60,6 @@ mephit-job:
   allow_failure: true
 
 kim-job:
-  allow_failure: true
   stage: codes
   script:
     - scripts/clone_gitlab.sh kim
@@ -70,9 +69,7 @@ kim-job:
     - cd build
     - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
     - make
-    # TODO: Fix preprocessor error
     # TODO: Test
-  allow_failure: true
 
 neo2-job:
   stage: codes
