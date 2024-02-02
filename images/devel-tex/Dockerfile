@@ -1,4 +1,4 @@
-# base image (fundamental installations + texlive)
+# base image (fundamental installations)
 FROM ghcr.io/itpplasma/devel
 
 # Prevent user inputs

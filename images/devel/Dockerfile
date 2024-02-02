@@ -1,4 +1,4 @@
-# base image (fundamental installations + texlive)
+# base image (fundamental installations)
 FROM ghcr.io/itpplasma/base
 
 # Prevent user inputs
@@ -23,6 +23,8 @@ RUN apt-get update && apt-get upgrade -y -q --no-install-recommends && \
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
 		pkg-config \
 		libsuitesparse-dev \
+		libmetis-dev \
+		libtriangle-dev \
 		libopenblas-dev \
 		libsuperlu-dev \
 		libhdf5-dev \
