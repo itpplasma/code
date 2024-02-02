@@ -8,6 +8,6 @@ if [ ! -d "mfem-4.6" ] ; then
     mkdir build
     cd build
     cmake .. -DMFEM_USE_SUITESPARSE=1 -DCMAKE_CXX_FLAGS=-fPIC
-    make -j4
+    make -j8
     cd ../..
 fi
