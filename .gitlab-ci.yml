@@ -58,7 +58,6 @@ mephit-job:
     - cmake .. -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make -j4
     # TODO: Test
-  allow_failure: true
 
 kim-job:
   stage: codes
