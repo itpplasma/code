@@ -64,8 +64,7 @@ mephit-job:
     - cd build
     - export LIBNEO_DIR=$CI_PROJECT_DIR/libs/libneo/build
     - export MFEM_DIR=$CI_PROJECT_DIR/libs/mfem-4.6/build
-    - cmake .. -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 \
-               -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
+    - cmake .. -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make -j4
     # TODO: Test
   allow_failure: true
@@ -88,18 +87,14 @@ neo2-job:
     - scripts/clone_github.sh NEO-2
     # Build NEO-2-PAR
     - cd NEO-2/NEO-2-PAR/Build-Debug
-    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build \
-               -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 \
-               -DFGSL_LIB=$CI_PROJECT_DIR/fgsl-1.5.0/.libs
+    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
     # TODO: Test NEO-2-PAR
     # Build NEO-2-QL
     - cd ../../NEO-2-QL
     - mkdir Build
     - cd Build
-    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build \
-               -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 \
-               -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
+    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
     # TODO: Test NEO-2-QL
 
