@@ -10,6 +10,8 @@ import os
 
 # Import modules to be tested
 import efit2boozer
+
+from numpy.testing import assert_allclose
 from libneo import read_eqdsk, FluxLabelConverter
 
 
@@ -56,5 +58,5 @@ def test_q_profile_eqdsk():
 
     os.chdir(current_directory)
 
-    np.assert_allclose(q_profile_field_line_integration, q_profile_eqdsk, rtol=1e-2)
+    assert_allclose(q_profile_field_line_integration, q_profile_eqdsk, rtol=1e-2)
     print("Alternative safety factor calculation agrees with EQDSK file within 1%")
