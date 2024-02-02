@@ -43,6 +43,7 @@ test-setup:
     - ./setup.sh
     - source activate.sh
     - python -c "import libneo"
+  dependencies: []
 
 mephit-job:
   stage: codes
