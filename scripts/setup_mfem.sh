@@ -7,7 +7,7 @@ if [ ! -d "mfem-4.6" ] ; then
     cd mfem-4.6
     mkdir build
     cd build
-    cmake .. -DMFEM_USE_SUITESPARSE=1
+    cmake .. -DMFEM_USE_SUITESPARSE=1 -DCMAKE_CXX_FLAGS=-fPIC
     make -j4
     cd ../..
 fi
