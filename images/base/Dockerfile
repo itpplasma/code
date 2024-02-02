@@ -5,7 +5,7 @@ FROM debian:bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Enable non-free packages
-RUN sed -i -e's/ main/ main contrib non-free/g' \
+RUN sed -i -e's/ main/ main contrib non-free non-free-firmware/g' \
 		/etc/apt/sources.list.d/debian.sources
 
 # Base
