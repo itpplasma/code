@@ -31,7 +31,7 @@ libneo:
     - cd libs
     - ../scripts/clone_github.sh libneo
     - cd libneo
-    - ../../scripts/checkout_branch.sh ${branch}
+    - ../../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
   artifacts:
     paths:
@@ -50,7 +50,7 @@ mephit-job:
   script:
     - scripts/clone_gitlab.sh MEPHIT
     - cd MEPHIT
-    - ../scripts/checkout_branch.sh ${branch}
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build
     - cd build
     - export LIBNEO_DIR=$CI_PROJECT_DIR/libs/libneo/build
@@ -65,7 +65,7 @@ kim-job:
   script:
     - scripts/clone_gitlab.sh kim
     - cd kim
-    - ../scripts/checkout_branch.sh ${branch}
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
@@ -76,8 +76,10 @@ neo2-job:
   stage: codes
   script:
     - scripts/clone_github.sh NEO-2
+    - cd NEO-2
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     # Build NEO-2-PAR
-    - cd NEO-2/NEO-2-PAR/Build-Debug
+    - cd NEO-2-PAR/Build-Debug
     - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
     # TODO: Test NEO-2-PAR
@@ -101,7 +103,7 @@ neort-job:
     - scripts/clone_github.sh BOOZER_MAGFIE
     - scripts/clone_github.sh NEO-RT
     - cd NEO-RT
-    - ../scripts/checkout_branch.sh ${branch}
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build && cd build
     - cmake ..
     - make
@@ -112,7 +114,7 @@ simple-job:
   script:
     - scripts/clone_github.sh SIMPLE
     - cd SIMPLE
-    - ../scripts/checkout_branch.sh ${branch}
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
     # TODO: Test
 
@@ -121,7 +123,7 @@ gorilla-job:
   script:
     - scripts/clone_github.sh GORILLA
     - cd GORILLA
-    - ../scripts/checkout_branch.sh ${branch}
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
     # TODO: Test
 
