@@ -10,6 +10,7 @@ openpyxl
 xlrd
 h5py
 netcdf4
+xarray
 
 # Scientific computing
 sympy
@@ -18,6 +19,7 @@ numpy
 scipy
 numba
 matplotlib
+pandas
 
 # Statistics
 pandas
@@ -31,6 +33,10 @@ configobj
 dill
 pyodbc
 pyotp
+pidly
+numexpr>=2.8.4
+bottleneck>=1.3.6
+gpr1dfusion
 
 # Development tools
 pylance
