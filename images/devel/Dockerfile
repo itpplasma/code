@@ -72,7 +72,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 		python3-pyodbc python3-pyotp \
 		# Misc
 		fortran-language-server python3-tqdm python3-pytest \
-		python3-mpi4py python3-skbuild \
+		python3-mpi4py python3-skbuild idle3 \
 		&& \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
