@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 GITHUB_REPOS="libneo spline BOOZER_MAGFIE SIMPLE GORILLA GORILLA_APPLETS NEO-2 NEO-RT"
 GITLAB_REPOS="MEPHIT kim efit_to_boozer"
