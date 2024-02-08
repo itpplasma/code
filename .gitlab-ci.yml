@@ -39,7 +39,7 @@ libneo:
 
 omfit:
   stage: libs
-    script:
+  script:
     - cd libs
     - ../scripts/setup_omfit.sh
   artifacts:
@@ -48,7 +48,7 @@ omfit:
 
 stellopt:
   stage: libs
-    script:
+  script:
     - cd libs
     - ../scripts/setup_stellopt.sh
   artifacts:
@@ -172,7 +172,7 @@ efit_to_boozer-job:
 
 chease:
   stage: codes
-    script:
+  script:
     - scripts/setup_chease.sh
   artifacts:
     paths:
