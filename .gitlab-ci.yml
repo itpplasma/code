@@ -52,7 +52,7 @@ stellopt:
   stage: libs
   script:
     - cd libs
-    - ../scripts/setup_stellopt.sh
+    - source ../scripts/setup_stellopt.sh
   artifacts:
     paths:
       - libs/STELLOPT/
