@@ -19,8 +19,10 @@
 /MEPHIT/
 /kim/
 /efit_to_boozer/
+/CHEASE/
+/MARS/
+/GPEC/
 
 # tests
 tests/**/out.*
 tests/**/*.dat
-

@@ -1,5 +1,4 @@
 {
-    "explorer.excludeGitIgnore": false,
     "fortran.linter.includePaths": [
         "${workspaceFolder}/libs/libneo/build",
         "${workspaceFolder}/libs/libneo/build/src",
