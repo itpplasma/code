@@ -46,7 +46,7 @@ omfit:
     - ../scripts/setup_omfit.sh
   artifacts:
     paths:
-      - libs/OMFIT/
+      - libs/OMFIT-source/
 
 stellopt:
   stage: libs
