@@ -37,6 +37,24 @@ libneo:
     paths:
       - libs/libneo/
 
+omfit:
+  stage: libs
+    script:
+    - cd libs
+    - ../scripts/setup_omfit.sh
+  artifacts:
+    paths:
+      - libs/OMFIT/
+
+stellopt:
+  stage: libs
+    script:
+    - cd libs
+    - ../scripts/setup_stellopt.sh
+  artifacts:
+    paths:
+      - libs/STELLOPT/
+
 test-setup:
   stage: codes
   script:
@@ -57,7 +75,9 @@ mephit-job:
     - export MFEM_DIR=$CI_PROJECT_DIR/libs/mfem-4.6/build
     - cmake .. -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make -j4
-    # TODO: Test
+  artifacts:
+    paths:
+      - MEPHIT/
 
 kim-job:
   stage: codes
@@ -69,7 +89,9 @@ kim-job:
     - cd build
     - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
     - make
-    # TODO: Test
+  artifacts:
+    paths:
+      - kim/
 
 neo2-job:
   stage: codes
@@ -81,14 +103,15 @@ neo2-job:
     - cd NEO-2-PAR/Build-Debug
     - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
-    # TODO: Test NEO-2-PAR
     # Build NEO-2-QL
     - cd ../../NEO-2-QL
     - mkdir Build
     - cd Build
     - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
-    # TODO: Test NEO-2-QL
+  artifacts:
+    paths:
+      - NEO-2/
 
 neort-job:
   stage: codes
@@ -106,7 +129,12 @@ neort-job:
     - mkdir build && cd build
     - cmake ..
     - make
-    # TODO: Test
+  artifacts:
+    paths:
+      - contrib/
+      - spline/
+      - BOOZER_MAGFIE/
+      - NEO-RT/
 
 simple-job:
   stage: codes
@@ -115,7 +143,9 @@ simple-job:
     - cd SIMPLE
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
-    # TODO: Test
+  artifacts:
+    paths:
+      - SIMPLE/
 
 gorilla-job:
   stage: codes
@@ -124,7 +154,9 @@ gorilla-job:
     - cd GORILLA
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
-    # TODO: Test
+  artifacts:
+    paths:
+      - GORILLA/
 
 efit_to_boozer-job:
   stage: codes
@@ -134,4 +166,14 @@ efit_to_boozer-job:
     - make
     - cd python
     - make
-    # TODO: Test
+  artifacts:
+    paths:
+      - efit_to_boozer/
+
+chease:
+  stage: codes
+    script:
+    - scripts/setup_chease.sh
+  artifacts:
+    paths:
+      - CHEASE/
