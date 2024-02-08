@@ -55,7 +55,32 @@ stellopt:
     - source ../scripts/setup_stellopt.sh
   artifacts:
     paths:
-      - libs/STELLOPT/
+      - libs/STELLOPT/LIBSTELL/Release/libstell.so
+      - libs/STELLOPT/BOOZ_XFORM/Release/xbooz_xform
+      - libs/STELLOPT/COBRAVMEC/Release/xcobravmec
+      - libs/STELLOPT/BNORM/Release/xbnorm
+      - libs/STELLOPT/WALL_ACCELERATE/Release/xwallacc
+      - libs/STELLOPT/VMEC2SPEC/Release/xvmec2spec
+      - libs/STELLOPT/J_INVARIANT/Release/xjinvariant
+      - libs/STELLOPT/FIELDLINES/Release/xfieldlines
+      - libs/STELLOPT/NEO/Release/xneo
+      - libs/STELLOPT/VMEC2STEL/Release/xvmec2stel
+      - libs/STELLOPT/BOOTSJ/Release/xbootsj
+      - libs/STELLOPT/TORLINES/Release/xtorlines
+      - libs/STELLOPT/STELLOPTV2/Release/xstelloptv2
+      - libs/STELLOPT/MAKEGRID/Release/xgrid
+      - libs/STELLOPT/THRIFT/Release/xthrift
+      - libs/STELLOPT/VMEC2XGC/Release/xvmec2xgc
+      - libs/STELLOPT/PENTA/Release/xpenta
+      - libs/STELLOPT/DIAGNO/Release/xdiagno
+      - libs/STELLOPT/VMEC2000/Release/xvmec2000
+      - libs/STELLOPT/BEAMS3D/Release/xbeams3d
+      - libs/STELLOPT/VMEC2PIES/Release/xvmec2pies
+      - libs/STELLOPT/VMEC2V690/Release/xvmec2v690
+      - libs/STELLOPT/NESCOIL/Release/xnescoil
+      - libs/STELLOPT/COILOPT/Release/xcoilopt
+      - libs/STELLOPT/DKES/Release/xdkes
+      - libs/STELLOPT/BCYCLIC/Release/xbcyclic
 
 test-setup:
   stage: codes
