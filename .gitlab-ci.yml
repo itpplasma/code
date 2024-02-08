@@ -39,6 +39,9 @@ libneo:
 
 stellopt:
   stage: libs
+  rules:  # Run only nightly builds on schedule
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      allow_failure: true
   script:
     - cd libs
     - source ../scripts/setup_stellopt.sh
