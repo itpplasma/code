@@ -7,5 +7,7 @@ echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 module load intel/2018.1
 git clone git@github.com:PrincetonUniversity/GPEC.git
-cd GPEC/gpec
+cd GPEC/vacuum
+make
+cd ../gpec
 make
