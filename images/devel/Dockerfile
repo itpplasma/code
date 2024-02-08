@@ -77,13 +77,5 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
-# Add a custom environment variable to .bashrc
-RUN echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc && \
-	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> ~/.bashrc && \
-	echo 'export STELLOPT_PATH="/src/STELLOPT"' >> ~/.bashrc && \
-	echo 'export MACHINE="ubuntu"' >> ~/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~/.bashrc
-
 # Entry point (bash)
 CMD ["/bin/bash"]
