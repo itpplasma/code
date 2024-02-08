@@ -42,6 +42,7 @@ pygacode
 astropy
 jedi>=0.19.1
 pyttk
+omfit-classes
 
 # Development tools
 pylance

@@ -37,17 +37,6 @@ libneo:
     paths:
       - libs/libneo/
 
-omfit:
-  stage: libs
-  script:
-    - scripts/setup_venv.sh
-    - source activate.sh
-    - cd libs
-    - ../scripts/setup_omfit.sh
-  artifacts:
-    paths:
-      - libs/OMFIT-source/
-
 stellopt:
   stage: libs
   script:
@@ -56,6 +45,8 @@ stellopt:
   artifacts:
     paths:
       - libs/STELLOPT/LIBSTELL/Release/libstell.so
+      - libs/STELLOPT/LIBSTELL/Release/libstell.a
+      - libs/STELLOPT/VMEC2000/Release/libvmec.a
       - libs/STELLOPT/BOOZ_XFORM/Release/xbooz_xform
       - libs/STELLOPT/COBRAVMEC/Release/xcobravmec
       - libs/STELLOPT/BNORM/Release/xbnorm
