@@ -4,8 +4,17 @@ variables:
   GIT_HTTPS: "true"
 
 stages:
+  - env
   - libs
   - codes
+
+venv:
+  stage: env
+  script:
+    - scripts/setup_venv.sh
+  artifacts:
+    paths:
+      - .venv/
 
 fgsl:
   stage: libs
@@ -40,6 +49,7 @@ libneo:
 omfit:
   stage: libs
   script:
+    - source activate.sh
     - cd libs
     - ../scripts/setup_omfit.sh
   artifacts:
@@ -139,6 +149,7 @@ neort-job:
 simple-job:
   stage: codes
   script:
+    - source activate.sh
     - scripts/clone_github.sh SIMPLE
     - cd SIMPLE
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
@@ -161,6 +172,7 @@ gorilla-job:
 efit_to_boozer-job:
   stage: codes
   script:
+    - source activate.sh
     - scripts/clone_gitlab.sh efit_to_boozer
     - cd efit_to_boozer
     - make
