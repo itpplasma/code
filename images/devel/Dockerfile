@@ -59,18 +59,18 @@ RUN mkdir src && cd src && \
 # Install Python and dependencies
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
 		python3-wheel python3-setuptools \
-		# Shell and file formats
+		# Shell and file formats \
 		python3-ipython jupyter python3-sphinx python3-matplotlib \
 		python3-openpyxl python3-xlrd python3-h5py python3-netcdf4 \
-		# Scientific computing
+		# Scientific computing \
 		python3-sympy python3-uncertainties python3-numpy python3-scipy \
 		python3-numba \
-		# Statistics
+		# Statistics \
 		python3-pandas python3-sklearn python3-torch \
-		# For OMFIT
+		# For OMFIT \
 		python3-boto3 python3-lmfit python3-configobj python3-dill \
 		python3-pyodbc python3-pyotp \
-		# Misc
+		# Misc \
 		fortran-language-server python3-tqdm python3-pytest \
 		python3-mpi4py python3-skbuild idle3 \
 		&& \
