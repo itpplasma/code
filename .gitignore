@@ -1,4 +1,9 @@
 # Common
+.DS_Store
+*.log
+*.out
+*.err
+*.swp
 *.o
 *.mod
 *.a
