@@ -28,7 +28,7 @@ mfem:
 libneo:
   stage: libs
   script:
-    - ../scripts/clone_github.sh libneo
+    - scripts/clone_github.sh libneo
     - cd libneo
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
