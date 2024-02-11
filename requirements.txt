@@ -43,6 +43,7 @@ astropy
 jedi>=0.19.1
 pyttk
 omfit-classes
+bibtexparser
 
 # Development tools
 pylance
