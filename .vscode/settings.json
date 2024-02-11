@@ -1,7 +1,7 @@
 {
     "fortran.linter.includePaths": [
-        "${workspaceFolder}/libs/libneo/build",
-        "${workspaceFolder}/libs/libneo/build/src",
+        "${workspaceFolder}/libneo/build",
+        "${workspaceFolder}/libneo/build/src",
         "${workspaceFolder}/SIMPLE/build/SRC"
     ]
 }

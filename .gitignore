@@ -6,21 +6,8 @@
 .pytest_cache
 .venv
 
-# Codes
+# External libraries
 /libs/
-/spline/
-/BOOZER_MAGFIE/
-/GORILLA/
-/GORILLA_APPLETS/
-/NEO-2/
-/NEO-RT/
-/contrib/
-/MEPHIT/
-/kim/
-/efit_to_boozer/
-/CHEASE/
-/MARS/
-/GPEC/
 
 # tests
 tests/**/out.*
