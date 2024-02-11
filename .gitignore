@@ -3,6 +3,7 @@
 *.mod
 *.a
 *.so
+*.pyc
 .pytest_cache
 .venv
 
