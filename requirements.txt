@@ -28,7 +28,6 @@ torch
 
 # For OMFIT
 boto3
-lmfit
 configobj
 dill
 pyodbc
