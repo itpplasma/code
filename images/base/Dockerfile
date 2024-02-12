@@ -37,6 +37,7 @@ RUN echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc && \
 	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> ~/.bashrc && \
 	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~/.bashrc && \
 	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~/.bashrc && \
+	echo 'export USER=root' >> ~/.bashrc && \
 	echo 'source /usr/share/modules/init/sh' >> ~/.bashrc
 
 # entrypoint (bash)
