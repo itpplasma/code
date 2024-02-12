@@ -185,7 +185,7 @@ efit_to_boozer-job:
   script:
     - scripts/setup_venv.sh
     - source activate.sh
-    - scripts/clone_gitlab.sh efit_to_boozer
+    - scripts/clone_github.sh efit_to_boozer
     - cd efit_to_boozer
     - make
     - cd python
