@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Check if 'python' exists in the PATH
-if command -v python &> /dev/null; then
+# Check if 'python3' exists in the PATH
+if command -v python3 &> /dev/null; then
     # 'python' is available, set the PYTHON variable to it
-    PYTHON=$(command -v python)
+    PYTHON=$(command -v python3)
 else
-    # 'python' is not available, so try 'python3'
-    if command -v python3 &> /dev/null; then
+    # 'python3' is not available, so try 'python'
+    if command -v python &> /dev/null; then
         # 'python3' is available, set the PYTHON variable to it
-        PYTHON=$(command -v python3)
+        PYTHON=$(command -v python)
     else
         echo "Python not found in PATH."
         exit 1

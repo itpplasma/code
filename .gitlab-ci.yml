@@ -28,14 +28,13 @@ mfem:
 libneo:
   stage: libs
   script:
-    - cd libs
-    - ../scripts/clone_github.sh libneo
+    - scripts/clone_github.sh libneo
     - cd libneo
-    - ../../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
+    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
   artifacts:
     paths:
-      - libs/libneo/
+      - libneo/
 
 stellopt:
   stage: libs
@@ -92,7 +91,7 @@ mephit-job:
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build
     - cd build
-    - export LIBNEO_DIR=$CI_PROJECT_DIR/libs/libneo/build
+    - export LIBNEO_DIR=$CI_PROJECT_DIR/libneo/build
     - export MFEM_DIR=$CI_PROJECT_DIR/libs/mfem-4.6/build
     - cmake .. -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make -j4
@@ -122,13 +121,13 @@ neo2-job:
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     # Build NEO-2-PAR
     - cd NEO-2-PAR/Build-Debug
-    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
+    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
     # Build NEO-2-QL
     - cd ../../NEO-2-QL
     - mkdir Build
     - cd Build
-    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libs/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
+    - cmake .. -DNEO2_Libs=$CI_PROJECT_DIR/libneo/build -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
     - make
   artifacts:
     paths:

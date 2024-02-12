@@ -2,7 +2,7 @@
 
 if [ ! -d "libneo" ] ; then
     echo "Cloning 'libneo'..."
-    ../scripts/clone_github.sh libneo
+    scripts/clone_github.sh libneo
 fi
 
 echo "Building and installing 'libneo'..."
