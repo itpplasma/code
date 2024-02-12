@@ -3,5 +3,8 @@
         "${workspaceFolder}/libneo/build",
         "${workspaceFolder}/libneo/build/src",
         "${workspaceFolder}/SIMPLE/build/SRC"
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/efit_to_boozer/python"
     ]
 }
