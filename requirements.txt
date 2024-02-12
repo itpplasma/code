@@ -56,3 +56,4 @@ mpi4py
 scikit-build
 f90wrap
 fortranformat
+elabapy
