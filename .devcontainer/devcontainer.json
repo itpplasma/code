@@ -26,7 +26,8 @@
 				"fortran-lang.linter-gfortran",
 				"GitHub.copilot",
 				"GitHub.vscode-pull-request-github",
-				"ms-toolsai.jupyter"
+				"ms-toolsai.jupyter",
+				"twxs.cmake"
 			],
 			"settings": {
 				// Put settings here
