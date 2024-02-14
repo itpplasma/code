@@ -1,7 +1,6 @@
 #!/bin/bash
 
-scripts/setup_venv.sh
-source activate.sh
+source scripts/setup_venv.sh
 
 cd libs
 ../scripts/setup_fgsl.sh
