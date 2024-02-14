@@ -1,6 +1,7 @@
 # Basics
 wheel
-setuptools
+pip>=24
+setuptools>=64
 ipython
 jupyter
 sphinx
