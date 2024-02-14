@@ -175,8 +175,6 @@ efit_to_boozer-job:
     - scripts/clone_github.sh efit_to_boozer
     - cd efit_to_boozer
     - make
-    - cd python
-    - make
   artifacts:
     paths:
       - efit_to_boozer/
