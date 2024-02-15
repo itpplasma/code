@@ -1,6 +1,6 @@
 # Basics
 wheel
-pip>=24
+pip>=23
 setuptools>=64
 ipython
 jupyter
