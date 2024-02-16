@@ -77,13 +77,14 @@ stellopt:
 
 test-setup:
   stage: codes
+  needs: []
   script:
     - source setup.sh
     - python -c "import libneo"
-  dependencies: []
 
-mephit-job:
+mephit:
   stage: codes
+  needs: ["libneo", "fgsl", "mfem"]
   script:
     - scripts/clone_gitlab.sh MEPHIT
     - cd MEPHIT
@@ -98,8 +99,9 @@ mephit-job:
     paths:
       - MEPHIT/
 
-kim-job:
+kim:
   stage: codes
+  needs: []
   script:
     - scripts/clone_gitlab.sh kim
     - cd kim
@@ -114,6 +116,7 @@ kim-job:
 
 neo2-job:
   stage: codes
+  needs: ["libneo", "fgsl"]
   script:
     - source scripts/setup_venv.sh
     - scripts/clone_github.sh NEO-2
@@ -122,8 +125,9 @@ neo2-job:
     paths:
       - NEO-2/
 
-neort-job:
+neort:
   stage: codes
+  needs: []
   script:
     - mkdir contrib
     - cd contrib
@@ -145,8 +149,9 @@ neort-job:
       - BOOZER_MAGFIE/
       - NEO-RT/
 
-simple-job:
+simple:
   stage: codes
+  needs: []
   script:
     - source scripts/setup_venv.sh
     - scripts/clone_github.sh SIMPLE
@@ -157,8 +162,9 @@ simple-job:
     paths:
       - SIMPLE/
 
-gorilla-job:
+gorilla:
   stage: codes
+  needs: []
   script:
     - scripts/clone_github.sh GORILLA
     - cd GORILLA
@@ -168,8 +174,9 @@ gorilla-job:
     paths:
       - GORILLA/
 
-efit_to_boozer-job:
+efit_to_boozer:
   stage: codes
+  needs: []
   script:
     - source scripts/setup_venv.sh
     - scripts/clone_github.sh efit_to_boozer
@@ -181,6 +188,7 @@ efit_to_boozer-job:
 
 chease:
   stage: codes
+  needs: []
   script:
     - scripts/setup_chease.sh
   artifacts:
