@@ -6,6 +6,10 @@ variables:
 stages:
   - libs
   - codes
+  - projects
+
+
+### Libs
 
 fgsl:
   stage: libs
@@ -74,6 +78,9 @@ stellopt:
       - libs/STELLOPT/COILOPT/Release/xcoilopt
       - libs/STELLOPT/DKES/Release/xdkes
       - libs/STELLOPT/BCYCLIC/Release/xbcyclic
+
+
+### Codes
 
 test-setup:
   stage: codes
@@ -194,3 +201,15 @@ chease:
   artifacts:
     paths:
       - CHEASE/
+
+
+### Projects
+
+ntv-demo:
+  stage: projects
+  script:
+    - scripts/clone_github.sh ntv-demo
+    - cd ntv-demo
+  artifacts:
+    paths:
+      - ntv-demo/
