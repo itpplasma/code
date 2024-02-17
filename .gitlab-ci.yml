@@ -207,6 +207,7 @@ chease:
 
 ntv-demo:
   stage: projects
+  needs: ["libneo"]
   script:
     - scripts/clone_github.sh ntv-demo
     - cd ntv-demo
