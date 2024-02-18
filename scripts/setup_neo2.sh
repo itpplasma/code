@@ -13,6 +13,8 @@ cd Build
 cmake .. -DNEO2_Libs=$CODE/libneo/build -DFGSL_INC=$CODE/external/fgsl-1.5.0 -DFGSL_LIB=$CODE/external/fgsl-1.5.0/.libs
 make
 
-# Installing homebrew python packages for NEO-2
-cd ../../python
+# Installing homebrew python packages for NEO-2 (requires libneo)
+cd ../../..
+scripts/setup_libneo.sh
+cd NEO-2/python
 pip install -e .
