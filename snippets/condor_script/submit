@@ -1,0 +1,30 @@
+# Specify number of jobs
+n_jobs = 4
+# one can do simple calculations, if necessary
+#dN_surf = 10
+
+# specify here the name of your executable
+Executable = exec_test.sh
+Universe   = vanilla
+run_as_owner = true
+# specify here your itp email address
+notify_user  = kasilov@gmx.co.uk
+# get only notifications via email if an error occured
+notification = Error
+nice_user    = false
+request_cpus = 1
+request_memory = 1*1024
+
+# some simple calculation, if necessary
+#ID= $$([($(Process) * $(dN_surf)) + 1])
+
+# you can pass some argument to your executable (comment, if not necessary)
+# e.g., process counter (0-based)
+#Arguments  = "$(Process)"
+# e.g., some computed ID
+#Arguments  = "$(ID)"
+Output     = exec_test.$(Process).out
+Error      = exec_test.$(Process).err
+Log        = exec_test.$(Process).log
+initialdir = $(Process)
+Queue $(n_jobs)
