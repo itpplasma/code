@@ -8,7 +8,18 @@ wget https://www.netlib.org/slatec/slatec_src.tgz
 tar -xzvf slatec_src.tgz
 rm slatec_src.tgz
 
-gfortran -c -Wall -Wtabs -mtune=generic -msse2 -mfpmath=sse src/*.f
+# Check the operating system
+if [[ "$(uname)" == "Darwin" ]]; then
+    # macOS specific compiler flags
+    CFLAGS="-O2"
+elif [[ "$(uname)" == "Linux" ]]; then
+    # Linux specific compiler flags
+    CFLAGS="-msse2 -mfpmath=sse"
+else
+    # Default compiler flags for other operating systems
+    CFLAGS=""
+fi
+gfortran -c -Wall -Wtabs -mtune=generic $CFLAGS src/*.f
 ar rcs libslatec.a *.o
 rm *.o
 
