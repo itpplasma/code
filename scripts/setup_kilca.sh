@@ -41,17 +41,16 @@ echo "Finished building Sundials..."
 cd ..
 cd ..
 
-# not sure yet if needed
-#mkdir bessel
-#cd bessel
-#cp -r ../../KiLCA/math/bessel/* .
-#cd slatec
-#gfortran -c -Wall -Wtabs -mtune=generic -msse2 -mfpmath=sse *.f
-#ar rcs libbessel.a *.o
-#rm *.o
-#mv libbessel.a ../lib/
-#cd ..
-#cd ..
+mkdir bessel
+cd bessel
+cp -r ../../KiLCA/math/bessel/* .
+cd slatec
+gfortran -c -Wall -Wtabs -mtune=generic -msse2 -mfpmath=sse *.f
+ar rcs libbessel.a *.o
+rm *.o
+mv libbessel.a ../lib/
+cd ..
+cd ..
 
 echo "Building lapack..."
 wget http://www.netlib.org/lapack/lapack-3.2.1.tgz
