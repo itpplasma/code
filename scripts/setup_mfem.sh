@@ -1,10 +1,10 @@
 #!/bin/bash
 
-if [ ! -d "mfem-4.6" ] ; then
+if [ ! -d "mfem-4.6.2-rc0" ] ; then
     echo "Fetching and building MFEM..."
-    wget https://bit.ly/mfem-4-6 -O mfem-4.6.tgz
-    tar xzvf mfem-4.6.tgz
-    cd mfem-4.6
+    wget https://github.com/mfem/mfem/archive/refs/tags/v4.6.2-rc0.tar.gz -O mfem-4.6.2-rc0.tgz
+    tar xzvf mfem-4.6.2-rc0.tgz
+    cd mfem-4.6.2-rc0
     mkdir build
     cd build
     cmake .. -DMFEM_USE_SUITESPARSE=1 -DCMAKE_CXX_FLAGS=-fPIC

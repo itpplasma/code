@@ -33,7 +33,7 @@ mfem:
     - ../scripts/setup_mfem.sh
   artifacts:
     paths:
-      - libs/mfem-4.6/
+      - libs/mfem-4.6.2-rc0/
 
 libneo:
   stage: libs
@@ -105,8 +105,9 @@ mephit:
     - mkdir build
     - cd build
     - export LIBNEO_DIR=$CI_PROJECT_DIR/libneo/build
-    - export MFEM_DIR=$CI_PROJECT_DIR/libs/mfem-4.6/build
-    - cmake .. -DFGSL_INC=$CI_PROJECT_DIR/libs/fgsl-1.5.0 -DFGSL_LIB=$CI_PROJECT_DIR/libs/fgsl-1.5.0/.libs
+    - export MFEM_DIR=$CI_PROJECT_DIR/libs/mfem-4.6.2-rc0/build
+    - export FGSL_DIR=$CI_PROJECT_DIR/libs/fgsl-1.5.0
+    - cmake ..
     - make -j4
   artifacts:
     paths:
