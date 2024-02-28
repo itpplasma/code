@@ -11,7 +11,7 @@ openpyxl
 xlrd
 h5py
 netcdf4
-xarray
+xarray<=2022.10.0  # Version for OMFIT
 
 # Scientific computing
 sympy
@@ -47,7 +47,7 @@ bibtexparser
 
 # Development tools
 pylance
-black
+black==19.3b0  # Version for OMFIT
 fortls
 
 # Misc
