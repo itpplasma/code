@@ -15,7 +15,7 @@ stages:
   - projects
 
 
-### Libs
+### External Libs and Codes
 
 fgsl:
   stage: external
@@ -85,6 +85,15 @@ stellopt:
       - external/STELLOPT/COILOPT/Release/xcoilopt
       - external/STELLOPT/DKES/Release/xdkes
       - external/STELLOPT/BCYCLIC/Release/xbcyclic
+
+chease:
+  stage: external
+  script:
+    - cd external
+    - ../scripts/setup_chease.sh
+  artifacts:
+    paths:
+      - external/CHEASE/
 
 
 ### Codes
@@ -208,14 +217,6 @@ efit_to_boozer:
     paths:
       - efit_to_boozer/
 
-chease:
-  stage: codes
-  needs: []
-  script:
-    - scripts/setup_chease.sh
-  artifacts:
-    paths:
-      - CHEASE/
 
 
 ### Projects
