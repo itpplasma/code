@@ -13,4 +13,6 @@ curl -L https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.2.tar.gz -o -
 cd netcdf-c-4.9.2
 CPPFLAGS="-I$(pwd)/../hdfsrc/build/include" LDFLAGS="-L$(pwd)/../hdfsrc/build/lib" ./configure --prefix="$(pwd)/build"
 make -j$(nproc)
+make install
 cd ..
+
