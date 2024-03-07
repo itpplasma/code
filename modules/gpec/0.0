@@ -12,9 +12,8 @@ module-whatis "GPEC (development version)"
 module load intelcompiler/2018.1
 module load netcdf-fortran/4.6.1-intel
 
-### prepend-path LD_LIBRARY_PATH /proj/plasma/Libs/intel/NetCDF/lib
-prepend-path PATH            /proj/plasma/CODE/GPEC/bin
-setenv       GPECHOME        /proj/plasma/CODE/GPEC
+setenv       GPECHOME        $env(CODE)/external/GPEC
+prepend-path PATH            $env(GPECHOME)/bin
 
 puts stdout "ulimit -s unlimited"
 
