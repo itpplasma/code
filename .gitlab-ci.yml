@@ -10,7 +10,7 @@ variables:
   GIT_HTTPS: "true"
 
 stages:
-  - libs
+  - external
   - codes
   - projects
 
@@ -18,25 +18,25 @@ stages:
 ### Libs
 
 fgsl:
-  stage: libs
+  stage: external
   script:
-    - cd libs
+    - cd external
     - ../scripts/setup_fgsl.sh
   artifacts:
     paths:
-      - libs/fgsl-1.5.0/
+      - external/fgsl-1.5.0/
 
 mfem:
-  stage: libs
+  stage: external
   script:
-    - cd libs
+    - cd external
     - ../scripts/setup_mfem.sh
   artifacts:
     paths:
-      - libs/mfem-4.6.2-rc0/
+      - external/mfem-4.6.2-rc0/
 
 libneo:
-  stage: libs
+  stage: external
   script:
     - source scripts/util.sh
     - clone_github libneo
@@ -48,43 +48,43 @@ libneo:
       - libneo/
 
 stellopt:
-  stage: libs
+  stage: external
   rules:  # Run only nightly builds on schedule
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       allow_failure: true
   script:
-    - cd libs
+    - cd external
     - source ../scripts/setup_stellopt.sh
   artifacts:
     paths:
-      - libs/STELLOPT/LIBSTELL/Release/libstell.so
-      - libs/STELLOPT/LIBSTELL/Release/libstell.a
-      - libs/STELLOPT/VMEC2000/Release/libvmec.a
-      - libs/STELLOPT/BOOZ_XFORM/Release/xbooz_xform
-      - libs/STELLOPT/COBRAVMEC/Release/xcobravmec
-      - libs/STELLOPT/BNORM/Release/xbnorm
-      - libs/STELLOPT/WALL_ACCELERATE/Release/xwallacc
-      - libs/STELLOPT/VMEC2SPEC/Release/xvmec2spec
-      - libs/STELLOPT/J_INVARIANT/Release/xjinvariant
-      - libs/STELLOPT/FIELDLINES/Release/xfieldlines
-      - libs/STELLOPT/NEO/Release/xneo
-      - libs/STELLOPT/VMEC2STEL/Release/xvmec2stel
-      - libs/STELLOPT/BOOTSJ/Release/xbootsj
-      - libs/STELLOPT/TORLINES/Release/xtorlines
-      - libs/STELLOPT/STELLOPTV2/Release/xstelloptv2
-      - libs/STELLOPT/MAKEGRID/Release/xgrid
-      - libs/STELLOPT/THRIFT/Release/xthrift
-      - libs/STELLOPT/VMEC2XGC/Release/xvmec2xgc
-      - libs/STELLOPT/PENTA/Release/xpenta
-      - libs/STELLOPT/DIAGNO/Release/xdiagno
-      - libs/STELLOPT/VMEC2000/Release/xvmec2000
-      - libs/STELLOPT/BEAMS3D/Release/xbeams3d
-      - libs/STELLOPT/VMEC2PIES/Release/xvmec2pies
-      - libs/STELLOPT/VMEC2V690/Release/xvmec2v690
-      - libs/STELLOPT/NESCOIL/Release/xnescoil
-      - libs/STELLOPT/COILOPT/Release/xcoilopt
-      - libs/STELLOPT/DKES/Release/xdkes
-      - libs/STELLOPT/BCYCLIC/Release/xbcyclic
+      - external/STELLOPT/LIBSTELL/Release/libstell.so
+      - external/STELLOPT/LIBSTELL/Release/libstell.a
+      - external/STELLOPT/VMEC2000/Release/libvmec.a
+      - external/STELLOPT/BOOZ_XFORM/Release/xbooz_xform
+      - external/STELLOPT/COBRAVMEC/Release/xcobravmec
+      - external/STELLOPT/BNORM/Release/xbnorm
+      - external/STELLOPT/WALL_ACCELERATE/Release/xwallacc
+      - external/STELLOPT/VMEC2SPEC/Release/xvmec2spec
+      - external/STELLOPT/J_INVARIANT/Release/xjinvariant
+      - external/STELLOPT/FIELDLINES/Release/xfieldlines
+      - external/STELLOPT/NEO/Release/xneo
+      - external/STELLOPT/VMEC2STEL/Release/xvmec2stel
+      - external/STELLOPT/BOOTSJ/Release/xbootsj
+      - external/STELLOPT/TORLINES/Release/xtorlines
+      - external/STELLOPT/STELLOPTV2/Release/xstelloptv2
+      - external/STELLOPT/MAKEGRID/Release/xgrid
+      - external/STELLOPT/THRIFT/Release/xthrift
+      - external/STELLOPT/VMEC2XGC/Release/xvmec2xgc
+      - external/STELLOPT/PENTA/Release/xpenta
+      - external/STELLOPT/DIAGNO/Release/xdiagno
+      - external/STELLOPT/VMEC2000/Release/xvmec2000
+      - external/STELLOPT/BEAMS3D/Release/xbeams3d
+      - external/STELLOPT/VMEC2PIES/Release/xvmec2pies
+      - external/STELLOPT/VMEC2V690/Release/xvmec2v690
+      - external/STELLOPT/NESCOIL/Release/xnescoil
+      - external/STELLOPT/COILOPT/Release/xcoilopt
+      - external/STELLOPT/DKES/Release/xdkes
+      - external/STELLOPT/BCYCLIC/Release/xbcyclic
 
 
 ### Codes
@@ -107,8 +107,8 @@ mephit:
     - mkdir build
     - cd build
     - export LIBNEO_DIR=$CI_PROJECT_DIR/libneo/build
-    - export MFEM_DIR=$CI_PROJECT_DIR/libs/mfem-4.6.2-rc0/build
-    - export FGSL_DIR=$CI_PROJECT_DIR/libs/fgsl-1.5.0
+    - export MFEM_DIR=$CI_PROJECT_DIR/external/mfem-4.6.2-rc0/build
+    - export FGSL_DIR=$CI_PROJECT_DIR/external/fgsl-1.5.0
     - cmake ..
     - make -j4
   artifacts:
