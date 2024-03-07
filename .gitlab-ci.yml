@@ -38,7 +38,8 @@ mfem:
 libneo:
   stage: libs
   script:
-    - scripts/clone_github.sh libneo
+    - source scripts/util.sh
+    - clone_github libneo
     - cd libneo
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
@@ -99,7 +100,8 @@ mephit:
   stage: codes
   needs: ["libneo", "fgsl", "mfem"]
   script:
-    - scripts/clone_gitlab.sh MEPHIT
+    - source scripts/util.sh
+    - clone_gitlab MEPHIT
     - cd MEPHIT
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build
@@ -117,7 +119,8 @@ kim:
   stage: codes
   needs: []
   script:
-    - scripts/clone_gitlab.sh kim
+    - source scripts/util.sh
+    - clone_gitlab kim
     - cd kim
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build
@@ -132,8 +135,9 @@ neo2-job:
   stage: codes
   needs: ["libneo", "fgsl"]
   script:
+    - source scripts/util.sh
     - source scripts/setup_venv.sh
-    - scripts/clone_github.sh NEO-2
+    - clone_github NEO-2
     - scripts/setup_neo2.sh
   artifacts:
     paths:
@@ -143,14 +147,15 @@ neort:
   stage: codes
   needs: []
   script:
+    - source scripts/util.sh
     - mkdir contrib
     - cd contrib
-    - ../scripts/clone_github.sh quadpack
-    - ../scripts/clone_github.sh vode
+    - clone_github quadpack
+    - clone_github vode
     - cd ..
-    - scripts/clone_github.sh spline
-    - scripts/clone_github.sh BOOZER_MAGFIE
-    - scripts/clone_github.sh NEO-RT
+    - clone_github spline
+    - clone_github BOOZER_MAGFIE
+    - clone_github NEO-RT
     - cd NEO-RT
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - mkdir build && cd build
@@ -167,8 +172,9 @@ simple:
   stage: codes
   needs: []
   script:
+    - source scripts/util.sh
     - source scripts/setup_venv.sh
-    - scripts/clone_github.sh SIMPLE
+    - clone_github SIMPLE
     - cd SIMPLE
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
@@ -180,7 +186,8 @@ gorilla:
   stage: codes
   needs: []
   script:
-    - scripts/clone_github.sh GORILLA
+    - source scripts/util.sh
+    - clone_github GORILLA
     - cd GORILLA
     - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
     - ./build.sh
@@ -192,8 +199,9 @@ efit_to_boozer:
   stage: codes
   needs: []
   script:
+    - source scripts/util.sh
     - source scripts/setup_venv.sh
-    - scripts/clone_github.sh efit_to_boozer
+    - clone_github efit_to_boozer
     - cd efit_to_boozer
     - make
   artifacts:
@@ -216,7 +224,8 @@ ntv-demo:
   stage: projects
   needs: ["libneo"]
   script:
-    - scripts/clone_github.sh ntv-demo
+    - source scripts/util.sh
+    - clone_github ntv-demo
     - cd ntv-demo
   artifacts:
     paths:
