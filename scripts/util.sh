@@ -8,6 +8,12 @@
 # Date: 2024-03-01
 # License: MIT
 
+add_to_path() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1${PATH:+":$PATH"}"
+    fi
+}
+
 # Run a command in a directory.
 # Usage: run_in_dir <dir> <command>
 run_in_dir() (

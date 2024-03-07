@@ -1,10 +1,18 @@
 #!/bin/bash
 
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+export CODE=$SCRIPTPATH
+
 module use -a $CODE/modules
 
+source $CODE/scripts/util.sh
+add_to_path $CODE/scripts
+export PATH
+
 if [ -n "$VIRTUAL_ENV" ]; then
-    deactivate
+    deactivate > /dev/null 2>&1;
 fi
 
-source .venv/bin/activate
-
+echo "Activating $CODE/.venv"
+source $CODE/.venv/bin/activate
