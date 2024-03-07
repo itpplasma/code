@@ -2,7 +2,7 @@
 
 source scripts/setup_venv.sh
 
-cd libs
+cd external
 ../scripts/setup_fgsl.sh
 cd ..
 
