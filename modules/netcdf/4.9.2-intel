@@ -1,0 +1,13 @@
+#%Module1.0
+
+module-whatis "NetCDF (Intel 2018.1 compiler)"
+
+module load intelcompiler/2018.1
+module load hdf5/1.14.3-intel
+
+setenv NETCDFHOME $env(CODE)/external/intel/netcdf-c-4.9.2/build
+prepend-path LD_LIBRARY_PATH $env(NETCDFHOME)/lib
+prepend-path PATH            $env(NETCDFHOME)/bin
+prepend-path -d " " CFLAGS   -I$env(NETCDFHOME)/include
+prepend-path -d " " CXXFLAGS -I$env(NETCDFHOME)/include
+prepend-path -d " " LDFLAGS  -L$env(NETCDFHOME)/lib
