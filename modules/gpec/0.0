@@ -1,0 +1,22 @@
+#%Module1.0
+
+proc ModulesHelp { } {
+    puts stderr "environment for GPEC (development version)
+
+  Please send remarks on using this module to Patrick Lainer
+  (mailto:patrick.lainer@tugraz.at)"
+}
+
+module-whatis "use GPEC (development version)"
+
+module load intel/2018.1
+
+### prepend-path LD_LIBRARY_PATH /proj/plasma/Libs/intel/NetCDF/lib
+prepend-path PATH            /proj/plasma/CODE/GPEC/bin
+setenv       GPECHOME        /proj/plasma/CODE/GPEC
+
+puts stdout "ulimit -s unlimited"
+
+# Local Variables:
+# mode: tcl
+# End:

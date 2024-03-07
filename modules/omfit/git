@@ -1,0 +1,20 @@
+#%Module1.0
+
+proc ModulesHelp { } {
+    puts stderr "environment for OMFIT
+
+  Please send remarks on using this module to Patrick Lainer
+  (mailto:patrick.lainer@tugraz.at)"
+}
+
+module-whatis "use OMFIT"
+
+module load gpec/0.0
+
+set    OMFIT_ROOT /temp/AG-plasma/codes/OMFIT-source
+setenv OMFIT_ROOT $OMFIT_ROOT
+prepend-path PATH $OMFIT_ROOT/bin
+
+# Local Variables:
+# mode: tcl
+# End:

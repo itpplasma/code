@@ -1,0 +1,28 @@
+#%Module
+
+module-whatis "Sets paths you need to use PGI compiler from NVIDIA HPC toolkit 23.9"
+
+proc ModulesHelp { } {
+puts stderr "This is the Modulefile for configuring the environment to use"
+}
+
+proc ModulesDisplay {} {
+}
+
+conflict pgi
+
+setenv PGI_HOME        /temp/AG-plasma/opt/nvidia/hpc_sdk/Linux_x86_64/23.9
+
+prepend-path PATH        $env(PGI_HOME)/compilers/bin
+prepend-path MANPATH     $env(PGI_HOME)/compilers/man
+prepend-path LD_LIBRARY_PATH $env(PGI_HOME)/compilers/lib
+
+prepend-path PATH $env(PGI_HOME)/comm_libs/mpi/bin
+prepend-path MANPATH $env(PGI_HOME)/comm_libs/mpi/man
+
+setenv FC  pgfortran
+setenv F77 pgf77
+setenv F90 pgf90
+setenv CC  pgcc
+setenv CXX pgc++
+
