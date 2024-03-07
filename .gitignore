@@ -12,8 +12,8 @@
 .pytest_cache
 .venv
 
-# External libraries
-/libs/
+# External code
+/external/
 
 # tests
 tests/**/out.*
