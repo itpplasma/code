@@ -1,0 +1,11 @@
+#%Module1.0
+
+setenv       STELLOPT_PATH   $env(CODE)/external/STELLOPT
+setenv       MACHINE         ubuntu
+setenv       MYHOME          $env(STELLOPT_PATH)/build
+prepend-path PATH            $env(MYHOME)/bin
+prepend-path LD_LIBRARY_PATH $env(MYHOME)/bin
+prepend-path -d " " LDFLAGS  -L$env(MYHOME)/bin
+prepend-path -d " " CFLAGS   -I$env(MYHOME)/bin/libstell-dir
+prepend-path -d " " CXXFLAGS -I$env(MYHOME)/bin/libstell-dir
+prepend-path -d " " FFLAGS   -I$env(MYHOME)/bin/libstell-dir

@@ -1,0 +1,22 @@
+#%Module1.0
+
+proc ModulesHelp { } {
+    puts stderr "environment for GPEC (development version)
+
+  Please send remarks on using this module to Patrick Lainer
+  (mailto:patrick.lainer@tugraz.at)"
+}
+
+module-whatis "GPEC (development version)"
+
+prereq intelcompiler/2018.1
+prereq netcdf-fortran/4.6.1-intel
+
+setenv       GPECHOME        $env(CODE)/external/GPEC
+prepend-path PATH            $env(GPECHOME)/bin
+
+puts stdout "ulimit -s unlimited"
+
+# Local Variables:
+# mode: tcl
+# End:

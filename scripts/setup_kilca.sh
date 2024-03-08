@@ -1,5 +1,5 @@
 #!/bin/bash
-cd libs
+cd external
 echo "Building Slatec..."
 mkdir slatec
 cd slatec
