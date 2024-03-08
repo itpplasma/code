@@ -111,15 +111,7 @@ mephit:
   script:
     - source scripts/util.sh
     - clone_gitlab MEPHIT
-    - cd MEPHIT
-    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
-    - mkdir build
-    - cd build
-    - export LIBNEO_DIR=$CI_PROJECT_DIR/libneo/build
-    - module load mfem/4.6.2-rc0
-    - module load fgsl/1.5.0
-    - cmake ..
-    - make -j4
+    - source scripts/setup_mephit.sh
   artifacts:
     paths:
       - MEPHIT/
