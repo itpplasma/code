@@ -2,7 +2,7 @@
 
 module-whatis "HDF5 (Intel 2018.1 compiler)"
 
-module load intelcompiler/2018.1
+prereq intelcompiler/2018.1
 
 setenv HDF5_ROOT $env(CODE)/external/intel/hdfsrc/build
 prepend-path LD_LIBRARY_PATH $env(HDF5_ROOT)/lib

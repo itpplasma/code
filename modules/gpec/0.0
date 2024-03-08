@@ -9,8 +9,8 @@ proc ModulesHelp { } {
 
 module-whatis "GPEC (development version)"
 
-module load intelcompiler/2018.1
-module load netcdf-fortran/4.6.1-intel
+prereq intelcompiler/2018.1
+prereq netcdf-fortran/4.6.1-intel
 
 setenv       GPECHOME        $env(CODE)/external/GPEC
 prepend-path PATH            $env(GPECHOME)/bin

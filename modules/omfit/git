@@ -9,9 +9,9 @@ proc ModulesHelp { } {
 
 module-whatis "use OMFIT"
 
-module load gpec/0.0
+prereq gpec/0.0
 
-set    OMFIT_ROOT /temp/AG-plasma/codes/OMFIT-source
+set    OMFIT_ROOT $env(CODE)/external/OMFIT-source
 setenv OMFIT_ROOT $OMFIT_ROOT
 prepend-path PATH $OMFIT_ROOT/bin
 

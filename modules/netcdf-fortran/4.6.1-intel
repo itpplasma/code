@@ -2,8 +2,8 @@
 
 module-whatis "NetCDF Fortran (Intel 2018.1 compiler)"
 
-module load intelcompiler/2018.1
-module load netcdf/4.9.2-intel
+prereq intelcompiler/2018.1
+prereq netcdf/4.9.2-intel
 
 setenv NETCDF_FORTRAN_HOME $env(CODE)/external/intel/netcdf-fortran-4.6.1/build
 prepend-path LD_LIBRARY_PATH $env(NETCDF_FORTRAN_HOME)/lib
