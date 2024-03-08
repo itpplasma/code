@@ -13,4 +13,5 @@ fi
 echo "Activating $CODE/.venv"
 source $CODE/.venv/bin/activate
 
+source /etc/profile.d/modules.sh
 module use -a $CODE/modules
