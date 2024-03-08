@@ -116,8 +116,8 @@ mephit:
     - mkdir build
     - cd build
     - export LIBNEO_DIR=$CI_PROJECT_DIR/libneo/build
-    - export MFEM_DIR=$CI_PROJECT_DIR/external/mfem-4.6.2-rc0/build
-    - export FGSL_DIR=$CI_PROJECT_DIR/external/fgsl-1.5.0
+    - module load mfem/4.6.2-rc0
+    - module load fgsl/1.5.0
     - cmake ..
     - make -j4
   artifacts:

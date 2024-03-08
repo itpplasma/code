@@ -1,0 +1,9 @@
+#%Module1.0
+
+setenv FGSL_DIR              $env(CODE)/external/fgsl-1.5.0
+prepend-path LD_LIBRARY_PATH $env(MFEM_DIR)
+prepend-path -d " " LDFLAGS  -L$env(MFEM_DIR)/.libs
+
+# Local Variables:
+# mode: tcl
+# End:
