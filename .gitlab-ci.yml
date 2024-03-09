@@ -136,8 +136,8 @@ neo2-job:
   stage: codes
   needs: ["libneo", "fgsl"]
   script:
-    - source scripts/util.sh
     - source scripts/setup_venv.sh
+    - source activate.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
   artifacts:

@@ -2,6 +2,7 @@
 wheel
 pip>=23
 setuptools>=64
+scikit-build-core>=0.8.2
 ipython
 jupyter
 sphinx
