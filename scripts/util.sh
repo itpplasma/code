@@ -14,6 +14,13 @@ add_to_path() {
     fi
 }
 
+add_to_library_path() {
+    if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
+        LD_LIBRARY_PATH="$1${LD_LIBRARY_PATH:+":$LD_LIBRARY_PATH"}"
+    fi
+}
+
+
 # Run a command in a directory.
 # Usage: run_in_dir <dir> <command>
 run_in_dir() (

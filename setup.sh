@@ -13,3 +13,4 @@ $CODE/scripts/setup_fgsl.sh
 cd $CODE
 source $CODE/scripts/setup_libneo.sh
 
+source $CODE/activate.sh

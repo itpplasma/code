@@ -11,6 +11,13 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
+        },
+        {
+            "name": "simple.x in examples",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/SIMPLE/build/simple.x",
+            "cwd": "${workspaceFolder}/SIMPLE/examples",
         }
     ]
 }

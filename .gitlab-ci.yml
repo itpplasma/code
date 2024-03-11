@@ -39,13 +39,16 @@ libneo:
   stage: external
   script:
     - source scripts/util.sh
+    - source scripts/setup_venv.sh
+    - clone_github efit_to_boozer
     - clone_github libneo
     - cd libneo
-    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
+    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     - ./build.sh
   artifacts:
     paths:
       - libneo/
+      - efit_to_boozer/
 
 stellopt:
   stage: external
@@ -103,6 +106,7 @@ test-setup:
   needs: []
   script:
     - source setup.sh
+    - source activate.sh
     - python -c "import libneo"
 
 mephit:
@@ -123,7 +127,7 @@ kim:
     - source scripts/util.sh
     - clone_gitlab kim
     - cd kim
-    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
+    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
@@ -136,8 +140,8 @@ neo2-job:
   stage: codes
   needs: ["libneo", "fgsl"]
   script:
-    - source scripts/util.sh
     - source scripts/setup_venv.sh
+    - source activate.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
   artifacts:
@@ -158,7 +162,7 @@ neort:
     - clone_github BOOZER_MAGFIE
     - clone_github NEO-RT
     - cd NEO-RT
-    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
+    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     - mkdir build && cd build
     - cmake ..
     - make
@@ -177,7 +181,7 @@ simple:
     - source scripts/setup_venv.sh
     - clone_github SIMPLE
     - cd SIMPLE
-    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
+    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     - ./build.sh
   artifacts:
     paths:
@@ -190,25 +194,11 @@ gorilla:
     - source scripts/util.sh
     - clone_github GORILLA
     - cd GORILLA
-    - ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
+    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     - ./build.sh
   artifacts:
     paths:
       - GORILLA/
-
-efit_to_boozer:
-  stage: codes
-  needs: []
-  script:
-    - source scripts/util.sh
-    - source scripts/setup_venv.sh
-    - clone_github efit_to_boozer
-    - cd efit_to_boozer
-    - make
-  artifacts:
-    paths:
-      - efit_to_boozer/
-
 
 
 ### Projects
