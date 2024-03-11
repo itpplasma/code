@@ -1,7 +1,7 @@
 #!/bin/bash
 CI_PROJECT_DIR=$CODE
 cd NEO-2
-../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+../scripts/checkout_branch.sh $CODE_BRANCH
 # Build NEO-2-PAR
 cd NEO-2-PAR/Build-Debug
 cmake .. -DNEO2_Libs=$CODE/libneo/build -DFGSL_INC=$CODE/external/fgsl-1.5.0 -DFGSL_LIB=$CODE/external/fgsl-1.5.0/.libs

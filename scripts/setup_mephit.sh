@@ -3,11 +3,15 @@
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export CODE="$(realpath "$SCRIPTPATH/..")"
 
+cd $CODE
+export CODE_BRANCH=$(git branch --show-current)
+cd -
+
 source /etc/profile.d/modules.sh
 module use -a $CODE/modules
 
 cd MEPHIT
-../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+../scripts/checkout_branch.sh $CODE_BRANCH
 mkdir build
 cd build
 export LIBNEO_DIR=$CODE/libneo/build

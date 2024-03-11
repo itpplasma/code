@@ -2,8 +2,7 @@
 
 ## Getting Started
 
-    ./setup.sh
-    source activate.sh
+    source setup.sh
 
 This will install library dependencies in `libs` and create and activate
 a Python virtual environment in the hidden `.venv` directory.
@@ -11,6 +10,12 @@ a Python virtual environment in the hidden `.venv` directory.
 Then start Visual Studio Code via
 
     code .
+
+Put a line
+
+    source /path/to/code/activate.sh
+
+in your bashrc.
 
 ## Tests
 

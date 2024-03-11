@@ -6,7 +6,7 @@ if [ ! -d "efit_to_boozer" ] ; then
     clone_github efit_to_boozer
 fi
 cd efit_to_boozer
-../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+../scripts/checkout_branch.sh $CODE_BRANCH
 pip install -e .
 cd ..
 
@@ -16,6 +16,6 @@ if [ ! -d "libneo" ] ; then
     clone_github libneo
 fi
 cd libneo
-../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+../scripts/checkout_branch.sh $CODE_BRANCH
 pip install -e .
 cd ..

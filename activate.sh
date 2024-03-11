@@ -2,6 +2,11 @@
 
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export CODE=$SCRIPTPATH
+
+cd $CODE
+export CODE_BRANCH=$(git branch --show-current)
+cd -
+
 source $CODE/scripts/util.sh
 add_to_path $CODE/scripts
 export PATH
