@@ -1,4 +1,5 @@
 #!/bin/bash
+CI_PROJECT_DIR=$CODE
 cd NEO-2
 ../scripts/checkout_branch.sh $CI_COMMIT_BRANCH
 # Build NEO-2-PAR
