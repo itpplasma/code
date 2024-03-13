@@ -8,6 +8,8 @@
 # Date: 2024-03-01
 # License: MIT
 
+alias cdcode = 'cd $CODE'
+
 add_to_path() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         PATH="$1${PATH:+":$PATH"}"
