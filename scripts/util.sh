@@ -9,6 +9,7 @@
 # License: MIT
 
 alias cdcode='cd $CODE'
+alias vscode='code $CODE'
 
 add_to_path() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
