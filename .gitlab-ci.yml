@@ -39,11 +39,7 @@ libneo:
   script:
     - source scripts/util.sh
     - source scripts/setup_venv.sh
-    - clone_github efit_to_boozer
-    - clone_github libneo
-    - cd libneo
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    - ./build.sh
+    - source scripts/setup_libneo.sh
   artifacts:
     paths:
       - libneo/
@@ -137,10 +133,11 @@ kim:
 
 neo2-job:
   stage: codes
-  needs: ["libneo", "fgsl"]
+  needs: ["fgsl"]
   script:
     - source scripts/setup_venv.sh
     - source activate.sh
+    - source scripts/setup_libneo.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
   artifacts:
