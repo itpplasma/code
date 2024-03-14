@@ -22,7 +22,7 @@ fgsl:
     - cd external
     - ../scripts/setup_fgsl.sh
     - tar czf ${PACKAGENAME}-${VERSION}.tar.gz ${PACKAGENAME}-${VERSION}
-    - curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${PACKAGENAME}-${VERSION}.tar.gz ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${PACKAGENAME}-${VERSION}.tar.gz ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz'
   artifacts:
     paths:
       - external/fgsl-1.5.0/
