@@ -28,6 +28,7 @@ fgsl:
 mfem:
   stage: external
   script:
+    - source scripts/util.sh
     - cd external
     - ../scripts/setup_mfem.sh
     - tar czf mfem-4.6.2-rc0.tar.gz mfem-4.6.2-rc0
