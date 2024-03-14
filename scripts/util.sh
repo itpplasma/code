@@ -93,7 +93,7 @@ upload_package() (
 
 # Install a package from registry
 # Usage: install_package <package> <version>
-intall_package() (
+install_package() (
     local PACKAGENAME=$1
     local VERSION=$2
 
