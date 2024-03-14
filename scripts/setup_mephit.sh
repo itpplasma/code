@@ -10,7 +10,7 @@ cd -
 source /etc/profile.d/modules.sh
 module use -a $CODE/modules
 
-cd MEPHIT
+pushd MEPHIT
 ../scripts/checkout_branch.sh $CODE_BRANCH
 mkdir build
 cd build
@@ -19,3 +19,4 @@ module load mfem
 module load fgsl
 cmake ..
 make -j4
+popd

@@ -65,6 +65,7 @@ clone_gitlab() (
 
 
 # Clone a repository from https://github.com/itpplasma/ .
+# Usage: clone_github <repo>
 clone_github() (
     local repo=$1
 
@@ -75,4 +76,27 @@ clone_github() (
     fi
 
     git clone $URL
+)
+
+
+# Upload a package to registry
+# Usage: upload_package <package> <version>
+upload_package() (
+    local PACKAGENAME=$1
+    local VERSION=$2
+
+    curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file \
+        ${PACKAGENAME}-${VERSION}.tar.gz \
+        ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz
+)
+
+
+# Install a package from registry
+# Usage: install_package <package> <version>
+install_package() (
+    local PACKAGENAME=$1
+    local VERSION=$2
+
+    curl --header "JOB-TOKEN: $CI_JOB_TOKEN" -L \
+    ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz -o - | tar -xz
 )
