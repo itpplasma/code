@@ -81,9 +81,9 @@ mephit:
   script:
     - source scripts/util.sh
     - pushd external
-    install_package fgsl 1.5.0
-    install_package mfem 4.6.2-rc0
-    popd
+    - install_package fgsl 1.5.0
+    - install_package mfem 4.6.2-rc0
+    - popd
     - clone_gitlab MEPHIT
     - source scripts/setup_mephit.sh
   artifacts:
