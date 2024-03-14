@@ -69,7 +69,7 @@ chease:
 
 test-setup:
   stage: codes
-  dependencies: []
+  needs: []
   script:
     - source setup.sh
     - source activate.sh
@@ -77,7 +77,7 @@ test-setup:
 
 mephit:
   stage: codes
-  dependencies: ["fgsl", "mfem", "libneo"]
+  needs: ["fgsl", "mfem", "libneo"]
   script:
     - source scripts/util.sh
     - install_package libneo dev
@@ -93,7 +93,7 @@ mephit:
 
 kim:
   stage: codes
-  dependencies: []
+  needs: []
   script:
     - source scripts/util.sh
     - clone_gitlab kim
@@ -109,7 +109,7 @@ kim:
 
 neo2-job:
   stage: codes
-  dependencies: ["fgsl", "libneo"]
+  needs: ["fgsl", "libneo"]
   script:
     - install_package libneo dev
     - pushd external; install_package fgsl 1.5.0; popd
@@ -122,7 +122,7 @@ neo2-job:
 
 neort:
   stage: codes
-  dependencies: []
+  needs: []
   script:
     - source scripts/util.sh
     - mkdir contrib
@@ -147,7 +147,7 @@ neort:
 
 simple:
   stage: codes
-  dependencies: ["libneo"]
+  needs: ["libneo"]
   script:
     - source scripts/util.sh
     - install_package libneo dev
@@ -161,7 +161,7 @@ simple:
 
 gorilla:
   stage: codes
-  dependencies: []
+  needs: []
   script:
     - source scripts/util.sh
     - clone_github GORILLA
@@ -177,7 +177,7 @@ gorilla:
 
 ntv-demo:
   stage: projects
-  dependencies: ["libneo"]
+  needs: ["libneo"]
   script:
     - source scripts/util.sh
     - install_package libneo dev
