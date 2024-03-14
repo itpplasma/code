@@ -119,9 +119,10 @@ neo2-job:
   stage: codes
   needs: ["fgsl", "libneo"]
   script:
+    - source scripts/util.sh
     - install_package libneo dev
     - pushd external; install_package fgsl 1.5.0; popd
-    - source scripts/setup_libneo.sh
+    - source scripts/activate.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
   artifacts:
@@ -159,6 +160,7 @@ simple:
   script:
     - source scripts/util.sh
     - install_package libneo dev
+    - source scripts/activate.sh
     - clone_github SIMPLE
     - cd SIMPLE
     - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
@@ -189,6 +191,7 @@ ntv-demo:
   script:
     - source scripts/util.sh
     - install_package libneo dev
+    - source scripts/activate.sh
     - clone_github ntv-demo
     - cd ntv-demo
   artifacts:
