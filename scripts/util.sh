@@ -37,7 +37,7 @@ run_in_dir() (
 # Run a git command in all in the current directory and in top-level git subdirectories.
 # Usage: git_all commit | push | pull | fetch | status | branch ...
 git_all() (
-    local cmd=$1
+    local cmd=${@:1}
     git $cmd
     for dir in $(ls -d */); do
         if [ -d "$dir/.git" ]; then
