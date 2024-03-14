@@ -19,12 +19,11 @@ stages:
 fgsl:
   stage: external
   script:
+    - source scripts/util.sh
     - cd external
     - ../scripts/setup_fgsl.sh
-    - export PACKAGENAME=fgsl
-    - export VERSION=1.5.0
-    - tar czf ${PACKAGENAME}-${VERSION}.tar.gz ${PACKAGENAME}-${VERSION}
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ${PACKAGENAME}-${VERSION}.tar.gz ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz'
+    - tar czf fgsl-1.5.0.tar.gz fgsl-1.5.0
+    - upload_package fgsl 1.5.0
   artifacts:
     paths:
       - external/fgsl-1.5.0/
@@ -113,9 +112,7 @@ mephit:
   needs: ["libneo", "mfem"]
   script:
     - pushd external
-    - export PACKAGENAME=fgsl
-    - export VERSION=1.5.0
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" -L ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}.${VERSION}.tar.gz -o - | tar -xz'
+    - install_package fgsl 1.5.0
     - popd
     - source scripts/util.sh
     - clone_gitlab MEPHIT
