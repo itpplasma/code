@@ -1,14 +1,13 @@
 #!/bin/bash
 
-SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export CODE=$SCRIPTPATH
+export CODE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
     export CODE_BRANCH=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
 else
-    cd $CODE
+    pushd $CODE
     export CODE_BRANCH=$(git branch --show-current)
-    cd -
+    popd
 fi
 
 echo "Activating $CODE on branch $CODE_BRANCH"
