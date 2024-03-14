@@ -24,18 +24,14 @@ fgsl:
     - ../scripts/setup_fgsl.sh
     - tar czf fgsl-1.5.0.tar.gz fgsl-1.5.0
     - upload_package fgsl 1.5.0
-  artifacts:
-    paths:
-      - external/fgsl-1.5.0/
 
 mfem:
   stage: external
   script:
     - cd external
     - ../scripts/setup_mfem.sh
-  artifacts:
-    paths:
-      - external/mfem-4.6.2-rc0/
+    - tar czf mfem-4.6.2-rc0.tar.gz mfem-4.6.2-rc0
+    - upload_package mfem 4.6.2-rc0
 
 libneo:
   stage: external
@@ -56,36 +52,8 @@ stellopt:
   script:
     - cd external
     - source ../scripts/setup_stellopt.sh
-  artifacts:
-    paths:
-      - external/STELLOPT/LIBSTELL/Release/libstell.so
-      - external/STELLOPT/LIBSTELL/Release/libstell.a
-      - external/STELLOPT/VMEC2000/Release/libvmec.a
-      - external/STELLOPT/BOOZ_XFORM/Release/xbooz_xform
-      - external/STELLOPT/COBRAVMEC/Release/xcobravmec
-      - external/STELLOPT/BNORM/Release/xbnorm
-      - external/STELLOPT/WALL_ACCELERATE/Release/xwallacc
-      - external/STELLOPT/VMEC2SPEC/Release/xvmec2spec
-      - external/STELLOPT/J_INVARIANT/Release/xjinvariant
-      - external/STELLOPT/FIELDLINES/Release/xfieldlines
-      - external/STELLOPT/NEO/Release/xneo
-      - external/STELLOPT/VMEC2STEL/Release/xvmec2stel
-      - external/STELLOPT/BOOTSJ/Release/xbootsj
-      - external/STELLOPT/TORLINES/Release/xtorlines
-      - external/STELLOPT/STELLOPTV2/Release/xstelloptv2
-      - external/STELLOPT/MAKEGRID/Release/xgrid
-      - external/STELLOPT/THRIFT/Release/xthrift
-      - external/STELLOPT/VMEC2XGC/Release/xvmec2xgc
-      - external/STELLOPT/PENTA/Release/xpenta
-      - external/STELLOPT/DIAGNO/Release/xdiagno
-      - external/STELLOPT/VMEC2000/Release/xvmec2000
-      - external/STELLOPT/BEAMS3D/Release/xbeams3d
-      - external/STELLOPT/VMEC2PIES/Release/xvmec2pies
-      - external/STELLOPT/VMEC2V690/Release/xvmec2v690
-      - external/STELLOPT/NESCOIL/Release/xnescoil
-      - external/STELLOPT/COILOPT/Release/xcoilopt
-      - external/STELLOPT/DKES/Release/xdkes
-      - external/STELLOPT/BCYCLIC/Release/xbcyclic
+    - tar czf STELLOPT-dev.tar.gz STELLOPT
+    - upload_package STELLOPT dev
 
 chease:
   stage: external
@@ -109,12 +77,13 @@ test-setup:
 
 mephit:
   stage: codes
-  needs: ["libneo", "mfem"]
+  needs: ["libneo"]
   script:
-    - pushd external
-    - install_package fgsl 1.5.0
-    - popd
     - source scripts/util.sh
+    - pushd external
+    install_package fgsl 1.5.0
+    install_package mfem 4.6.2-rc0
+    popd
     - clone_gitlab MEPHIT
     - source scripts/setup_mephit.sh
   artifacts:
@@ -139,10 +108,11 @@ kim:
 
 neo2-job:
   stage: codes
-  needs: ["fgsl"]
+  needs: []
   script:
     - source scripts/setup_venv.sh
     - source activate.sh
+    - pushd external; install_package fgsl 1.5.0; popd
     - source scripts/setup_libneo.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
