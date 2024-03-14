@@ -19,6 +19,7 @@ stages:
 
 fgsl:
   stage: external
+  needs: []
   script:
     - source scripts/util.sh
     - cd external
@@ -28,6 +29,7 @@ fgsl:
 
 mfem:
   stage: external
+  needs: []
   script:
     - source scripts/util.sh
     - cd external
@@ -35,17 +37,9 @@ mfem:
     - tar czf mfem-4.6.2-rc0.tar.gz mfem-4.6.2-rc0
     - upload_package mfem 4.6.2-rc0
 
-libneo:
-  stage: libneo
-  script:
-    - source scripts/util.sh
-    - source scripts/setup_venv.sh
-    - source scripts/setup_libneo.sh
-    - tar czf libneo-dev.tar.gz efit_to_boozer/ libneo/ .venv/
-    - upload_package libneo dev
-
 stellopt:
   stage: external
+  needs: []
   rules:  # Run only nightly builds on schedule
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       allow_failure: true
@@ -57,12 +51,26 @@ stellopt:
 
 chease:
   stage: external
+  needs: []
   script:
     - cd external
     - ../scripts/setup_chease.sh
   artifacts:
     paths:
       - external/CHEASE/
+
+
+### libneo
+
+libneo:
+  stage: libneo
+  needs: []
+  script:
+    - source scripts/util.sh
+    - source scripts/setup_venv.sh
+    - source scripts/setup_libneo.sh
+    - tar czf libneo-dev.tar.gz efit_to_boozer/ libneo/ .venv/
+    - upload_package libneo dev
 
 
 ### Codes
