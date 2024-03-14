@@ -113,7 +113,10 @@ neo2-job:
   script:
     - source scripts/setup_venv.sh
     - source activate.sh
-    - pushd external; install_package fgsl 1.5.0; popd
+    - source scripts/util.sh
+    - pushd external
+    - install_package fgsl 1.5.0
+    - popd
     - source scripts/setup_libneo.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
