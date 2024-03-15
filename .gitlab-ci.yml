@@ -44,6 +44,7 @@ stellopt:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       allow_failure: true
   script:
+    - source scripts/util.sh
     - cd external
     - source ../scripts/setup_stellopt.sh
     - tar czf STELLOPT-dev.tar.gz STELLOPT
