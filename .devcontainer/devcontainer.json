@@ -4,10 +4,10 @@
 	"name": "Default dev environment",
 	"image": "ghcr.io/itpplasma/devel-tex:latest",
 
-	// "mounts": [
-	// 	"source=/proj/plasma,target=/proj/plasma,type=bind,consistency=cached",
-	// 	"source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
-	// ],
+	"mounts": [
+		"source=/proj/plasma,target=/proj/plasma,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+	],
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
