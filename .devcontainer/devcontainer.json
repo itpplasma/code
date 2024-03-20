@@ -9,6 +9,7 @@
 		"source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
 	],
 
+
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
@@ -16,7 +17,7 @@
 	// "forwardPorts": [],
 
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "cat /etc/os-release",
+	"postCreateCommand": "echo 'source /workspaces/code/activate.sh' >> /root/.bashrc",
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -28,10 +29,7 @@
 				"GitHub.vscode-pull-request-github",
 				"ms-toolsai.jupyter",
 				"twxs.cmake"
-			],
-			"settings": {
-				// Put settings here
-			}
+			]
 		}
 	},
 
