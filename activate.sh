@@ -19,10 +19,6 @@ add_to_library_path $CODE/libneo/build
 add_to_library_path $CODE/efit_to_boozer/build
 export LD_LIBRARY_PATH
 
-if [ -n "$VIRTUAL_ENV" ]; then
-    deactivate > /dev/null 2>&1;
-fi
-
 source $CODE/.venv/bin/activate
 
 source /etc/profile.d/modules.sh
