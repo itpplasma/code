@@ -2,6 +2,12 @@
 
 ## Getting Started
 
+Clone the repository to your working copy, at the institute this is
+
+    git clone git@gitlab.tugraz.at:plasma/code /proj/plasma/CODE/<username>
+
+Then enter this directory and run
+
     source setup.sh
 
 This will install library dependencies in `libs` and create and activate
