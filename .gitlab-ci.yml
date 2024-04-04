@@ -69,6 +69,7 @@ libneo:
   script:
     - source scripts/util.sh
     - source scripts/setup_venv.sh
+    - export CODE=`pwd`
     - source scripts/setup_libneo.sh
     - tar czf libneo-dev.tar.gz efit_to_boozer/ libneo/ .venv/
     - upload_package libneo dev
