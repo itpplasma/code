@@ -57,6 +57,7 @@ pytest
 mpi4py
 scikit-build
 f90wrap
+f90nml
 fortranformat
 elabapy
 
