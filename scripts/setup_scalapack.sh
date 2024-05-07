@@ -6,7 +6,7 @@ if [ ! -d "scalapack" ] ; then
     pushd scalapack
     cmake -S. -Bbuild
     pushd build
-    make
+    make -j$(nproc)
     popd
     popd
 fi
