@@ -1,0 +1,10 @@
+{
+    "cmake_args": [
+           "-DCMAKE_C_COMPILER=mpicc",
+           "-DCMAKE_Fortran_COMPILER=mpifort",
+           "-DNETCDF_INC_PATH=/usr/include",
+           "-DNETCDF_LIB_PATH=/usr/lib/aarch64-linux-gnu",
+           "-DBLA_VENDOR=OpenBLAS",
+           "-DSCALAPACK_PREFIX=/workspaces/code/external/scalapack/build",
+           "-DF2PY_EXECUTABLE=/workspaces/code/.venv/bin/f2py"]
+}
