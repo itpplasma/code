@@ -4,10 +4,10 @@
 	"name": "Default dev environment",
 	"image": "ghcr.io/itpplasma/devel-tex:latest",
 
-	"mounts": [
-		"source=/proj/plasma,target=/proj/plasma,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
-	],
+	//"mounts": [
+		// "source=/proj/plasma,target=/proj/plasma,type=bind,consistency=cached",
+		// "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+	//],
 
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -17,7 +17,7 @@
 	// "forwardPorts": [],
 
 	// Uncomment the next line to run commands after the container is created.
-	"postCreateCommand": "echo 'source /workspaces/code/activate.sh' >> /root/.bashrc",
+	"postCreateCommand": "source setup.sh; echo 'source /workspaces/code/activate.sh' >> /root/.bashrc",
 
 	// Configure tool-specific properties.
 	"customizations": {
