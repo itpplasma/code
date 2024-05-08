@@ -1,0 +1,142 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+env:
+  GITLAB_ACCESS_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }}
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  MEPHIT:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && apt-get install -y -q --no-install-recommends \
+            apt-transport-https \
+            build-essential \
+            ca-certificates \
+            curl \
+            libssl-dev \
+            openssh-client \
+            rsync \
+            wget \
+            git \
+            gfortran \
+            ninja-build \
+            cmake \
+            python3 \
+            python3-dev \
+            python3-pip \
+            python3-venv
+
+          sudo apt-get install -y -q --no-install-recommends \
+            procps \
+            nano \
+            vim \
+            htop \
+            ncdu \
+            less \
+            gdb \
+            cmake-curses-gui
+
+          sudo apt-get install -y -q --no-install-recommends \
+            pkg-config \
+            libsuitesparse-dev \
+            libopenblas-dev \
+            libsuperlu-dev \
+            libhdf5-dev \
+            libhdf5-openmpi-dev \
+            libnetcdf-dev \
+            libnetcdff-dev \
+            libfftw3-dev \
+            libgsl-dev \
+            libopenmpi-dev \
+            libscalapack-openmpi-dev \
+            libpcre3-dev \
+            libreadline-dev \
+            h5utils \
+            hdf5-tools \
+            netcdf-bin
+
+          sudo apt-get install -y -q --no-install-recommends \
+            python3-wheel python3-setuptools \
+            # Shell and file formats
+            python3-ipython jupyter python3-sphinx python3-matplotlib \
+            python3-openpyxl python3-xlrd python3-h5py python3-netcdf4 \
+            # Scientific computing
+            python3-sympy python3-uncertainties python3-numpy python3-scipy \
+            python3-numba \
+            # Statistics
+            python3-pandas python3-sklearn python3-torch \
+            # For OMFIT
+            python3-boto3 python3-lmfit python3-configobj python3-dill \
+            python3-pyodbc python3-pyotp \
+            # Misc
+            fortran-language-server python3-tqdm python3-pytest \
+            python3-mpi4py python3-skbuild
+
+          mkdir -p ~/venv
+          python3 -m venv --system-site-packages ~/venv/plasma
+          python -m pip install pylance black f90wrap
+
+          echo 'export PATH=~/bin:$PATH' >> ~/.bashrc && \
+          echo 'export LD_LIBRARY_PATH=~/bin:$LD_LIBRARY_PATH' >> ~/.bashrc && \
+          echo 'export STELLOPT_PATH="/src/STELLOPT"' >> ~/.bashrc && \
+          echo 'export MACHINE="ubuntu"' >> ~/.bashrc && \
+          echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~/.bashrc && \
+          echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~/.bashrc && \
+          echo '. ~/venv/plasma/bin/activate' >> ~/.bashrc
+
+      - name: Initialize Gitlab access token
+        run: |
+          git config --global credential.helper store
+          echo "https://x-access-token:$GITLAB_ACCESS_TOKEN@gitlab.tugraz.at" >> ~/.git-credentials
+
+      - name: libneo
+        run: |
+          git clone https://github.com/itpplasma/libneo.git
+
+      - name: NEO-2
+        run: |
+          git clone https://github.com/itpplasma/NEO-2.git
+
+      - name: NEO-RT
+        run: |
+          mkdir contrib
+          cd contrib
+          git clone git@github.com:itpplasma/quadpack
+          git clone git@github.com:itpplasma/vode
+          cd ..
+          git clone git@github.com:itpplasma/spline
+          git clone git@github.com:itpplasma/BOOZER_MAGFIE
+          git clone git@github.com:itpplasma/NEO-RT
+
+      - name: SIMPLE
+        run: |
+          git clone git@github.com:itpplasma/SIMPLE
+
+      - name: GORILLA
+        run: |
+          git clone  https://github.com/itpplasma/GORILLA.git
+
+      - name: MEPHIT
+        run: |
+          git clone https://gitlab.tugraz.at/plasma/codes/MEPHIT.git
+
+      - name: KIM
+        run: |
+          git clone https://gitlab.tugraz.at/plasma/codes/MEPHIT.git
