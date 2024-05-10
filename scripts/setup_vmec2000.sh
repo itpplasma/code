@@ -13,6 +13,6 @@ cmake -S. -Bbuild -GNinja -DNETCDF_INC_PATH=/usr/include -DSCALAPACK_PREFIX=$COD
 pushd build
 ninja
 popd
-pip install --upgrade numpy f90wrap
+pip install --upgrade numpy f90wrap scikit-build
 pip install .
 popd
