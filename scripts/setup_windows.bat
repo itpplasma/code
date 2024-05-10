@@ -3,7 +3,8 @@ REM Installs essentials for local development on a Windows machine.
 REM CODE can then be used either in via WSL or in the Docker devcontainer.
 REM
 
-
+wsl --set-default-version 2
+wsl --update
 wsl --install -d Debian
 
 winget install Microsoft.WindowsTerminal

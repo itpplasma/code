@@ -5,17 +5,19 @@ to setup development and use of internal and external codes.
 
 ## Prerequisites
 On Windows: Prepare your machine with `scripts/setup_windows.bat` first.
-`CODE`` can then be used either in via WSL or via the devcontainer.
+`CODE`` can then be used best via the **devcontainer** or otherwise via WSL. In WSL,
+don't work in your Windows directory but rather in your `/home/...` for performance
+reasons.
 
 On Linux: At ITPcp all packages should be installed to get going.
-For your own setup, look inside the packages in the 
+For your own setup, look inside the packages in the
 Dockerfiles `base`, `devel` and `devel-tex` inside `images` or
-use the devcontainer.
+use the **devcontainer**.
 
-On Mac: The recommended way is the devcontainer. The next option is
-`multipass` via the most recent LTS version of Ubuntu Linux. The 
+On Mac: The recommended way is the **devcontainer**. The next option is
+`multipass` via the most recent LTS version of Ubuntu Linux. The
 option on the local system is `brew` with similar packages as in Linux,
-but it is prone to problems with Fortran on Apple Silicon. 
+but it is prone to problems with Fortran on Apple Silicon.
 
 ## Installation
 
