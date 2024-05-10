@@ -5,7 +5,7 @@ to setup development and use of internal and external codes.
 
 ## Prerequisites
 On Windows: Prepare your machine with `scripts/setup_windows.bat` first.
-`CODE`` can then be used best via the **devcontainer** or otherwise via WSL. In WSL,
+`CODE` can then be used best via the **devcontainer** or otherwise via WSL. In WSL,
 don't work in your Windows directory but rather in your `/home/...` for performance
 reasons.
 
