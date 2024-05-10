@@ -5,9 +5,7 @@ to setup development and use of internal and external codes.
 
 ## Prerequisites
 On Windows: Prepare your machine with `scripts/setup_windows.bat` first.
-`CODE` can then be used best via the **devcontainer** or otherwise via WSL. In WSL,
-don't work in your Windows directory but rather in your `/home/...` for performance
-reasons.
+`CODE` can then be used via the devcontainer or alternatively via Debian Linux in WSL.
 
 On Linux: At ITPcp all packages should be installed to get going.
 For your own setup, look inside the packages in the
