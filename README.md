@@ -18,6 +18,9 @@ On Mac: The recommended way is the **devcontainer**. The next option is
 option on the local system is `brew` with similar packages as in Linux,
 but it is prone to problems with Fortran on Apple Silicon.
 
+If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
+add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
+
 ## Installation
 
 Clone the repository to your working copy, at the institute this is
