@@ -6,7 +6,7 @@ environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
 
 ## Prerequisites
-On Windows: Prepare your machine with `scripts/setup_windows.bat` first.
+On Windows: Prepare your machine with <scripts/setup_windows.bat> first.
 `CODE` can then be used via the **devcontainer** or alternatively via
 Debian Linux in WSL.
 
