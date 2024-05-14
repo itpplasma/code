@@ -30,18 +30,25 @@ Clone the repository to your working copy, at the institute this is
 
     git clone git@gitlab.tugraz.at:plasma/code /proj/plasma/CODE/<username>
 
-Then enter this directory and run
+Then open the directory in VS Code with
+
+    code code
+
+When asked to initialize the devcontainer, do so. If there is no message run `F1` and `Remote-Containers: Rebuild and reopen in Container`. Wait for
+`Configuring Dev Container` to finish in the lower status bar. Then open a
+new `bash` shell. You should see the prompt
+
+    Activating /workspaces/code on branch main
+    (.venv) root@fcb4ad176bde:/workspaces/code#
+
+When working outside the container, run the setup script manually with
 
     source setup.sh
 
-This will install library dependencies in `libs` and create and activate
+The setup will install external dependencies and create and activate
 a Python virtual environment in the hidden `.venv` directory.
 
-Then start Visual Studio Code via
-
-    code .
-
-Put a line
+If you work outside a container, also manually put a line
 
     source /path/to/code/activate.sh
 
