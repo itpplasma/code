@@ -9,7 +9,7 @@ fi
 pushd VMEC2000
 cp $CODE/scripts/cmake_config_file_vmec2000.json cmake_config_file.json
 sed -i "s|{CODE}|$CODE|g" cmake_config_file.json
-cmake -S. -Bbuild -GNinja -DNETCDF_INC_PATH=/usr/include -DSCALAPACK_PREFIX=$CODE/external/scalapack/build -DBLA_VENDOR=OpenBLAS
+cmake -S. -Bbuild -GNinja -DNETCDF_INC_PATH=/usr/include -DSCALAPACK_LIB_NAME=libscalapack-openmpi.so -DBLA_VENDOR=OpenBLAS
 pushd build
 ninja
 popd
