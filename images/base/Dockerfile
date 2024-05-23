@@ -10,6 +10,7 @@ RUN sed -i -e's/ main/ main contrib non-free non-free-firmware/g' \
 
 # Base
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
+        sudo \
 		environment-modules \
 		unzip \
 		apt-transport-https \
@@ -32,13 +33,27 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
+ARG USERNAME=plasma
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+# Create the user
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
 # Add custom environment variables to .bashrc
-RUN echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc && \
-	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> ~/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~/.bashrc && \
-	echo 'export USER=root' >> ~/.bashrc && \
-	echo 'source /usr/share/modules/init/sh' >> ~/.bashrc
+RUN echo 'export PATH=$HOME/bin:$PATH' >> ~$USERNAME/.bashrc && \
+	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> \
+		~$USERNAME/.bashrc && \
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~$USERNAME/.bashrc && \
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~$USERNAME/.bashrc && \
+	echo 'export USER=plasma' >> ~$USERNAME/.bashrc && \
+	echo 'source /usr/share/modules/init/sh' >> ~$USERNAME/.bashrc
+
+# Set the user
+USER $USERNAME
 
 # entrypoint (bash)
 CMD ["/bin/bash"]

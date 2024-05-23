@@ -13,5 +13,12 @@
         "--disable=C0114,C0116",
         "--max-line-length=80"
     ],
-    "python.languageServer": "Jedi"
+    "python.languageServer": "Jedi",
+    "files.associations": {
+        "*.in": "FortranFreeForm",
+        "*.nml": "FortranFreeForm",
+        "vector": "cpp",
+        "random": "cpp",
+        "*.ipp": "cpp"
+    }
 }

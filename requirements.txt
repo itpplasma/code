@@ -55,8 +55,9 @@ fortls
 tqdm
 pytest
 mpi4py
-scikit-build
-f90wrap
+scikit-build>=0.17.6
+scikit-fem
+f90wrap>=0.2.14
 f90nml
 fortranformat
 elabapy
