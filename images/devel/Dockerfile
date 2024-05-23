@@ -76,5 +76,17 @@ COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt --break-system-packages && \
 	python3 -m pip cache purge
 
+# Install dependencies for fenicsx
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+		libboost-timer-dev \
+		libpugixml-dev \
+		petsc-dev \
+		slepc-dev \
+		libparmetis-dev \
+		libscotch-dev
+		&& \
+	apt-get clean && rm -rf /var/cache/apt/* && \
+	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+
 # Entry point (bash)
 CMD ["/bin/bash"]
