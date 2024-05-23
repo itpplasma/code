@@ -11,6 +11,9 @@
 *.pyc
 .pytest_cache
 .venv
+/local/
+/tmp/
+/temp/
 
 # External code
 /external/
