@@ -1,6 +1,8 @@
 # base image (fundamental installations)
 FROM ghcr.io/itpplasma/devel
 
+USER root
+
 # Prevent user inputs
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -43,3 +45,4 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
+USER $USERNAME
