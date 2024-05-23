@@ -78,6 +78,7 @@ RUN python3 -m pip install -r requirements.txt --break-system-packages && \
 
 # Install dependencies for fenicsx
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
+		libboost-filesystem-dev \
 		libboost-timer-dev \
 		libpugixml-dev \
 		petsc-dev \
