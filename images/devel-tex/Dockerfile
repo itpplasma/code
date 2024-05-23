@@ -43,5 +43,3 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
-# Entry point (bash)
-CMD ["/bin/bash"]

@@ -44,16 +44,17 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Add custom environment variables to .bashrc
-RUN echo 'export PATH=$HOME/bin:$PATH' >> ~$USERNAME/.bashrc && \
+RUN echo 'export PATH=$HOME/bin:$PATH' >> /home/$USERNAME/.bashrc && \
 	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> \
-		~$USERNAME/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> ~$USERNAME/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> ~$USERNAME/.bashrc && \
-	echo 'export USER=plasma' >> ~$USERNAME/.bashrc && \
-	echo 'source /usr/share/modules/init/sh' >> ~$USERNAME/.bashrc
+		/home/$USERNAME/.bashrc && \
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> /home/$USERNAME/.bashrc && \
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> /home/$USERNAME/.bashrc && \
+	echo 'export USER=plasma' >> /home/$USERNAME/.bashrc && \
+	echo 'source /usr/share/modules/init/sh' >> /home/$USERNAME/.bashrc
 
 # Set the user
 USER $USERNAME
+WORKDIR /home/$USERNAME
 
 # entrypoint (bash)
 CMD ["/bin/bash"]
