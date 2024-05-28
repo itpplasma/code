@@ -1,7 +1,7 @@
 #%Module1.0
 
 setenv FGSL_DIR              $env(CODE)/external/fgsl-1.5.0
-prepend-path LD_LIBRARY_PATH $env(FGSL_DIR)
+prepend-path LD_LIBRARY_PATH $env(FGSL_DIR)/.libs
 prepend-path -d " " LDFLAGS  -L$env(FGSL_DIR)/.libs
 
 # Local Variables:
