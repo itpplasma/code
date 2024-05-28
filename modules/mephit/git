@@ -1,0 +1,20 @@
+#%Module1.0
+
+proc ModulesHelp { } {
+    puts stderr "environment for MEPHIT
+
+  Please send remarks on using this module to Patrick Lainer
+  (mailto:patrick.lainer@tugraz.at)"
+}
+
+module-whatis "use MEPHIT"
+
+prereq fgsl/1.5.0
+prereq mfem/4.6.2-rc0
+
+setenv LIBNEO_DIR $env(CODE)/libneo/build
+setenv MEPHIT_DIR $env(CODE)/MEPHIT/build
+
+# Local Variables:
+# mode: tcl
+# End:
