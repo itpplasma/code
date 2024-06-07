@@ -136,19 +136,8 @@ neort:
   needs: []
   script:
     - source scripts/util.sh
-    - mkdir contrib
-    - cd contrib
-    - clone_github quadpack
-    - clone_github vode
-    - cd ..
-    - clone_github spline
-    - clone_github BOOZER_MAGFIE
-    - clone_github NEO-RT
-    - cd NEO-RT
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    - mkdir build && cd build
-    - cmake ..
-    - make
+    - export CODE=`pwd`
+    - source scripts/setup_neort.sh
   artifacts:
     paths:
       - contrib/
