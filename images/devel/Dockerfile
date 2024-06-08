@@ -12,6 +12,7 @@ RUN apt-get update && apt-get upgrade -y -q --no-install-recommends && \
 		vim \
 		man \
 		stow \
+		bash-completion \
 		htop \
 		ncdu \
 		less \
