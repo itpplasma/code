@@ -10,6 +10,7 @@ RUN apt-get update && apt-get upgrade -y -q --no-install-recommends && \
 		procps \
 		nano \
 		vim \
+		stow \
 		htop \
 		ncdu \
 		less \
