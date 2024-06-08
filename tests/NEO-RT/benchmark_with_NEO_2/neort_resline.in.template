@@ -1,0 +1,30 @@
+! Input file for NEO-RT - Version 1.3
+!
+!
+&params
+    runmode = "test_resline"     ! "torque", "transport", or various tests
+    s = 0.85               ! Radial coordinate s
+    M_t = 0.036            ! Mach number (for single Mach no. run)
+    qs = 1.0               ! Particle charge / elem. charge
+    ms = 2.014             ! Particle mass / 1u
+    vth = 40000000.0       ! thermal velocity [cm/s]
+    epsmn = 0.001          ! perturbation amplitude B1/B0 (if pertfile==F)
+    m0 = 5                 ! poroidal perturbation mode (if pertfile==F)
+    mph = -1               ! toroidal perturbation mode (if pertfile==F, n>0!)
+    mth = 5                ! poloidal canonical mode (for single test run)
+    supban = .false.       ! calculate superbanana plateau
+    magdrift = .true.      ! consider magnetic drift
+    nopassing = .false.    ! neglect passing particles
+    noshear = .false.      ! neglect magnetic shear term with dqds
+    pertfile = .true.      ! read perturbation from file with do_magfie_pert
+    odeint = .false.       ! use ODE integrator for resonance line
+    nonlin = .false.       ! do nonlinear calculation
+    bfac = 1.0             ! scale B field by factor
+    efac = 1.0             ! scale E field by factor
+    inp_swi = 9            ! input switch for Boozer file
+    orbit_mode_avg = 0     ! orbit mode for bounce averaging
+    orbit_mode_transp = 0  ! orbit mode for transport computation
+    vsteps = 1024          ! integration steps in velocity space
+    comptorque = .false.   ! do torque computation
+    intoutput = .false.    ! output details of integrand
+/

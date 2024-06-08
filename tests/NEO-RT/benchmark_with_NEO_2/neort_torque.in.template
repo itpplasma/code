@@ -1,0 +1,27 @@
+&params
+    runmode = 'torque'
+    s = ''
+    m_t = 0.036
+    qs = 1.0
+    ms = 2.014
+    vth = 40000000.0
+    epsmn = 1.0
+    m0 = -1
+    mph = 3
+    mth = -1
+    supban = .false.
+    magdrift = .true.
+    nopassing = .false.
+    noshear = .false.
+    pertfile = .true.
+    odeint = .false.
+    nonlin = .false.
+    bfac = 1.0
+    efac = 1.0
+    inp_swi = 9
+    orbit_mode_avg = 0
+    orbit_mode_transp = 0
+    vsteps = 1024
+    comptorque = .true.
+    intoutput = .false.
+/

@@ -23,3 +23,5 @@
 tests/**/out.*
 tests/**/*.dat
 efit_to_boozer.inp
+tests/**/RUN*
+tests/**/*.png
