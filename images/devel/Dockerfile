@@ -45,16 +45,11 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 # Install Octave
-RUN mkdir src && cd src && \
-	wget https://mirror.easyname.at/gnu/octave/octave-8.4.0.tar.gz && \
-	tar -xzf octave-8.4.0.tar.gz && \
-	cd octave-8.4.0 && \
-	./configure CPPFLAGS=-I/usr/include/hdf5/serial \
-			    LDFLAGS=-L/usr/lib/`uname -m`-linux-gnu/hdf5/serial && \
-	make -j10 && \
-	make install-strip && \
-	cd .. && \
-	rm -rf octave-8.4.0.tar.gz octave-8.4.0
+RUN apt-get update && apt-get install -y -q --no-install-recommends \
+		octave \
+		&& \
+	apt-get clean && rm -rf /var/cache/apt/* && \
+	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 # Install Python and dependencies
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
