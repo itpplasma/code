@@ -33,28 +33,14 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
-ARG USERNAME=plasma
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-# Create the user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-
 # Add custom environment variables to .bashrc
-RUN echo 'export PATH=$HOME/bin:$PATH' >> /home/$USERNAME/.bashrc && \
+RUN echo 'export PATH=$HOME/bin:$PATH' >> /root/.bashrc && \
 	echo 'export LD_LIBRARY_PATH=$HOME/bin:$LD_LIBRARY_PATH' >> \
-		/home/$USERNAME/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> /home/$USERNAME/.bashrc && \
-	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> /home/$USERNAME/.bashrc && \
-	echo 'export USER=plasma' >> /home/$USERNAME/.bashrc && \
-	echo 'source /usr/share/modules/init/sh' >> /home/$USERNAME/.bashrc
-
-# Set the user
-USER $USERNAME
-WORKDIR /home/$USERNAME
+		/root/.bashrc && \
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT=1' >> /root/.bashrc && \
+	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> /root/.bashrc && \
+	echo 'export USER=root' >> /root/.bashrc && \
+	echo 'source /usr/share/modules/init/sh' >> /root/.bashrc
 
 # entrypoint (bash)
 CMD ["/bin/bash"]
