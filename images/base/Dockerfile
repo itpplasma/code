@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 		ca-certificates \
 		curl \
 		libssl-dev \
+		locale \
 		openssh-client \
 		rsync \
 		wget \
@@ -41,6 +42,12 @@ RUN echo 'export PATH=$HOME/bin:$PATH' >> /root/.bashrc && \
 	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> /root/.bashrc && \
 	echo 'export USER=root' >> /root/.bashrc && \
 	echo 'source /usr/share/modules/init/sh' >> /root/.bashrc
+
+# Locales
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8  
 
 # entrypoint (bash)
 CMD ["/bin/bash"]
