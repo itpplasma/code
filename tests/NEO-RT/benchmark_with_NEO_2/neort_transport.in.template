@@ -24,7 +24,7 @@
     inp_swi = 9            ! input switch for Boozer file
     orbit_mode_avg = 0     ! orbit mode for bounce averaging
     orbit_mode_transp = 0  ! orbit mode for transport computation
-    vsteps = 1024          ! integration steps in velocity space
+    vsteps = 4096          ! integration steps in velocity space
     comptorque = .false.   ! do torque computation
     intoutput = .false.    ! output details of integrand
 /
