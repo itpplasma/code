@@ -5,6 +5,7 @@ setuptools>=64
 scikit-build-core>=0.8.2
 ipython
 jupyter
+jupytext
 sphinx
 
 # File formats
@@ -61,6 +62,7 @@ f90wrap>=0.2.14
 f90nml
 fortranformat
 elabapy
+colorcet>=3.0.0
 
 # FreeGS
 Shapely
