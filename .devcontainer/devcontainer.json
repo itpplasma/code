@@ -9,6 +9,9 @@
 		"source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
 	],
 
+	"containerEnv": {
+		"DISPLAY": "host.containers.internal:0"
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
