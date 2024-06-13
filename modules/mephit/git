@@ -10,7 +10,7 @@ proc ModulesHelp { } {
 module-whatis "use MEPHIT"
 
 prereq fgsl/1.5.0
-prereq mfem/4.6.2-rc0
+prereq mfem/4.7
 
 setenv LIBNEO_DIR $env(CODE)/libneo/build
 setenv MEPHIT_DIR $env(CODE)/MEPHIT/build

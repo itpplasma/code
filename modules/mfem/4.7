@@ -1,5 +1,5 @@
 #%Module1.0
 
-setenv MFEM_DIR              $env(CODE)/external/mfem-4.6.2-rc0/build
+setenv MFEM_DIR              $env(CODE)/external/mfem-4.7/build
 prepend-path LD_LIBRARY_PATH $env(MFEM_DIR)
 prepend-path -d " " LDFLAGS  -L$env(MFEM_DIR)

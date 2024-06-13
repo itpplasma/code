@@ -34,8 +34,8 @@ mfem:
     - source scripts/util.sh
     - cd external
     - ../scripts/setup_mfem.sh
-    - tar czf mfem-4.6.2-rc0.tar.gz mfem-4.6.2-rc0
-    - upload_package mfem 4.6.2-rc0
+    - tar czf mfem-4.7.tar.gz mfem-4.7
+    - upload_package mfem 4.7
 
 stellopt:
   stage: external
@@ -93,7 +93,7 @@ mephit:
     - install_package libneo dev
     - pushd external
     - install_package fgsl 1.5.0
-    - install_package mfem 4.6.2-rc0
+    - install_package mfem 4.7
     - popd
     - clone_gitlab MEPHIT
     - source scripts/setup_mephit.sh
