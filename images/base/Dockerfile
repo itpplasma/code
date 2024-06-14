@@ -10,6 +10,7 @@ RUN sed -i -e's/ main/ main contrib non-free non-free-firmware/g' \
 
 # Base
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
+		file \
         sudo \
 		environment-modules \
 		unzip \
