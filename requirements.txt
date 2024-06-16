@@ -63,6 +63,7 @@ f90nml
 fortranformat
 elabapy
 colorcet>=3.0.0
+pygmsh
 
 # FreeGS
 Shapely
