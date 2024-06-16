@@ -64,7 +64,7 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 		python3-boto3 python3-lmfit python3-configobj python3-dill \
 		python3-pyodbc python3-pyotp \
 		fortran-language-server python3-tqdm python3-pytest \
-		python3-mpi4py python3-skbuild idle3 \
+		python3-mpi4py python3-skbuild python3-gmsh idle3 \
 		&& \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
