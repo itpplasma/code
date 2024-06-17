@@ -6,6 +6,9 @@ echo "Works with Intel compiler, not GNU or NVIDIA/PGI."
 echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 module load intelcompiler/2018.1
+
+source setup_netcdf.sh
+
 module load netcdf-fortran/4.6.1-intel
 
 git clone git@github.com:PrincetonUniversity/GPEC.git
