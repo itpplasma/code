@@ -18,8 +18,8 @@ xarray==2022.10.0  # Version for OMFIT
 # Scientific computing
 sympy
 uncertainties
-numpy>=1.24.2  # Version for correct f2py output
-scipy>=1.11.4  # Version compatible with newer numpy
+numpy==1.26.4     # Version for correct f2py output
+scipy>=1.11.4     # Version compatible with newer numpy
 numba
 matplotlib
 pandas

@@ -7,7 +7,9 @@ echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 module load intelcompiler/2018.1
 
+pushd intel
 source setup_netcdf.sh
+popd
 
 module load netcdf-fortran/4.6.1-intel
 
