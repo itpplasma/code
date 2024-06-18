@@ -46,6 +46,7 @@ jedi
 pyttk
 omfit-classes
 bibtexparser
+contourpy
 
 # Development tools
 pylance
