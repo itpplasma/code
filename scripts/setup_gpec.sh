@@ -5,7 +5,9 @@ echo "Local use only at ITPcp, not suited for Docker container."
 echo "Works with Intel compiler, not GNU or NVIDIA/PGI."
 echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
-module load intelcompiler/2018.1
+export FC=ifort
+export CC=icx
+export CXX=icpx
 
 pushd intel
 source setup_netcdf.sh

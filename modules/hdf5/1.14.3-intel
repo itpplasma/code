@@ -1,8 +1,6 @@
 #%Module1.0
 
-module-whatis "HDF5 (Intel 2018.1 compiler)"
-
-prereq intelcompiler/2018.1
+module-whatis "HDF5 (Intel compiler)"
 
 setenv HDF5_ROOT $env(CODE)/external/intel/hdfsrc/build
 prepend-path LD_LIBRARY_PATH $env(HDF5_ROOT)/lib
@@ -11,4 +9,3 @@ prepend-path -d " " CFLAGS   -I$env(HDF5_ROOT)/include
 prepend-path -d " " FFLAGS   -I$env(HDF5_ROOT)/include
 prepend-path -d " " CXXFLAGS -I$env(HDF5_ROOT)/include
 prepend-path -d " " LDFLAGS  -L$env(HDF5_ROOT)/lib
-
