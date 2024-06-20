@@ -27,6 +27,7 @@ RUN echo 'export PATH=$HOME/bin:$PATH' >> /root/.bashrc && \
 	echo 'export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1' >> /root/.bashrc && \
 	echo 'export USER=root' >> /root/.bashrc && \
 	echo 'source /usr/share/modules/init/sh' >> /root/.bashrc
+	echo 'chmod go-rwx /root/.ssh' >> /root/.bashrc
 
 # Locales
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
