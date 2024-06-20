@@ -8,10 +8,10 @@ sed -i -e's/ main$/ main contrib non-free non-free-firmware/g' \
 
 apt-get update -y && apt-get upgrade -y -q --no-install-recommends
 
-bash base/setup_base.sh
-bash devel/setup_interactive.sh
-bash devel/setup_libs.sh
-bash devel/setup_octave.sh
-bash devel/setup_python.sh
-bash devel-tex/setup_texlive.sh
-bash devel-tex/setup_fonts.sh
+bash setup_base.sh
+bash setup_interactive.sh
+bash setup_libs.sh
+bash setup_octave.sh
+bash setup_python.sh
+bash setup_texlive.sh
+bash setup_fonts.sh
