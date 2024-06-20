@@ -5,40 +5,13 @@ FROM ghcr.io/itpplasma/devel
 ENV DEBIAN_FRONTEND=noninteractive
 
 # TexLive
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-		texlive-latex-base \
-		texlive-latex-recommended \
-		texlive-publishers \
-		texlive-science \
-		texlive-bibtex-extra \
-		texlive-luatex \
-		latexmk \
-		biber \
-		ghostscript \
-		lyx \
-		doxygen-latex \
-		&& \
+COPY setup_texlive.sh /tmp/setup_texlive.sh
+RUN apt-get update && /tmp/setup_texlive.sh && \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 # TexLive Fonts
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-		texlive-fonts-recommended \
-		fonts-cmu \
-		fonts-inconsolata \
-		fonts-linuxlibertine \
-		fonts-lmodern \
-		fonts-texgyre \
-		fonts-texgyre-math \
-		&& \
-	fc-cache -f -v && \
-	apt-get clean && rm -rf /var/cache/apt/* && \
-	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
-
-# Utils
-RUN apt-get update && apt-get install -y -q --no-install-recommends \
-		poppler-utils \
-		&& \
-	fc-cache -f -v && \
+COPY setup_fonts.sh /tmp/setup_fonts.sh
+RUN apt-get update && /tmp/setup_fonts.sh && \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*

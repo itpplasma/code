@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt-get update && apt-get install -y -q --no-install-recommends \
+apt-get install -y -q --no-install-recommends \
     file \
     sudo \
     environment-modules \

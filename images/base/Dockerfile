@@ -8,9 +8,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN sed -i -e's/ main/ main contrib non-free non-free-firmware/g' \
 		/etc/apt/sources.list.d/debian.sources
 
+# Update and upgrade
+RUN apt-get update && apt-get upgrade -y -q --no-install-recommends &&
+apt-get clean && rm -rf /var/cache/apt/* && \
+rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+
 # Base
 COPY setup_base.sh /tmp/setup_base.sh
-RUN bash /tmp/setup_base.sh && \
+RUN apt-get update && bash /tmp/setup_base.sh && \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
