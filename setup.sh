@@ -1,16 +1,24 @@
 #!/bin/bash
 
-
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export CODE=$SCRIPTPATH
+
+if [ -f /etc/debian_version ]; then
+    pushd $CODE/images
+    sudo ./setup_local.sh
+    popd
+fi
+
 source $CODE/scripts/setup_venv.sh
 source $CODE/activate.sh
 
-cd $CODE/external
+pushd $CODE/external
 $CODE/scripts/setup_fgsl.sh
+popd
 
-cd $CODE
+pushd $CODE
 source $CODE/scripts/setup_libneo.sh
+popd
 
 source $CODE/activate.sh
