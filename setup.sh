@@ -5,9 +5,7 @@ SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export CODE=$SCRIPTPATH
 
 if [ -f /etc/debian_version ]; then
-    pushd $CODE/images
-    sudo ./setup_local.sh
-    popd
+    sudo $CODE/scripts/setup_local.sh
 fi
 
 source $CODE/scripts/setup_venv.sh

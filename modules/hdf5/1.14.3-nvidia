@@ -1,0 +1,13 @@
+#%Module1.0
+
+module-whatis "HDF5 (NVIDIA compiler)"
+
+prereq nvhpc/24.5
+
+setenv HDF5_ROOT $env(CODE)/external/nvidia/hdfsrc/build
+prepend-path LD_LIBRARY_PATH $env(HDF5_ROOT)/lib
+prepend-path PATH            $env(HDF5_ROOT)/bin
+prepend-path -d " " CFLAGS   -I$env(HDF5_ROOT)/include
+prepend-path -d " " FFLAGS   -I$env(HDF5_ROOT)/include
+prepend-path -d " " CXXFLAGS -I$env(HDF5_ROOT)/include
+prepend-path -d " " LDFLAGS  -L$env(HDF5_ROOT)/lib
