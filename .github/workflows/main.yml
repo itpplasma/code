@@ -25,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update && apt-get install -y -q --no-install-recommends \
+          sudo apt-get update -y && apt-get install -y -q --no-install-recommends \
             apt-transport-https \
             build-essential \
             ca-certificates \

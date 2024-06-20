@@ -6,7 +6,7 @@ sed -i -e's/ main$/ main contrib non-free non-free-firmware/g' \
 sed -i -e's/ main$/ main contrib non-free non-free-firmware/g' \
     /etc/apt/sources.list
 
-apt-get update && apt-get upgrade -y -q --no-install-recommends
+apt-get update -y && apt-get upgrade -y -q --no-install-recommends
 
 bash base/setup_base.sh
 bash devel/setup_interactive.sh
