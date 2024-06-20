@@ -8,3 +8,5 @@ curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC
 echo "deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/$ARCH /" | sudo tee /etc/apt/sources.list.d/nvhpc.list
 sudo apt-get update -y
 sudo apt-get install -y nvhpc-24-5
+
+echo "module use -a /opt/nvidia/hpc_sdk/modulefiles" >> $HOME/.bashrc

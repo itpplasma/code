@@ -6,6 +6,7 @@ echo "Works with Intel compiler, not GNU or NVIDIA/PGI."
 echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 module load intelcompiler/2018.1
+export FC=ifort
 
 pushd intel
 source setup_netcdf.sh
@@ -14,6 +15,5 @@ popd
 module load netcdf-fortran/4.6.1-intel
 
 git clone git@github.com:PrincetonUniversity/GPEC.git
-git checkout v1.5.4
 cd GPEC/install
 make
