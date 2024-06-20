@@ -14,6 +14,5 @@ popd
 module load netcdf-fortran/4.6.1-intel
 
 git clone git@github.com:PrincetonUniversity/GPEC.git
-git checkout v1.5.4
 cd GPEC/install
 make
