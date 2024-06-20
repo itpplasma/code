@@ -24,6 +24,6 @@ popd
 curl -L https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.6.1.tar.gz -o - | tar xz
 mkdir -p netcdf-fortran-4.6.1/build
 pushd netcdf-fortran-4.6.1/build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$(pwd)/build -DNETCDF_C_LIBRARY=$(pwd)/../netcdf-c-4.9.2/build/lib/libnetcdf.so -DNETCDF_C_INCLUDE_DIR=$(pwd)/../netcdf-c-4.9.2/build/include ..
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$(pwd) -DNETCDF_C_LIBRARY=$(pwd)/../netcdf-c-4.9.2/build/lib/libnetcdf.so -DNETCDF_C_INCLUDE_DIR=$(pwd)/../netcdf-c-4.9.2/build/include ..
 make -j$(nproc) install
 popd
