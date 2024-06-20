@@ -6,7 +6,7 @@ export CFLAGS=-fPIC
 echo "Fetching and building HDF5..."
 curl -L https://github.com/HDFGroup/hdf5/releases/download/hdf5-1_14_3/hdf5-1_14_3.tar.gz -o - | tar xzv
 pushd hdfsrc
-./configure --enable-fortran --enable-hl --prefix="$(pwd)/build"
+./configure --enable-fortran --enable-hl --with-pic --prefix="$(pwd)/build"
 make -j$(nproc)
 make install
 popd
