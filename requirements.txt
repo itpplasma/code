@@ -13,16 +13,15 @@ openpyxl
 xlrd
 h5py
 netcdf4
-xarray==2022.10.0  # Version for OMFIT
+xarray
 
 # Scientific computing
 sympy
 uncertainties
-numpy==1.24.2     # Version for correct f2py output
-scipy>=1.11.4     # Version compatible with newer numpy
+numpy<2.0
+scipy
 numba
 matplotlib
-pandas
 
 # Statistics
 pandas
@@ -50,7 +49,7 @@ contourpy
 
 # Development tools
 pylance
-black==19.3b0  # Version for OMFIT
+black
 fortls
 
 # Misc
@@ -68,6 +67,6 @@ pygmsh
 
 # FreeGS
 Shapely
-importlib-metadata<4.3,>=1.1.0  # for freegs
+importlib-metadata
 freeqdsk
 freegs
