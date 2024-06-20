@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "fortran-lang.linter-gfortran",
+        "GitHub.copilot",
+        "GitHub.vscode-pull-request-github",
+        "ms-toolsai.jupyter",
+        "twxs.cmake"
+    ]
+}
