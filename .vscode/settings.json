@@ -1,4 +1,5 @@
 {
+    "git.autofetch": true,
     "fortran.linter.includePaths": [
         "${workspaceFolder}/libneo/build",
         "${workspaceFolder}/libneo/build/src",
