@@ -14,5 +14,5 @@ pushd build
 ninja
 popd
 # pip install --upgrade numpy f90wrap scikit-build
-pip install .
+pip install --no-build-isolation .
 popd
