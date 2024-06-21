@@ -92,7 +92,7 @@ mephit:
     - source scripts/util.sh
     - install_package libneo dev
     - pushd external
-    - install_package fgsl 1.5.0
+    - install_package fgsl 1.6.0
     - install_package mfem 4.7
     - popd
     - clone_gitlab MEPHIT
