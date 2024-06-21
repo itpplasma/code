@@ -2,7 +2,9 @@
 
 apt-get install -y -q --no-install-recommends \
     texlive-latex-base \
-    texlive-latex-recommended \
+    texlive-latex-recommended
+
+apt-get install -y -q --no-install-recommends \
     texlive-publishers \
     texlive-science \
     texlive-bibtex-extra \
@@ -13,3 +15,7 @@ apt-get install -y -q --no-install-recommends \
     lyx \
     doxygen-latex \
     poppler-utils
+
+if [ -n "$(ls /tmp/fmt* 2>/dev/null)" ]; then
+  cat /tmp/fmt*
+fi

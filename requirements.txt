@@ -2,8 +2,9 @@
 wheel
 pip>=23
 setuptools>=64
-ipython
-jupyter
+jupyterlab>=4.2
+notebook>=7.2
+ipython>=8.25
 jupytext
 sphinx
 mkdocs
@@ -15,24 +16,24 @@ xlrd
 h5py
 netcdf4
 fpdf
-xarray>=2024.06.0
+xarray>=2024.06
 
 # Scientific computing
 numpy>=2.0
-sympy
+sympy>=1.12
 uncertainties
-scipy
-numba
-matplotlib
+scipy>=1.13
+numba>=0.60
+matplotlib>=3.9
 scikit-build @ git+https://github.com/scikit-build/scikit-build.git@main
 scikit-build-core @ git+https://github.com/scikit-build/scikit-build-core.git@main
 f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
 
 # Statistics
-pyarrow>=16.1.0
-pandas>=2.2.2
-scikit-learn
-torch
+pyarrow>=16.1
+pandas>=2.2
+scikit-learn>=1.5
+torch>=2.3
 
 # For OMFIT
 boto3
@@ -67,7 +68,7 @@ pygmsh
 f90nml
 fortranformat
 elabapy
-colorcet>=3.0.0
+colorcet>=3.0
 poetry
 
 # FreeGS
