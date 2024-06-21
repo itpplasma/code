@@ -13,7 +13,8 @@ openpyxl
 xlrd
 h5py
 netcdf4
-xarray
+fpdf
+xarray>=2024.06.0
 
 # Scientific computing
 sympy
@@ -24,7 +25,8 @@ numba
 matplotlib
 
 # Statistics
-pandas
+pyarrow>=16.1.0
+pandas>=2.2.2
 scikit-learn
 torch
 
@@ -48,7 +50,6 @@ bibtexparser
 contourpy
 
 # Development tools
-pylance
 black
 fortls
 
