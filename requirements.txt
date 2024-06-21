@@ -18,7 +18,7 @@ xarray
 # Scientific computing
 sympy
 uncertainties
-numpy<2.0
+numpy>=2.0
 scipy
 numba
 matplotlib
@@ -58,7 +58,7 @@ pytest
 mpi4py
 scikit-build>=0.17.6
 scikit-fem
-f90wrap>=0.2.14
+f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
 f90nml
 fortranformat
 elabapy
