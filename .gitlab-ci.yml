@@ -24,8 +24,8 @@ fgsl:
     - source scripts/util.sh
     - cd external
     - ../scripts/setup_fgsl.sh
-    - tar czf fgsl-1.5.0.tar.gz fgsl-1.5.0
-    - upload_package fgsl 1.5.0
+    - tar czf fgsl-1.6.0.tar.gz fgsl-1.6.0
+    - upload_package fgsl 1.6.0
 
 mfem:
   stage: external

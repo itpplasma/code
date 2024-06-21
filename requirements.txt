@@ -2,11 +2,12 @@
 wheel
 pip>=23
 setuptools>=64
-scikit-build-core @ git+https://github.com/scikit-build/scikit-build-core.git@main
 ipython
 jupyter
 jupytext
 sphinx
+mkdocs
+pdm
 
 # File formats
 openpyxl
@@ -17,12 +18,15 @@ fpdf
 xarray>=2024.06.0
 
 # Scientific computing
+numpy>=2.0
 sympy
 uncertainties
-numpy>=2.0
 scipy
 numba
 matplotlib
+scikit-build @ git+https://github.com/scikit-build/scikit-build.git@main
+scikit-build-core @ git+https://github.com/scikit-build/scikit-build-core.git@main
+f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
 
 # Statistics
 pyarrow>=16.1.0
@@ -57,15 +61,14 @@ fortls
 tqdm
 pytest
 mpi4py
-scikit-build @ git+https://github.com/scikit-build/scikit-build.git@main
 ninja
 scikit-fem
-f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
+pygmsh
 f90nml
 fortranformat
 elabapy
 colorcet>=3.0.0
-pygmsh
+poetry
 
 # FreeGS
 Shapely
