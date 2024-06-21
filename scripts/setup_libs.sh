@@ -2,6 +2,7 @@
 
 apt-get install -y -q --no-install-recommends \
     pkg-config \
+    libtool \
     libsuitesparse-dev \
     libmetis-dev \
     libtriangle-dev \
