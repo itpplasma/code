@@ -20,5 +20,6 @@
         "vector": "cpp",
         "random": "cpp",
         "*.ipp": "cpp"
-    }
+    },
+    "python.terminal.activateEnvironment": false
 }
