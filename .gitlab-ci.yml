@@ -21,7 +21,9 @@ fgsl:
   stage: external
   needs: []
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - cd external
     - ../scripts/setup_fgsl.sh
     - tar czf fgsl-1.6.0.tar.gz fgsl-1.6.0
@@ -31,7 +33,9 @@ mfem:
   stage: external
   needs: []
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - cd external
     - ../scripts/setup_mfem.sh
     - tar czf mfem-4.7.tar.gz mfem-4.7
@@ -44,7 +48,9 @@ stellopt:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       allow_failure: true
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - cd external
     - source ../scripts/setup_stellopt.sh
     - tar czf STELLOPT-dev.tar.gz STELLOPT
@@ -54,6 +60,9 @@ chease:
   stage: external
   needs: []
   script:
+    - export CODE=`pwd`
+    - source scripts/util.sh
+    - set_branch
     - cd external
     - ../scripts/setup_chease.sh
   artifacts:
@@ -67,9 +76,10 @@ libneo:
   stage: libneo
   needs: []
   script:
-    - source scripts/util.sh
-    - source scripts/setup_venv.sh
     - export CODE=`pwd`
+    - source scripts/util.sh
+    - set_branch
+    - source scripts/setup_venv.sh
     - source scripts/setup_libneo.sh
     - tar czf libneo-dev.tar.gz efit_to_boozer/ libneo/ .venv/
     - upload_package libneo dev
@@ -89,7 +99,9 @@ mephit:
   stage: codes
   needs: ["fgsl", "mfem", "libneo"]
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - install_package libneo dev
     - pushd external
     - install_package fgsl 1.6.0
@@ -105,7 +117,9 @@ kim:
   stage: codes
   needs: []
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - clone_gitlab kim
     - cd kim
     - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
@@ -122,7 +136,9 @@ neo2-job:
   stage: codes
   needs: ["fgsl", "libneo"]
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - install_package libneo dev
     - pushd external; install_package fgsl 1.5.0; popd
     - source activate.sh
@@ -136,8 +152,9 @@ neort:
   stage: codes
   needs: []
   script:
-    - source scripts/util.sh
     - export CODE=`pwd`
+    - source scripts/util.sh
+    - set_branch
     - source scripts/setup_neort.sh
   artifacts:
     paths:
@@ -150,7 +167,9 @@ simple:
   stage: codes
   needs: ["libneo"]
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - install_package libneo dev
     - source activate.sh
     - clone_github SIMPLE
@@ -165,7 +184,9 @@ gorilla:
   stage: codes
   needs: []
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - clone_github GORILLA
     - cd GORILLA
     - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
@@ -181,7 +202,9 @@ ntv-demo:
   stage: projects
   needs: ["libneo"]
   script:
+    - export CODE=`pwd`
     - source scripts/util.sh
+    - set_branch
     - install_package libneo dev
     - source activate.sh
     - clone_github ntv-demo

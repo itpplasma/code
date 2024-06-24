@@ -11,6 +11,18 @@
 alias cdcode='cd $CODE'
 alias vscode='code $CODE'
 
+set_branch() {
+    if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
+        export CODE_BRANCH=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    else
+        pushd $CODE
+        export CODE_BRANCH=$(git branch --show-current)
+        popd
+    fi
+
+    echo "Activating $CODE on branch $CODE_BRANCH"
+}
+
 add_to_path() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         PATH="$1${PATH:+":$PATH"}"
