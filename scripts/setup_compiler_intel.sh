@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Setting up Intel compiler..."
-sudo -v
+sudo --validate || exit 1
 
 # download the key to system keyring
 wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \

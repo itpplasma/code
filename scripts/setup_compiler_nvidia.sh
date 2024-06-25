@@ -3,7 +3,7 @@
 echo "Setting up NVIDIA compiler..."
 
 ARCH=$(dpkg --print-architecture)
-sudo -v
+sudo --validate || exit 1
 
 curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK \
     | gpg --dearmor \
