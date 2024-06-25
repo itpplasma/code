@@ -33,7 +33,6 @@ f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
 pyarrow>=16.1
 pandas>=2.2
 scikit-learn>=1.5
-torch>=2.3
 
 # For OMFIT
 boto3
