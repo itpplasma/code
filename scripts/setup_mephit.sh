@@ -1,12 +1,4 @@
 #!/bin/bash
-
-SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export CODE="$(realpath "$SCRIPTPATH/..")"
-
-cd $CODE
-export CODE_BRANCH=$(git branch --show-current)
-cd -
-
 source /etc/profile.d/modules.sh
 module use -a $CODE/modules
 

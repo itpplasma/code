@@ -2,17 +2,8 @@
 
 export CODE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
-    export CODE_BRANCH=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-else
-    pushd $CODE
-    export CODE_BRANCH=$(git branch --show-current)
-    popd
-fi
-
-echo "Activating $CODE on branch $CODE_BRANCH"
-
 source $CODE/scripts/util.sh
+set_branch
 add_to_path $CODE/scripts
 export PATH
 add_to_library_path $CODE/libneo/build
