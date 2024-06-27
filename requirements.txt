@@ -1,6 +1,6 @@
 # Basics
 wheel
-pip>=23
+pip>=24
 setuptools>=64
 jupyterlab>=4.2
 notebook>=7.2
