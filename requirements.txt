@@ -25,8 +25,8 @@ uncertainties
 scipy>=1.13
 numba>=0.60
 matplotlib>=3.9
-scikit-build @ git+https://github.com/scikit-build/scikit-build.git@main
-scikit-build-core @ git+https://github.com/scikit-build/scikit-build-core.git@main
+scikit-build>=0.18
+scikit-build-core>=0.9.7
 f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
 
 # Statistics
