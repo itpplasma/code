@@ -64,7 +64,6 @@ def test_calculate_omegae_visual_check():
 
 def test_profit_runs_visual_check():
     study = "/proj/plasma/DATA/DEMO/teams/parameter_study_profiles_MARS/vary_vrot_omegae_and_coilwidth/"
-    #study = "/proj/plasma/CODE/grassl_g/ntv-demo/parameter_study/vary_vrot_omegae_and_coilwidth/"
     base_run = "/proj/plasma/DATA/DEMO/MARS/BASE_INPUT_PROFILES"
     runs_color = (0.8, 0.8, 0.8)
     base_color = (0.6, 0.2, 0.2)
