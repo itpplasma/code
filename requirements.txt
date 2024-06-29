@@ -61,7 +61,8 @@ fortls
 tqdm
 pytest
 mpi4py
-ninja
+meson>=1.4
+ninja>=1.11
 scikit-fem
 pygmsh
 f90nml
