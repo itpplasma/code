@@ -17,5 +17,5 @@ if [ ! -d "libneo" ] ; then
 fi
 pushd libneo
 $CODE/scripts/checkout_branch.sh $CODE_BRANCH
-pip install --no-build-isolation -e .
+pip install -e .
 popd
