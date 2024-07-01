@@ -110,5 +110,5 @@ install_package() (
     local VERSION=$2
 
     curl --header "JOB-TOKEN: $CI_JOB_TOKEN" -L \
-    ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz -o - | tar -xz
+    ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/${PACKAGENAME}-${VERSION}.tar.gz -o - | tar xz
 )

@@ -4,9 +4,7 @@ echo "Building Slatec..."
 mkdir slatec
 cd slatec
 mkdir lib
-wget https://www.netlib.org/slatec/slatec_src.tgz
-tar -xzvf slatec_src.tgz
-rm slatec_src.tgz
+curl -L https://www.netlib.org/slatec/slatec_src.tgz -o - | tar xz
 
 # Check the operating system
 if [[ "$(uname)" == "Darwin" ]]; then
@@ -53,9 +51,7 @@ cd ..
 cd ..
 
 echo "Building lapack..."
-wget http://www.netlib.org/lapack/lapack-3.2.1.tgz
-tar -xzvf lapack-3.2.1.tgz
-rm lapack-3.2.1.tgz
+curl -L http://www.netlib.org/lapack/lapack-3.2.1.tgz -o - | tar xz
 cd lapack-3.2.1
 cp INSTALL/make.inc.gfortran make.inc
 make lib
@@ -66,9 +62,7 @@ echo "Finished building lapack..."
 
 echo "Building gsl-2.4"
 cd ..
-wget https://ftp.gnu.org/gnu/gsl/gsl-2.4.tar.gz
-tar -xzvf gsl-2.4.tar.gz
-rm gsl-2.4.tar.gz
+curl -L https://ftp.gnu.org/gnu/gsl/gsl-2.4.tar.gz -o - | tar xz
 cd gsl-2.4
 ./configure
 make
