@@ -15,7 +15,7 @@
     ],
     "pylint.args": [
         "--disable=C0114,C0116",
-        "--max-line-length=80"
+        "--max-line-length=88"
     ],
     "python.languageServer": "Jedi",
     "files.associations": {
