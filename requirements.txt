@@ -1,10 +1,10 @@
 # Basics
 wheel
-pip>=24
-setuptools>=64
-jupyterlab>=4.2
-notebook>=7.2
-ipython>=8.25
+pip
+setuptools
+jupyterlab
+notebook
+ipython
 jupytext
 sphinx
 mkdocs
@@ -16,23 +16,24 @@ xlrd
 h5py
 netcdf4
 fpdf
-xarray>=2024.06
+xarray
 
 # Scientific computing
-numpy>=2.0
-sympy>=1.12
+numpy<2.0
+sympy
 uncertainties
-scipy>=1.13
-numba>=0.60
-matplotlib>=3.9
-scikit-build>=0.18
-scikit-build-core>=0.9.7
-f90wrap @ git+https://github.com/jameskermode/f90wrap.git@master
+scipy
+cython
+numba
+matplotlib
+scikit-build
+scikit-build-core
+f90wrap==0.2.14
 
 # Statistics
-pyarrow>=16.1
-pandas>=2.2
-scikit-learn>=1.5
+pyarrow
+pandas
+scikit-learn
 
 # For OMFIT
 boto3
@@ -61,14 +62,14 @@ fortls
 tqdm
 pytest
 mpi4py
-meson>=1.4
-ninja>=1.11
+meson
+ninja
 scikit-fem
 pygmsh
 f90nml
 fortranformat
 elabapy
-colorcet>=3.0
+colorcet
 poetry
 
 # FreeGS
