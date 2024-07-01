@@ -10,6 +10,9 @@
         "**/__pycache__": true,
         "**/*.egg-info": true
     },
+    "editor.rulers": [
+        88
+    ],
     "pylint.args": [
         "--disable=C0114,C0116",
         "--max-line-length=80"
