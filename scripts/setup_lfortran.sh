@@ -31,4 +31,6 @@ curl -L https://github.com/lfortran/lfortran/releases/download/v0.37.0/lfortran-
 mkdir -p lfortran-0.37.0/build
 pushd lfortran-0.37.0/build
 cmake .. -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=$CODE/.venv -DWITH_XEUS=yes
+make -j$(nproc)
+make install
 popd
