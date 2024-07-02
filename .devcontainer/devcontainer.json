@@ -4,10 +4,10 @@
 	"name": "Default dev environment",
 	"image": "ghcr.io/itpplasma/devel-tex:latest",
 
-	//"mounts": [
-	//	"source=${localEnv:HOME}${localEnv:USERPROFILE}/Nextcloud/plasma,target=/proj/plasma,type=bind,consistency=cached",
-	//	"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
-	//],
+	"mounts": [
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/Nextcloud/plasma,target=/proj/plasma,type=bind,consistency=cached",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+	],
 
 	"containerEnv": {
 		"DISPLAY": "host.docker.internal:0"
@@ -26,6 +26,7 @@
 		"vscode": {
 			"extensions": [
 				"ms-python.python",
+				"ms-python.black-formatter",
 				"fortran-lang.linter-gfortran",
 				"GitHub.copilot",
 				"GitHub.vscode-pull-request-github",
