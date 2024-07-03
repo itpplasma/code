@@ -26,6 +26,7 @@ scipy
 cython
 numba
 matplotlib
+plotly>=5.22
 scikit-build
 scikit-build-core
 f90wrap==0.2.14
