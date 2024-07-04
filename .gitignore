@@ -15,6 +15,7 @@
 /local/
 /tmp/
 /temp/
+/libs/
 
 # External code
 /external/
