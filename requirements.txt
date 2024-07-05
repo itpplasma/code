@@ -9,6 +9,7 @@ jupytext
 sphinx
 mkdocs
 pdm
+setuptools_scm
 
 # File formats
 openpyxl
@@ -30,6 +31,7 @@ plotly>=5.22
 scikit-build
 scikit-build-core
 f90wrap==0.2.14
+pybind11
 
 # Statistics
 pyarrow
