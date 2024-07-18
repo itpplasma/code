@@ -1,3 +1,3 @@
 #!/bin/bash
 
-apt-get install -y -q --no-install-recommends octave
+apt-get install -y -q --no-install-recommends octave gnuplot
