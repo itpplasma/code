@@ -25,5 +25,8 @@
         "random": "cpp",
         "*.ipp": "cpp"
     },
-    "python.terminal.activateEnvironment": false
+    "python.terminal.activateEnvironment": false,
+    "fortran.formatting.findentArgs": [
+        "-i4"
+    ]
 }
