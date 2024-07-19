@@ -28,5 +28,8 @@
     "python.terminal.activateEnvironment": false,
     "fortran.formatting.findentArgs": [
         "-i4"
+    ],
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
     ]
 }
