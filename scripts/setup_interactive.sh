@@ -11,4 +11,7 @@ apt-get install -y -q --no-install-recommends \
     ncdu \
     less \
     gdb \
-    cmake-curses-gui
+    cmake-curses-gui \
+    valgrind \
+    dbus-x11 \
+    kcachegrind
