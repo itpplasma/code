@@ -22,12 +22,6 @@ RUN apt-get update -y && bash /tmp/setup_octave.sh && \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
-# Install Python and dependencies
-COPY scripts/setup_python.sh /tmp/setup_python.sh
-RUN apt-get update -y && bash /tmp/setup_python.sh && \
-        apt-get clean && rm -rf /var/cache/apt/* && \
-        rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
-
 # Prepare required packages for venv
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt --break-system-packages && \
