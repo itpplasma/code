@@ -60,7 +60,6 @@ contourpy
 # Development tools
 black
 fortls
-findent
 
 # Misc
 tqdm
