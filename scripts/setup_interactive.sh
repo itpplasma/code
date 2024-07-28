@@ -14,4 +14,6 @@ apt-get install -y -q --no-install-recommends \
     cmake-curses-gui \
     valgrind \
     dbus-x11 \
-    kcachegrind
+    kcachegrind \
+    python3-tk \
+    idle3
