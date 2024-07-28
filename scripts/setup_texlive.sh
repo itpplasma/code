@@ -14,7 +14,9 @@ apt-get install -y -q --no-install-recommends \
     ghostscript \
     lyx \
     doxygen-latex \
-    poppler-utils
+    poppler-utils \
+    dvipng \
+    imagemagick
 
 if [ -n "$(ls /tmp/fmt* 2>/dev/null)" ]; then
   cat /tmp/fmt*
