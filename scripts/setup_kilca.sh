@@ -68,10 +68,22 @@ cd gsl-2.4
 make
 echo "Finished building gsl-2.4..."
 
+wget https://portal.nersc.gov/project/sparse/superlu/superlu_4.1.tar.gz
+tar -xzvf superlu_4.1.tar.gz
+rm superlu_4.1.tar.gz
+cd SuperLU_4.1
+
+
 cd ..
 cd ..
 
-cd KiLCA
+cd KiLCA-QB/KiLCA
+mkdir build
+cd build
+cmake ..
+make
+
+cd ../ql-balance/
 mkdir build
 cd build
 cmake ..
