@@ -7,7 +7,7 @@ if [ ! -d "efit_to_boozer" ] ; then
 fi
 pushd efit_to_boozer
 $CODE/scripts/checkout_branch.sh $CODE_BRANCH
-pip install -e .
+pip install --verbose --no-build-isolation -e .
 popd
 
 echo "Building and installing 'libneo'..."
@@ -17,5 +17,5 @@ if [ ! -d "libneo" ] ; then
 fi
 pushd libneo
 $CODE/scripts/checkout_branch.sh $CODE_BRANCH
-pip install -e .
+pip install --verbose --no-build-isolation -e .
 popd
