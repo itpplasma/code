@@ -20,6 +20,10 @@
 # External code
 /external/
 /mambaforge/
+.omfit_env_cache
+miniconda_omfit
+miniconda3
+miniconda3_unstable
 
 # tests
 tests/**/out.*
