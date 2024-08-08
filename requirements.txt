@@ -32,6 +32,7 @@ scikit-build
 scikit-build-core
 f90wrap==0.2.14
 pybind11
+statsmodels
 
 # Statistics
 pyarrow
