@@ -141,7 +141,7 @@ neo2-job:
     - source scripts/util.sh
     - set_branch
     - install_package libneo dev
-    - pushd external; install_package fgsl 1.5.0; popd
+    - pushd external; install_package fgsl 1.6.0; popd
     - source activate.sh
     - clone_github NEO-2
     - scripts/setup_neo2.sh
