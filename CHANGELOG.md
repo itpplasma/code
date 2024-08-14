@@ -1,3 +1,6 @@
+# August 2024
+- Adding field module to libneo and clean up build process
+
 # June 2024
 - Tried numpy 2.0 but switched back for now
 - Updated docker images with setup scripts
