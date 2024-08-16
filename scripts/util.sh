@@ -40,21 +40,21 @@ add_to_library_path() {
 # Usage: run_in_dir <dir> <command>
 run_in_dir() (
     local dir=$1
-    local cmd=$2
-    pushd $dir > /dev/null
-    $cmd
-    popd > /dev/null
+    shift
+    local cmd="$@"
+    cd "$dir" || return
+    eval "$cmd"
 )
 
 # Run a git command in all in the current directory and in top-level git subdirectories.
 # Usage: git_all commit | push | pull | fetch | status | branch ...
 git_all() (
-    local cmd=${@:1}
+    local cmd="$*"
     git $cmd
     for dir in $(ls -d */); do
         if [ -d "$dir/.git" ]; then
             echo "$dir"
-            run_in_dir $dir "git $cmd"
+            run_in_dir "$dir" git $cmd
             echo ""
         fi
     done
