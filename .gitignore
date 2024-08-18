@@ -12,6 +12,7 @@
 *.pyc
 .pytest_cache
 .venv
+.fortls
 /local/
 /tmp/
 /temp/
