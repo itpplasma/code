@@ -15,6 +15,7 @@ apt-get install -y -q --no-install-recommends \
     rsync \
     wget \
     git \
+    git-lfs \
     gpg \
     gfortran \
     ninja-build \
