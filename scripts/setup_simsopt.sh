@@ -3,7 +3,7 @@
 
 if [ ! -d "simsopt" ] ; then
     echo "Fetching and building simsopt..."
-    git clone git@github.com:itpplasma/simsopt.git
+    git clone git@github.com:hiddenSymmetries/simsopt.git
 fi
 
 pushd simsopt
