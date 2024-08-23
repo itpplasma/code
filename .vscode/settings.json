@@ -32,5 +32,6 @@
     "githubPullRequests.ignoredPullRequestBranches": [
         "main"
     ],
-    "fortran.linter.modOutput": "${workspaceFolder}/.fortls"
+    "fortran.linter.modOutput": "${workspaceFolder}/.fortls",
+    "restructuredtext.pythonRecommendation.disabled": true
 }
