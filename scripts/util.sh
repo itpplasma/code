@@ -50,15 +50,27 @@ run_in_dir() (
 # Usage: git_all commit | push | pull | fetch | status | branch ...
 git_all() (
     local cmd="$*"
-    git $cmd
+    echo "$(pwd)"
+    (git $cmd) &
+    jobs=($!)
+
     for dir in $(ls -d */); do
         if [ -d "$dir/.git" ]; then
             echo "$dir"
-            run_in_dir "$dir" git $cmd
-            echo ""
+            (
+                cd "$dir" || exit 1
+                git $cmd
+            ) &
+            jobs+=($!)  # Capture the PID of the background process
         fi
     done
+
+    # Wait for all background processes to complete
+    for job in "${jobs[@]}"; do
+        wait $job
+    done
 )
+
 
 
 # Clone a repository from https://gitlab.tugraz.at/plasma/codes/ .
