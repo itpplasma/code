@@ -82,5 +82,3 @@ importlib-metadata
 freeqdsk
 freegs
 
-# Stellarators
-coilpy
