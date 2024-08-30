@@ -12,6 +12,5 @@ sudo $CODE/scripts/setup_base.sh
 sudo $CODE/scripts/setup_interactive.sh
 sudo $CODE/scripts/setup_libs.sh
 sudo $CODE/scripts/setup_octave.sh
-sudo $CODE/scripts/setup_python.sh
 sudo $CODE/scripts/setup_texlive.sh
 sudo $CODE/scripts/setup_fonts.sh
