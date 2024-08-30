@@ -19,5 +19,4 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install --upgrade meson
 python -m pip install --upgrade ninja
-python -m pip install --upgrade numpy==1.24.4
 python -m pip install -r requirements.txt
