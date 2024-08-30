@@ -61,6 +61,7 @@ pacman -S --noconfirm --needed \
     superlu \
     hdf5 \
     netcdf \
+    netcdf-fortran \
     fftw \
     gsl \
     openmpi \
