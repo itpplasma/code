@@ -5,6 +5,4 @@
 (echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> $HOME/.zprofile
 eval "$(/usr/local/bin/brew shellenv)"
 
-brew install --cask orbstack
-brew install --cask devpod
-brew install --cask visual-studio-code
+brew install --cask orbstack devpod visual-studio-code
