@@ -10,3 +10,4 @@ brew install --cask orbstack devpod visual-studio-code
 sudo ln -s /Applications/OrbStack.app/Contents/MacOS/xbin/docker /usr/local/bin/docker
 
 devpod provider add docker
+devpod up git@gitlab.tugraz.at:plasma/code
