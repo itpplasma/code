@@ -13,7 +13,7 @@ else
     exit 1
 fi
 
-$PYTHON -m venv --system-site-packages .venv
+$PYTHON -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
