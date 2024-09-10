@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -e
 pushd NEO-2
 $CODE/scripts/checkout_branch.sh $CODE_BRANCH
 

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 echo "Building and installing NEO-RT..."
 if [ ! -d "contrib" ] ; then
     mkdir contrib
