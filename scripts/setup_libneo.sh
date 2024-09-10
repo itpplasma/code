@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 echo "Building and installing 'efit_to_boozer'..."
 if [ ! -d "efit_to_boozer" ] ; then
     echo "Cloning 'efit_to_boozer'..."

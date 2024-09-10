@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -e
 source /etc/profile.d/modules.sh
 module use -a $CODE/modules
 

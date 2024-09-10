@@ -60,4 +60,4 @@ Tests can currently be performed by using
 
     pytest tests/
 
-This will perform all the tests in `tests/` and its subfolders. 
+This will perform all the tests in `tests/` and its subfolders.
