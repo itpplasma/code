@@ -137,6 +137,7 @@ neo2-job:
   stage: codes
   needs: ["fgsl", "libneo"]
   script:
+    - set -e
     - export CODE=`pwd`
     - source scripts/util.sh
     - set_branch
