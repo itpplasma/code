@@ -1,6 +1,6 @@
 # CODE
 
-This is the ITPcp plasma group meta-repository that collects scripts 
+This is the ITPcp plasma group meta-repository that collects scripts
 to setup development and use of internal and external codes. Our development
 environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
