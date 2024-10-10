@@ -6,9 +6,10 @@ echo "Works with Intel compiler, not GNU or NVIDIA/PGI."
 echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 export FC=ifort
-export CC=icx
-export CXX=icpx
+export CC=icc
+export CXX=icc
 
+mkdir -p intel
 pushd intel
 source setup_netcdf.sh
 popd
