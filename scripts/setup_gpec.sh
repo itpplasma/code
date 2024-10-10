@@ -7,7 +7,7 @@ echo "Code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 export FC=ifort
 export CC=icc
-export CXX=icc
+export CXX=icpc
 
 mkdir -p intel
 pushd intel
