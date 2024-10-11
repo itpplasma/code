@@ -33,5 +33,9 @@
         "main"
     ],
     "fortran.linter.modOutput": "${workspaceFolder}/.fortls",
-    "restructuredtext.pythonRecommendation.disabled": true
+    "restructuredtext.pythonRecommendation.disabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "testing.openTesting": "neverOpen"
 }
