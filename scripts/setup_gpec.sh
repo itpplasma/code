@@ -15,7 +15,7 @@ pushd $CODE/external
         source setup_netcdf.sh
     popd
 
-    module load netcdf-fortran/4.6.1-intel
+    module load intelcompiler/2024.2 netcdf-fortran/4.6.1-intel
 
     git clone git@github.com:PrincetonUniversity/GPEC.git
     pushd GPEC/install
