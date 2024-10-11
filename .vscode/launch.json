@@ -17,7 +17,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/SIMPLE/build/simple.x",
-            "cwd": "${workspaceFolder}/SIMPLE/examples",
+            "cwd": "${workspaceFolder}/SIMPLE/examples/meiss",
         }
     ]
 }
