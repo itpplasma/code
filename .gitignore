@@ -33,3 +33,4 @@ efit_to_boozer.inp
 tests/**/RUN*
 tests/**/*.png
 .coverage
+mars_coords2stor_thetageom.profile
