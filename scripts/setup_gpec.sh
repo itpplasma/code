@@ -17,7 +17,7 @@ pushd $CODE/external
 
     module load intelcompiler/2024.2 netcdf-fortran/4.6.1-intel
 
-    git clone git@github.com:PrincetonUniversity/GPEC.git
+    git clone -b master git@github.com:PrincetonUniversity/GPEC.git
     pushd GPEC/install
         OMPFLAG=-qopenmp make
     popd
