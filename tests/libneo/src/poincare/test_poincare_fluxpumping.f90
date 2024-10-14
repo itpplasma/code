@@ -1,6 +1,8 @@
 program test_poincare_fluxpumping
 use, intrinsic :: iso_fortran_env, only: dp => real64
 use neo_poincare, only: poincare_config_t
+use util_for_test, only: print_test, print_fail, print_ok
+
 implicit none
 
 real(dp), parameter :: pi = 3.14159265358979_dp
@@ -33,6 +35,8 @@ subroutine test_make_poincare_fluxpumping
     type(jorek_field_t) :: field
     type(poincare_config_t) :: config
 
+    call print_test("test_make_poincare_fluxpumping")
+
     jorek_file ="/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/" // &
     "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
@@ -41,6 +45,8 @@ subroutine test_make_poincare_fluxpumping
     call read_config_file(config, config_file)
     call make_poincare(field, config)
     call remove_poincare_config
+
+    call print_ok
 end subroutine test_make_poincare_fluxpumping
 
 subroutine write_poincare_config(config)
@@ -95,6 +101,10 @@ subroutine remove_poincare_config
     open(newunit=file_id, iostat=stat, file=config_file, status='old')
     if (stat == 0) close(file_id, status='delete')
     inquire(file=trim(config_file), exist=exists)
+    if (exists) then
+        call print_fail
+        error stop
+    end if
 end subroutine remove_poincare_config
 
 end program test_poincare_fluxpumping

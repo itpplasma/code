@@ -1,6 +1,7 @@
 program test_jorek_field_fluxpumping
 use, intrinsic :: iso_fortran_env, only: dp => real64
 use neo_jorek_field, only: jorek_field_t
+use util_for_test, only: print_test, print_ok
 
 implicit none
 
@@ -18,6 +19,8 @@ subroutine test_haowei_field
 
     real(dp) :: Rmin, Rmax, Zmin, Zmax, phimin, phimax
 
+    call print_test("test_haowei_field")
+
     fluxpumping_dir = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping"
     filename = "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
     path_to_fluxpumping_file = trim(adjustl(fluxpumping_dir)) // '/' // trim(filename)
@@ -26,6 +29,8 @@ subroutine test_haowei_field
 
     call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, filename)
     call make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
+
+    call print_ok
 end subroutine test_haowei_field
 
 subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
