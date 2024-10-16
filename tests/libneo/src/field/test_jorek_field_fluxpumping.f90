@@ -11,9 +11,9 @@ haowei_dir = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping"
 filename = "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 haowei_file = trim(adjustl(haowei_dir)) // '/' // trim(filename)
 
-call test_haowei_field_mesh
-call test_haowei_field
-!call draw_haowei_field
+!call test_haowei_field_mesh
+!call test_haowei_field
+call draw_haowei_field
 
 contains
 
@@ -24,17 +24,75 @@ subroutine test_haowei_field_mesh
     use neo_field_mesh, only: field_mesh_t
     use neo_mesh, only: mesh_t
 
-    type(field_mesh_t) :: field_mesh
-    type(mesh_t) :: fluxfunction_mesh, B_phi_mesh
+    type(field_mesh_t) :: haowei_mesh, computed_mesh
+    type(mesh_t) :: A_phi_mesh, curla_R, curla_phi, curla_Z
+    real(dp), dimension(:,:,:), allocatable :: R
 
     call print_test("test_haowei_field_mesh")
 
-    call load_field_mesh_from_jorek(haowei_file, field_mesh)
-    call load_fluxfunction_mesh_from_jorek(haowei_file, fluxfunction_mesh)
-    call is_fluxfunction_mesh_equal_R_bphi(fluxfunction_mesh, field_mesh%B2)
+    call load_field_mesh_from_jorek(haowei_file, haowei_mesh)
+    A_phi_mesh = haowei_mesh%A2
+    allocate(R(A_phi_mesh%n1, A_phi_mesh%n2, A_phi_mesh%n3))
+    R = spread(spread(A_phi_mesh%x1, dim=2, ncopies=A_phi_mesh%n2), &
+                                     dim=3, ncopies=A_phi_mesh%n3)
+    haowei_mesh%A2%value = - A_phi_mesh%value * R
+    haowei_mesh%B2%value = - haowei_mesh%B2%value
+    computed_mesh = haowei_mesh
+    call set_field_mesh_curla_for_b(computed_mesh)
+    call save_field_mesh_to_hdf5(haowei_mesh, 'haowei_mesh.h5')
+    call save_field_mesh_to_hdf5(computed_mesh, 'computed_mesh.h5')
+
+    !call load_fluxfunction_mesh_from_jorek(haowei_file, fluxfunction_mesh)
+    !call is_fluxfunction_mesh_equal_R_bphi(fluxfunction_mesh, field_mesh%B2)
 
     call print_ok
 end subroutine test_haowei_field_mesh
+
+subroutine set_field_mesh_curla_for_b(field_mesh)
+    use neo_field_mesh, only: field_mesh_t
+    use neo_mesh, only: mesh_t
+
+    type(field_mesh_t), intent(inout) :: field_mesh
+
+    integer :: idx_R, idx_phi, idx_Z
+    real(dp) :: R
+    real(dp) :: dA3_dZ, dAZ_dphi, dAR_dphi, dA3_dR, dAZ_dR, dAR_dZ
+
+    do idx_R = 2, field_mesh%A1%n1 - 1
+        R = field_mesh%A1%x1(idx_R)
+        do idx_phi = 2, field_mesh%A1%n2 - 1
+            do idx_Z = 2, field_mesh%A1%n3 - 1
+                    dAR_dphi = (field_mesh%A1%value(idx_R, idx_phi+1, idx_Z) - &
+                                field_mesh%A1%value(idx_R, idx_phi-1, idx_Z)) / &
+                               (field_mesh%A1%x2(idx_phi+1) - &
+                                field_mesh%A1%x2(idx_phi-1))                                
+                    dAR_dZ =   (field_mesh%A1%value(idx_R, idx_phi, idx_Z+1) - &
+                                field_mesh%A1%value(idx_R, idx_phi, idx_Z-1)) / &
+                               (field_mesh%A1%x3(idx_Z+1) - &
+                                field_mesh%A1%x3(idx_Z-1))
+                    dA3_dR =   (field_mesh%A2%value(idx_R+1, idx_phi, idx_Z) - &
+                                field_mesh%A2%value(idx_R-1, idx_phi, idx_Z)) / &
+                               (field_mesh%A2%x1(idx_R+1) - &
+                                field_mesh%A2%x1(idx_R-1))
+                    dA3_dZ =   (field_mesh%A2%value(idx_R, idx_phi, idx_Z+1) - &
+                                field_mesh%A2%value(idx_R, idx_phi, idx_Z-1)) / &
+                               (field_mesh%A2%x3(idx_Z+1) - &
+                                field_mesh%A2%x3(idx_Z-1))
+                    dAZ_dR =   (field_mesh%A3%value(idx_R+1, idx_phi, idx_Z) - &
+                                field_mesh%A3%value(idx_R-1, idx_phi, idx_Z)) / &
+                               (field_mesh%A3%x1(idx_R+1) - &
+                                field_mesh%A3%x1(idx_R-1))
+                    dAZ_dphi = (field_mesh%A3%value(idx_R, idx_phi+1, idx_Z) - &
+                                field_mesh%A3%value(idx_R, idx_phi-1, idx_Z)) / &
+                               (field_mesh%A3%x2(idx_phi+1) - &
+                                field_mesh%A3%x2(idx_phi-1))
+                    field_mesh%B1%value(idx_R, idx_phi, idx_Z) = (dA3_dZ - dAZ_dphi) / R
+                    field_mesh%B2%value(idx_R, idx_phi, idx_Z) = (dAZ_dR - dAR_dZ)
+                    field_mesh%B3%value(idx_R, idx_phi, idx_Z) = (dAR_dphi - dA3_dR) / R
+            end do
+        end do
+    end do
+end subroutine set_field_mesh_curla_for_b
 
 subroutine is_fluxfunction_mesh_equal_R_bphi(fluxfunction, B_phi)
     use neo_mesh, only: mesh_t
@@ -44,7 +102,7 @@ subroutine is_fluxfunction_mesh_equal_R_bphi(fluxfunction, B_phi)
     real(dp) :: R, delta_B_phi
     integer :: idx_R, idx_phi, idx_Z
 
-    RADIUS: do idx_R = 1, fluxfunction%n1
+    do idx_R = 1, fluxfunction%n1
         R = fluxfunction%x1(idx_R)
         do idx_phi = 1, 1
             do idx_Z = 1, fluxfunction%n3
@@ -56,12 +114,11 @@ subroutine is_fluxfunction_mesh_equal_R_bphi(fluxfunction, B_phi)
                     print *, "fluxfunction = ", fluxfunction%value(idx_R, idx_phi, idx_Z)
                     print *, "B_phi * R = ", B_phi%value(idx_R, idx_phi, idx_Z) * R
                     call print_fail
-                    cycle RADIUS
+                    error stop
                 end if
             end do
         end do
-    end do RADIUS
-
+    end do
 end subroutine is_fluxfunction_mesh_equal_R_bphi
 
 
@@ -77,6 +134,12 @@ subroutine test_haowei_field
     call field%jorek_field_init(haowei_file)
 
     call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, filename)
+    phimin = 1.0_dp
+    phimax = 1.0_dp
+    Zmin = 0.0_dp
+    Zmax = 0.0_dp
+    Rmin = Rmin + 0.4_dp
+    Rmax = Rmax - 0.4_dp
     call is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
 
     call print_ok
@@ -95,22 +158,24 @@ subroutine is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin,
     integer :: idx
 
     x(1,:) = get_random_numbers(Rmin, Rmax, n)
-    x(2,:) = get_random_numbers(Zmin, Zmax, n)
-    x(3,:) = get_random_numbers(phimin, phimax, n)
+    x(2,:) = get_random_numbers(phimin, phimax, n)
+    x(3,:) = get_random_numbers(Zmin, Zmax, n)
 
     do idx = 1, n
+        x(:,idx) = (/1.5_dp, 1.0_dp, 0.0_dp/)
         call field%compute_abfield(x(:,idx), A, B)
         call field%compute_fluxfunction(x(:,idx), fluxfunction)
         curla = compute_cylindrical_curla(field, x(:,idx), tol)
         B_from_a_and_fluxfunction = curla
         R = x(1,idx)
-        B_from_a_and_fluxfunction(2) = B_from_a_and_fluxfunction(2) + fluxfunction/R
+        B_from_a_and_fluxfunction(2) = B_from_a_and_fluxfunction(2)/2.0_dp + fluxfunction/R
+        print *, "x = ", x(:,idx)
         if (any(abs(B - B_from_a_and_fluxfunction) > tol)) then
             print *, "mis-match at x = ", x(:,idx)
             print *, "B = ", B
             print *, "B_from_a_and_fluxfunction = ", B_from_a_and_fluxfunction
             print *, "curla = ", curla
-            print *, "fluxfunction = ", fluxfunction
+            print *, "fluxfunction/R = ", fluxfunction/R
             call print_fail
             error stop
         end if
