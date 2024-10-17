@@ -4,16 +4,14 @@ use neo_jorek_field, only: jorek_field_t
 use util_for_test, only: print_test, print_fail, print_ok
 
 implicit none
-character(len=200) :: haowei_dir, filename
 character(len=400) :: haowei_file
 
-haowei_dir = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping"
-filename = "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
-haowei_file = trim(adjustl(haowei_dir)) // '/' // trim(filename)
+haowei_file = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/&
+               &exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
-!call test_haowei_field_mesh
+call test_haowei_field_mesh
 !call test_haowei_field
-call draw_haowei_field
+!call draw_haowei_field
 
 contains
 
@@ -21,11 +19,12 @@ contains
 subroutine test_haowei_field_mesh
     use neo_jorek_field, only: load_field_mesh_from_jorek
     use neo_jorek_field, only: load_fluxfunction_mesh_from_jorek
+    use neo_jorek_field, only: set_b_mesh_to_curla_plus_fluxfunction
     use neo_field_mesh, only: field_mesh_t
     use neo_mesh, only: mesh_t
 
-    type(field_mesh_t) :: haowei_mesh, computed_mesh
-    type(mesh_t) :: A_phi_mesh, curla_R, curla_phi, curla_Z
+    type(field_mesh_t) :: haowei_mesh, b_jorek_formula_mesh, b_cyl_formula_mesh
+    type(mesh_t) :: A_phi_mesh, fluxfunction_mesh
     real(dp), dimension(:,:,:), allocatable :: R
 
     call print_test("test_haowei_field_mesh")
@@ -37,18 +36,25 @@ subroutine test_haowei_field_mesh
                                      dim=3, ncopies=A_phi_mesh%n3)
     haowei_mesh%A2%value = - A_phi_mesh%value * R
     haowei_mesh%B2%value = - haowei_mesh%B2%value
-    computed_mesh = haowei_mesh
-    call set_field_mesh_curla_for_b(computed_mesh)
     call save_field_mesh_to_hdf5(haowei_mesh, 'haowei_mesh.h5')
-    call save_field_mesh_to_hdf5(computed_mesh, 'computed_mesh.h5')
 
+    b_jorek_formula_mesh = haowei_mesh
+    call set_b_mesh_to_jorek_formula(b_jorek_formula_mesh)
+    call save_field_mesh_to_hdf5(haowei_mesh, 'haowei_mesh.h5')
+    call save_field_mesh_to_hdf5(b_jorek_formula_mesh, 'b_jorek_formula_mesh.h5')
+    
+
+    call load_field_mesh_from_jorek(haowei_file, b_cyl_formula_mesh)
+    call load_fluxfunction_mesh_from_jorek(haowei_file, fluxfunction_mesh)
+    call set_b_mesh_to_curla_plus_fluxfunction(b_cyl_formula_mesh, fluxfunction_mesh)
+    call save_field_mesh_to_hdf5(b_cyl_formula_mesh, 'b_cyl_formula_mesh.h5')
     !call load_fluxfunction_mesh_from_jorek(haowei_file, fluxfunction_mesh)
     !call is_fluxfunction_mesh_equal_R_bphi(fluxfunction_mesh, field_mesh%B2)
 
     call print_ok
 end subroutine test_haowei_field_mesh
 
-subroutine set_field_mesh_curla_for_b(field_mesh)
+subroutine set_b_mesh_to_jorek_formula(field_mesh)
     use neo_field_mesh, only: field_mesh_t
     use neo_mesh, only: mesh_t
 
@@ -92,7 +98,7 @@ subroutine set_field_mesh_curla_for_b(field_mesh)
             end do
         end do
     end do
-end subroutine set_field_mesh_curla_for_b
+end subroutine set_b_mesh_to_jorek_formula
 
 subroutine is_fluxfunction_mesh_equal_R_bphi(fluxfunction, B_phi)
     use neo_mesh, only: mesh_t
@@ -133,7 +139,7 @@ subroutine test_haowei_field
    
     call field%jorek_field_init(haowei_file)
 
-    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, filename)
+    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, haowei_file)
     phimin = 1.0_dp
     phimax = 1.0_dp
     Zmin = 0.0_dp
@@ -205,7 +211,7 @@ subroutine draw_haowei_field
     real(dp) :: Rmin, Rmax, Zmin, Zmax, phimin, phimax
    
     call field%jorek_field_init(haowei_file)
-    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, filename)
+    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, haowei_file)
     call make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
 end subroutine draw_haowei_field
 
@@ -216,7 +222,7 @@ subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     real(dp), intent(in) :: Rmin, Rmax, phimin, phimax, Zmin, Zmax
 
     real(dp), dimension(3,2) :: limits
-    integer :: n_points(3) = (/200, 10, 200/)
+    integer :: n_points(3) = (/100, 33, 100/)
     type(field_mesh_t) :: field_mesh
     
     limits(:,1) = (/Rmin, phimin, Zmin/)
@@ -224,7 +230,6 @@ subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
 
     call field_mesh%field_mesh_init_with_field(limits, field, n_points)
     call save_field_mesh_to_hdf5(field_mesh, 'jorek_contour.h5')
-
 end subroutine make_contour_plot
 
 subroutine save_field_mesh_to_hdf5(field_mesh, filename)
