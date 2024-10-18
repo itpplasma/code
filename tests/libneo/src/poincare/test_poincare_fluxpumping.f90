@@ -11,10 +11,10 @@ type(poincare_config_t) :: jorek_config
 
 jorek_config%n_fieldlines = 10
 jorek_config%fieldline_start_Rmin = 1.75_dp
-jorek_config%fieldline_start_Rmax = 2.0_dp
-jorek_config%fieldline_start_phi = 0.0_dp
-jorek_config%fieldline_start_Z = 0.0_dp
-jorek_config%n_periods = 10
+jorek_config%fieldline_start_Rmax = 1.85_dp
+jorek_config%fieldline_start_phi = 1.0_dp
+jorek_config%fieldline_start_Z = 0.1_dp
+jorek_config%n_periods = 100
 jorek_config%period_length = 2.0_dp * pi
 jorek_config%integrate_err = 1.0e-8_dp
 jorek_config%plot_Rmin = 1.0_dp
