@@ -17,4 +17,5 @@ apt-get install -y -q --no-install-recommends \
     kcachegrind \
     python3-tk \
     idle3 \
-    findent
+    findent \
+    expect
