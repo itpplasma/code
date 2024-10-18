@@ -19,7 +19,6 @@ contains
 subroutine test_haowei_field_mesh
     use neo_jorek_field, only: load_field_mesh_from_jorek
     use neo_jorek_field, only: load_fluxfunction_mesh_from_jorek
-    use neo_jorek_field, only: set_b_mesh_to_curla_plus_fluxfunction
     use neo_field_mesh, only: field_mesh_t
     use neo_mesh, only: mesh_t
 
@@ -30,29 +29,36 @@ subroutine test_haowei_field_mesh
     call print_test("test_haowei_field_mesh")
 
     call load_field_mesh_from_jorek(haowei_file, haowei_mesh)
-    A_phi_mesh = haowei_mesh%A2
-    allocate(R(A_phi_mesh%n1, A_phi_mesh%n2, A_phi_mesh%n3))
-    R = spread(spread(A_phi_mesh%x1, dim=2, ncopies=A_phi_mesh%n2), &
-                                     dim=3, ncopies=A_phi_mesh%n3)
-    haowei_mesh%A2%value = - A_phi_mesh%value * R
-    haowei_mesh%B2%value = - haowei_mesh%B2%value
+    call set_field_mesh_convention_to_jorek(haowei_mesh)
     call save_field_mesh_to_hdf5(haowei_mesh, 'haowei_mesh.h5')
 
     b_jorek_formula_mesh = haowei_mesh
     call set_b_mesh_to_jorek_formula(b_jorek_formula_mesh)
-    call save_field_mesh_to_hdf5(haowei_mesh, 'haowei_mesh.h5')
     call save_field_mesh_to_hdf5(b_jorek_formula_mesh, 'b_jorek_formula_mesh.h5')
-    
-
-    call load_field_mesh_from_jorek(haowei_file, b_cyl_formula_mesh)
-    call load_fluxfunction_mesh_from_jorek(haowei_file, fluxfunction_mesh)
-    call set_b_mesh_to_curla_plus_fluxfunction(b_cyl_formula_mesh, fluxfunction_mesh)
-    call save_field_mesh_to_hdf5(b_cyl_formula_mesh, 'b_cyl_formula_mesh.h5')
-    !call load_fluxfunction_mesh_from_jorek(haowei_file, fluxfunction_mesh)
-    !call is_fluxfunction_mesh_equal_R_bphi(fluxfunction_mesh, field_mesh%B2)
 
     call print_ok
 end subroutine test_haowei_field_mesh
+
+subroutine set_field_mesh_convention_to_jorek(field_mesh)
+    use neo_field_mesh, only: field_mesh_t
+    use neo_jorek_field, only: switch_phi_orientation
+
+    type(field_mesh_t), intent(inout) :: field_mesh
+
+    real(dp), dimension(:,:,:), allocatable :: R
+
+    allocate(R(field_mesh%A2%n1, field_mesh%A2%n2, field_mesh%A2%n3))
+    R = spread(spread(field_mesh%A2%x1, dim=2, ncopies=field_mesh%A2%n2), &
+                                        dim=3, ncopies=field_mesh%A2%n3)
+    call switch_phi_orientation(field_mesh%A1%value)
+    call switch_phi_orientation(field_mesh%A2%value)
+    field_mesh%A2%value = - field_mesh%A2%value * R
+    call switch_phi_orientation(field_mesh%A3%value)
+    call switch_phi_orientation(field_mesh%B1%value)
+    call switch_phi_orientation(field_mesh%B2%value)
+    field_mesh%B2%value = - field_mesh%B2%value
+    call switch_phi_orientation(field_mesh%B3%value)
+end subroutine set_field_mesh_convention_to_jorek
 
 subroutine set_b_mesh_to_jorek_formula(field_mesh)
     use neo_field_mesh, only: field_mesh_t
