@@ -3,15 +3,15 @@
 proc ModulesHelp { } {
     puts stderr "environment for OMFIT
 
-  Please send remarks on using this module to Patrick Lainer
-  (mailto:patrick.lainer@tugraz.at)"
+  Please send remarks on using this module to Christopher Albert
+  (mailto:albert@tugraz.at)"
 }
 
 module-whatis "use OMFIT"
 
 prereq gpec/git
 
-set    OMFIT_ROOT $env(CODE)/external/OMFIT-source
+set    OMFIT_ROOT /temp/AG-plasma/opt/OMFIT-source
 setenv OMFIT_ROOT $OMFIT_ROOT
 prepend-path PATH $OMFIT_ROOT/bin
 

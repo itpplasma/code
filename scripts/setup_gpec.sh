@@ -11,11 +11,12 @@ export CXX=icx
 export MKLROOT=/opt/intel/oneapi/mkl/2024.2
 
 pushd $CODE/external
+    module load intelcompiler/2024.2
     pushd intel
         source setup_netcdf.sh
     popd
 
-    module load intelcompiler/2024.2 netcdf-fortran/4.6.1-intel
+    module netcdf-fortran/4.6.1-intel
 
     git clone -b master git@github.com:PrincetonUniversity/GPEC.git
     pushd GPEC/install
