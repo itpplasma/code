@@ -9,12 +9,12 @@ real(dp), parameter :: pi = 3.14159265358979_dp
 character(len=*), parameter :: config_file = 'poincare.inp'
 type(poincare_config_t) :: jorek_config
 
-jorek_config%n_fieldlines = 10
-jorek_config%fieldline_start_Rmin = 1.75_dp
-jorek_config%fieldline_start_Rmax = 1.85_dp
+jorek_config%n_fieldlines = 30
+jorek_config%fieldline_start_Rmin = 1.5_dp
+jorek_config%fieldline_start_Rmax = 1.9_dp
 jorek_config%fieldline_start_phi = 1.0_dp
 jorek_config%fieldline_start_Z = 0.1_dp
-jorek_config%n_periods = 100
+jorek_config%n_periods = 1000
 jorek_config%period_length = 2.0_dp * pi
 jorek_config%integrate_err = 1.0e-8_dp
 jorek_config%plot_Rmin = 1.0_dp
@@ -35,16 +35,28 @@ subroutine test_make_poincare_fluxpumping
     type(jorek_field_t) :: field
     type(poincare_config_t) :: config
 
+    integer, parameter :: n_phi = 2
+    real(dp) :: phi(n_phi)
+    integer :: idx_phi
+    character(len=100) :: output_filename
+
     call print_test("test_make_poincare_fluxpumping")
 
     jorek_file ="/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/" // &
     "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
     call field%jorek_field_init(jorek_file)
+
     call write_poincare_config(jorek_config)
     call read_config_file(config, config_file)
-    call make_poincare(field, config)
     call remove_poincare_config
+
+    call linspace(0.0_dp, 2.0_dp * pi, n_phi, phi)
+    do idx_phi = 1, n_phi - 1
+        config%fieldline_start_phi = jorek_config%fieldline_start_phi + phi(idx_phi)
+        write(output_filename, '(I0, A)') idx_phi, '.dat'
+        call make_poincare(field, config, output_filename)
+    end do
 
     call print_ok
 end subroutine test_make_poincare_fluxpumping
@@ -106,5 +118,18 @@ subroutine remove_poincare_config
         error stop
     end if
 end subroutine remove_poincare_config
+
+subroutine linspace(start, stop, n, x)
+    real(dp), intent(in) :: start, stop
+    integer, intent(in) :: n
+    real(dp), intent(out) :: x(n)
+    real(dp) :: dx
+    integer :: i
+
+    dx = (stop - start) / (n - 1)
+    do i = 1, n
+        x(i) = start + (i - 1) * dx
+    end do
+end subroutine linspace
 
 end program test_poincare_fluxpumping
