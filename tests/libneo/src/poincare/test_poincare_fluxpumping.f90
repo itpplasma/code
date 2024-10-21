@@ -9,10 +9,10 @@ real(dp), parameter :: pi = 3.14159265358979_dp
 character(len=*), parameter :: config_file = 'poincare.inp'
 type(poincare_config_t) :: jorek_config
 
-jorek_config%n_fieldlines = 30
-jorek_config%fieldline_start_Rmin = 1.5_dp
-jorek_config%fieldline_start_Rmax = 1.9_dp
-jorek_config%fieldline_start_phi = 1.0_dp
+jorek_config%n_fieldlines = 20
+jorek_config%fieldline_start_Rmin = 1.55_dp
+jorek_config%fieldline_start_Rmax = 1.85_dp
+jorek_config%fieldline_start_phi = 0.0_dp
 jorek_config%fieldline_start_Z = 0.1_dp
 jorek_config%n_periods = 1000
 jorek_config%period_length = 2.0_dp * pi
@@ -22,12 +22,12 @@ jorek_config%plot_Rmax = 2.25_dp
 jorek_config%plot_Zmin = -1.0_dp
 jorek_config%plot_Zmax = 1.0_dp
 
-call test_make_poincare_fluxpumping
+call make_poincare_fluxpumping
 
 contains
 
 
-subroutine test_make_poincare_fluxpumping
+subroutine make_poincare_fluxpumping
     use neo_poincare, only: make_poincare, read_config_file, poincare_config_t
     use neo_jorek_field, only: jorek_field_t
 
@@ -35,12 +35,13 @@ subroutine test_make_poincare_fluxpumping
     type(jorek_field_t) :: field
     type(poincare_config_t) :: config
 
-    integer, parameter :: n_phi = 2
+    integer, parameter :: n_phi = 9
+    real(dp), parameter :: Z_at_phi0 = 0.08_dp, dZ = 0.08_dp
     real(dp) :: phi(n_phi)
     integer :: idx_phi
     character(len=100) :: output_filename
 
-    call print_test("test_make_poincare_fluxpumping")
+    call print_test("make_poincare_fluxpumping")
 
     jorek_file ="/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/" // &
     "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
@@ -54,12 +55,13 @@ subroutine test_make_poincare_fluxpumping
     call linspace(0.0_dp, 2.0_dp * pi, n_phi, phi)
     do idx_phi = 1, n_phi - 1
         config%fieldline_start_phi = jorek_config%fieldline_start_phi + phi(idx_phi)
+        config%fieldline_start_Z = Z_at_phi0 + dZ * sin(phi(idx_phi))
         write(output_filename, '(I0, A)') idx_phi, '.dat'
         call make_poincare(field, config, output_filename)
     end do
 
     call print_ok
-end subroutine test_make_poincare_fluxpumping
+end subroutine make_poincare_fluxpumping
 
 subroutine write_poincare_config(config)
     use neo_poincare, only: poincare_config_t
