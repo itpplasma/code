@@ -14,3 +14,16 @@ echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt
 
 sudo apt-get update  --quiet --quiet
 sudo apt-get install --quiet --yes --no-install-recommends intel-basekit intel-hpckit
+
+# create configuration for "environment modules"
+if [ -x /opt/intel/oneapi/modulefiles-setup.sh ] ; then
+    if [ -d /usr/share/modules/modulefiles ] ; then
+        /opt/intel/oneapi/modulefiles-setup.sh \
+            --force --ignore-latest \
+            --output-dir=/usr/share/modules/modulefiles/intel
+    else
+        echo "## ENVIRONMENT Modules - where is the config directory?"
+    fi
+else
+    echo "## ENVIRONMENT Modules - don't know how to configure!"
+fi
