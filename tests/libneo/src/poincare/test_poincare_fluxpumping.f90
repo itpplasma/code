@@ -35,7 +35,7 @@ subroutine make_poincare_fluxpumping
     type(jorek_field_t) :: field
     type(poincare_config_t) :: config
 
-    integer, parameter :: n_phi = 9
+    integer, parameter :: n_phi = 2
     real(dp), parameter :: Z_at_phi0 = 0.08_dp, dZ = 0.08_dp
     real(dp) :: phi(n_phi)
     integer :: idx_phi
@@ -46,7 +46,7 @@ subroutine make_poincare_fluxpumping
     jorek_file ="/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/" // &
     "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
-    call field%jorek_field_init(jorek_file)
+    call field%jorek_field_init(jorek_file, spline_order=(/5,5,5/))
 
     call write_poincare_config(jorek_config)
     call read_config_file(config, config_file)

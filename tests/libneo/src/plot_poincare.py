@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-poincare_files = glob.glob('*.dat')
+poincare_files = glob.glob('[12345678].dat')
 n_periods = 1000
 n_fieldlines = 20
+phi = np.linspace(0,2*np.pi,9)
+idx_phi = 0
 for poincare_file in poincare_files:
-    print(poincare_file)
     poincare_RZ = np.loadtxt(poincare_file)
     plt.figure()
     for fieldline in range(n_fieldlines):
@@ -17,4 +18,6 @@ for poincare_file in poincare_files:
     plt.xlabel('R')
     plt.ylabel('Z')
     plt.axis('equal')
+    plt.title('cut at phi = ' + str(phi[idx_phi]))
+    idx_phi += 1
 plt.show()

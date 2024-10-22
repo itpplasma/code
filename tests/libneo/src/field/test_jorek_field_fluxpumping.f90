@@ -199,7 +199,7 @@ subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     real(dp), intent(in) :: Rmin, Rmax, phimin, phimax, Zmin, Zmax
 
     real(dp), dimension(3,2) :: limits
-    integer :: n_points(3) = (/100, 33, 100/)
+    integer :: n_points(3) = (/100, 100, 100/)
     type(field_mesh_t) :: field_mesh
     
     limits(:,1) = (/Rmin, phimin, Zmin/)
