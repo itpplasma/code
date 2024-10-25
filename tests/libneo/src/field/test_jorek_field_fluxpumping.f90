@@ -25,17 +25,48 @@ subroutine test_haowei_field
 
     call print_test("test_haowei_field")
    
-    call field%jorek_field_init(haowei_file)
+    call field%jorek_field_init(haowei_file, spline_order=(/3,3,3/))
 
     call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, haowei_file)
-    Zmin = -0.4_dp
+    Zmin = -0.4_dp ! only look in central region as near seperatrix unstable results
     Zmax = 0.4_dp
     Rmin = 1.5_dp
-    Rmax = 1.8_dp
+    Rmax = 1.85_dp
+    call is_divb_0(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     call is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
 
     call print_ok
 end subroutine test_haowei_field
+
+subroutine is_divb_0(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
+    use util_for_test_field, only: compute_cylindrical_divb
+
+    type(jorek_field_t), intent(in) :: field
+    real(dp), intent(in) :: Rmin, Rmax, phimin, phimax, Zmin, Zmax
+
+    integer, parameter :: n = 1000
+    real(dp), parameter :: tol = 1.0e-8_dp
+    real(dp) :: divb, B(3), bnorm
+    real(dp) :: x(3,n)
+    integer :: idx, seed(8)
+
+    seed = 12345678
+    x(1,:) = get_random_numbers(Rmin, Rmax, n, seed=seed)
+    x(2,:) = get_random_numbers(phimin, phimax, n, seed=seed)
+    x(3,:) = get_random_numbers(Zmin, Zmax, n, seed=seed)
+
+    do idx = 1, n
+        divb = compute_cylindrical_divb(field, x(:, idx), tol/10000.0_dp)
+        call field%compute_bfield(x(:, idx), B)
+        bnorm = max(1.0_dp, sqrt(B(1)**2 + B(2)**2 + B(3)**2))
+        if (abs(divb/bnorm) > tol) then
+            print *, "at x = ", x(:, idx)
+            print *, "div B = ", divb
+            call print_fail
+            error stop
+        end if
+    end do
+end subroutine is_divb_0
 
 subroutine is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     use util_for_test_field, only: compute_cylindrical_curla
@@ -71,6 +102,7 @@ subroutine is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin,
         end if
     end do
 end subroutine is_b_curla_plus_fluxfunction
+
 
 function get_random_numbers(xmin, xmax, n, seed) result(x)
     real(dp), intent(in) :: xmin, xmax
@@ -199,7 +231,7 @@ subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     real(dp), intent(in) :: Rmin, Rmax, phimin, phimax, Zmin, Zmax
 
     real(dp), dimension(3,2) :: limits
-    integer :: n_points(3) = (/100, 100, 100/)
+    integer :: n_points(3) = (/60, 60, 60/)
     type(field_mesh_t) :: field_mesh
     
     limits(:,1) = (/Rmin, phimin, Zmin/)
