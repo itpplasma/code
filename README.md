@@ -17,7 +17,7 @@ Dockerfiles `base`, `devel` and `devel-tex` inside `images` or
 use the **devcontainer**.
 
 On Mac: The recommended way is the **devcontainer**. This is enabled by **orbstack**
-and **devpod** as described in [scripts/setup_windows.bat](scripts/setup_mac.sh)
+and **devpod** as described in [scripts/setup_mac.sh](scripts/setup_mac.sh)
 
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
