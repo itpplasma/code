@@ -14,7 +14,7 @@ for poincare_file in poincare_files:
     for fieldline in range(n_fieldlines):
         plt.plot(poincare_RZ[fieldline*n_periods:(fieldline+1)*n_periods, 0],
                 poincare_RZ[fieldline*n_periods:(fieldline+1)*n_periods, 1],
-                '.', markersize=0.5)
+                'o', markersize=0.5)
     plt.xlabel('R')
     plt.ylabel('Z')
     plt.axis('equal')
