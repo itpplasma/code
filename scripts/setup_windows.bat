@@ -8,7 +8,6 @@ wsl --update
 wsl --install -d Debian
 
 winget install Microsoft.WindowsTerminal
-winget install Nextcloud.NextcloudDesktop
 winget install Git.Git
 winget install Docker.DockerDesktop
 winget install Microsoft.VisualStudioCode --override "/verysilent /suppressmsgboxes /mergetasks='!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles,addtopath'"
