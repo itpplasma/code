@@ -2,9 +2,9 @@
 
 module-whatis "HDF5 (Intel compiler)"
 
-prereq intelcompiler/2024.2
+prereq intel/compiler/2025.0.0 intel/mkl/2025.0
 
-setenv HDF5_ROOT $env(CODE)/external/intel/hdfsrc/build
+setenv HDF5_ROOT $env(CODE)/external/intel/hdf5-1.14.5/build
 prepend-path LD_LIBRARY_PATH $env(HDF5_ROOT)/lib
 prepend-path PATH            $env(HDF5_ROOT)/bin
 prepend-path -d " " CFLAGS   -I$env(HDF5_ROOT)/include

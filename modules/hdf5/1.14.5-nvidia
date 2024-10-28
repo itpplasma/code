@@ -4,7 +4,7 @@ module-whatis "HDF5 (NVIDIA compiler)"
 
 prereq nvhpc/24.5
 
-setenv HDF5_ROOT $env(CODE)/external/nvidia/hdfsrc/build
+setenv HDF5_ROOT $env(CODE)/external/nvidia/hdf5-1.14.5/build
 prepend-path LD_LIBRARY_PATH $env(HDF5_ROOT)/lib
 prepend-path PATH            $env(HDF5_ROOT)/bin
 prepend-path -d " " CFLAGS   -I$env(HDF5_ROOT)/include
