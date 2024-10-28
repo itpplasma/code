@@ -6,18 +6,16 @@ environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
 
 ## Prerequisites
-On Windows: Prepare your machine with
-[scripts/setup_windows.bat](scripts/setup_windows.bat) first.
-`CODE` can then be used via the **devcontainer** or alternatively via
-Debian Linux in WSL.
 
 On Linux: At ITPcp all packages should be installed to get going.
-For your own setup, look inside the packages in the
-Dockerfiles `base`, `devel` and `devel-tex` inside `images` or
-use the **devcontainer**.
+The according script is [scripts/setup_debian.sh](scripts/setup_debian.sh).
 
-On Mac: The recommended way is the **devcontainer**. This is enabled by **orbstack**
-and **devpod** as described in [scripts/setup_mac.sh](scripts/setup_mac.sh)
+On Mac: The recommended way via **orbstack**
+and **devpod** as described in [scripts/setup_mac.sh](scripts/setup_mac.sh).
+
+On Windows: Prepare your machine with
+[scripts/setup_windows.bat](scripts/setup_windows.bat) first
+to install Debian Linux via WSL2. Then follow the Linux instructions.
 
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
