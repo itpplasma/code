@@ -6,9 +6,10 @@ echo "Works with Intel compiler, not GNU or NVIDIA/PGI."
 echo "Upstream code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
 module load intel/compiler/2025.0.0 intel/mkl/2025.0
-export FC=ifx
-export CC=icx
-export CXX=icx
+
+export FC=/opt/intel/oneapi/compiler/2025.0/bin/ifx
+export CC=/opt/intel/oneapi/compiler/2025.0/bin/icx
+export CXX=/opt/intel/oneapi/compiler/2025.0/bin/icpx
 export MKLROOT=/opt/intel/oneapi/mkl/2025.0
 
 pushd $CODE/external
