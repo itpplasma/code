@@ -1,4 +1,4 @@
-#%Module1.0
+#%Module4.6
 
 proc ModulesHelp { } {
     puts stderr "environment for OMFIT
@@ -14,6 +14,14 @@ prereq gpec/git
 set    OMFIT_ROOT /temp/AG-plasma/opt/OMFIT-source
 setenv OMFIT_ROOT $OMFIT_ROOT
 prepend-path PATH $OMFIT_ROOT/bin
+
+source-sh bash /temp/AG-plasma/opt/mambaforge/bin/activate omfit
+
+proc module-unload { } {
+    exec mamba deactivate
+    exec mamba deactivate
+    source-sh bash $env(CODE)/activate.sh
+}
 
 # Local Variables:
 # mode: tcl
