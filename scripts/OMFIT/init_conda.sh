@@ -11,4 +11,20 @@ if [[ -n "$VIRTUAL_ENV" ]]; then
     fi
 fi
 
-puts stdout "/temp/AG-plasma/opt/mambaforge/bin/activate omfit;"
+__conda_setup="$('/itp/MooseFS/AG-plasma/opt/mambaforge/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/itp/MooseFS/AG-plasma/opt/mambaforge/etc/profile.d/conda.sh" ]; then
+        . "/itp/MooseFS/AG-plasma/opt/mambaforge/etc/profile.d/conda.sh"
+    else
+        export PATH="/itp/MooseFS/AG-plasma/opt/mambaforge/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+if [ -f "/itp/MooseFS/AG-plasma/opt/mambaforge/etc/profile.d/mamba.sh" ]; then
+    . "/itp/MooseFS/AG-plasma/opt/mambaforge/etc/profile.d/mamba.sh"
+fi
+
+mamba activate omfit
