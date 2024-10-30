@@ -18,7 +18,7 @@ pushd $CODE/external
 
     module load netcdf-fortran/4.6.1-intel
 
-    git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git
+    git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git GPEC
     pushd GPEC/install
         OMPFLAG=-qopenmp make
     popd
