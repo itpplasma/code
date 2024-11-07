@@ -1,26 +1,15 @@
 #!/bin/bash
 
 echo "Setting up GPEC..."
-echo "Local use only at ITPcp, not suited for Docker container."
-echo "Works with Intel compiler, not GNU or NVIDIA/PGI."
 echo "Upstream code access: https://princetonuniversity.github.io/GPEC/developers.html"
 
-module load intel/compiler/2025.0.0 intel/mkl/2025.0
-
-export FC=/opt/intel/oneapi/compiler/2025.0/bin/ifx
-export CC=/opt/intel/oneapi/compiler/2025.0/bin/icx
-export CXX=/opt/intel/oneapi/compiler/2025.0/bin/icpx
-export MKLROOT=/opt/intel/oneapi/mkl/2025.0
-
 pushd $CODE/external
-    pushd intel
-        source setup_netcdf.sh
-    popd
-
-    module load netcdf-fortran/4.6.1-intel
-
     git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git GPEC
+    export FFLAGS="-fdefault-real-8 -fdefault-double-8 -fallow-argument-mismatch"
+    export LAPACK_HOME="/usr/include"
+    export NETCDF_FORTRAN_HOME="/usr/include"
+    export NETCDF_LIBS="-lnetcdf -lnetcdff"
     pushd GPEC/install
-        OMPFLAG=-qopenmp make
+        OMPFLAG=-fopenmp make
     popd
 popd
