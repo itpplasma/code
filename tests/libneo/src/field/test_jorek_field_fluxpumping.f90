@@ -8,7 +8,7 @@ implicit none
 character(len=400) :: jorek_file
 
 jorek_file = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/&
-               &exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
+              &exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
 call test_jorek_field
 call draw_jorek_field_mesh
@@ -157,36 +157,18 @@ subroutine set_b_mesh_to_jorek_formula(field_mesh)
 
     integer :: idx_R, idx_phi, idx_Z
     real(dp) :: R
-    real(dp) :: dA3_dZ, dAZ_dphi, dAR_dphi, dA3_dR, dAZ_dR, dAR_dZ
+    real(dp) :: dA3_dZ, dAZ_dphi, dAR_dphi, dA3_dR, dAZ_dR, dAR_dZ, dummy
 
     do idx_R = 2, field_mesh%A1%n1 - 1
         R = field_mesh%A1%x1(idx_R)
         do idx_phi = 2, field_mesh%A1%n2 - 1
             do idx_Z = 2, field_mesh%A1%n3 - 1
-                    dAR_dphi = (field_mesh%A1%value(idx_R, idx_phi+1, idx_Z) - &
-                                field_mesh%A1%value(idx_R, idx_phi-1, idx_Z)) / &
-                               (field_mesh%A1%x2(idx_phi+1) - &
-                                field_mesh%A1%x2(idx_phi-1))                                
-                    dAR_dZ =   (field_mesh%A1%value(idx_R, idx_phi, idx_Z+1) - &
-                                field_mesh%A1%value(idx_R, idx_phi, idx_Z-1)) / &
-                               (field_mesh%A1%x3(idx_Z+1) - &
-                                field_mesh%A1%x3(idx_Z-1))
-                    dA3_dR =   (field_mesh%A2%value(idx_R+1, idx_phi, idx_Z) - &
-                                field_mesh%A2%value(idx_R-1, idx_phi, idx_Z)) / &
-                               (field_mesh%A2%x1(idx_R+1) - &
-                                field_mesh%A2%x1(idx_R-1))
-                    dA3_dZ =   (field_mesh%A2%value(idx_R, idx_phi, idx_Z+1) - &
-                                field_mesh%A2%value(idx_R, idx_phi, idx_Z-1)) / &
-                               (field_mesh%A2%x3(idx_Z+1) - &
-                                field_mesh%A2%x3(idx_Z-1))
-                    dAZ_dR =   (field_mesh%A3%value(idx_R+1, idx_phi, idx_Z) - &
-                                field_mesh%A3%value(idx_R-1, idx_phi, idx_Z)) / &
-                               (field_mesh%A3%x1(idx_R+1) - &
-                                field_mesh%A3%x1(idx_R-1))
-                    dAZ_dphi = (field_mesh%A3%value(idx_R, idx_phi+1, idx_Z) - &
-                                field_mesh%A3%value(idx_R, idx_phi-1, idx_Z)) / &
-                               (field_mesh%A3%x2(idx_phi+1) - &
-                                field_mesh%A3%x2(idx_phi-1))
+                    call get_mesh_derivatives(field_mesh%A1, idx_R, idx_phi, idx_Z, &
+                                              dummy, dAR_dphi, dAR_dZ)                               
+                    call get_mesh_derivatives(field_mesh%A2, idx_R, idx_phi, idx_Z, &
+                                              dA3_dR, dummy, dA3_dZ)
+                    call get_mesh_derivatives(field_mesh%A3, idx_R, idx_phi, idx_Z, &
+                                              dAZ_dR, dAZ_dphi, dummy)
                     field_mesh%B1%value(idx_R, idx_phi, idx_Z) = (dA3_dZ - dAZ_dphi) / R
                     field_mesh%B2%value(idx_R, idx_phi, idx_Z) = (dAZ_dR - dAR_dZ)
                     field_mesh%B3%value(idx_R, idx_phi, idx_Z) = (dAR_dphi - dA3_dR) / R
@@ -194,6 +176,22 @@ subroutine set_b_mesh_to_jorek_formula(field_mesh)
         end do
     end do
 end subroutine set_b_mesh_to_jorek_formula
+
+
+subroutine get_mesh_derivatives(mesh, idx1, idx2, idx3, df_dx1, df_dx2, df_dx3)
+    use neo_mesh, only: mesh_t
+
+    type(mesh_t), intent(in) :: mesh
+    integer, intent(in) :: idx1, idx2, idx3
+    real(dp), intent(out) :: df_dx1, df_dx2, df_dx3
+
+    df_dx1 = (mesh%value(idx1+1, idx2, idx3) - mesh%value(idx1-1, idx2, idx3)) / &
+            (mesh%x1(idx1+1) - mesh%x1(idx1-1))
+    df_dx2 = (mesh%value(idx1, idx2+1, idx3) - mesh%value(idx1, idx2-1, idx3)) / &
+            (mesh%x2(idx2+1) - mesh%x2(idx2-1))
+    df_dx3 = (mesh%value(idx1, idx2, idx3+1) - mesh%value(idx1, idx2-1, idx3)) / &
+            (mesh%x3(idx3+1) - mesh%x3(idx3-1))
+end subroutine get_mesh_derivatives
 
 
 subroutine draw_jorek_field
