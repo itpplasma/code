@@ -14,7 +14,7 @@ RUN apt-get update -y && apt-get upgrade -y -q --no-install-recommends && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 
 # Base
-COPY scripts/setup/linux/setup_base.sh /tmp/setup_base.sh
+COPY scripts/setup/debian/base.sh /tmp/setup_base.sh
 RUN apt-get update -y && bash /tmp/setup_base.sh && \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
