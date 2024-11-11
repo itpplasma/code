@@ -189,7 +189,7 @@ subroutine get_mesh_derivatives(mesh, idx1, idx2, idx3, df_dx1, df_dx2, df_dx3)
             (mesh%x1(idx1+1) - mesh%x1(idx1-1))
     df_dx2 = (mesh%value(idx1, idx2+1, idx3) - mesh%value(idx1, idx2-1, idx3)) / &
             (mesh%x2(idx2+1) - mesh%x2(idx2-1))
-    df_dx3 = (mesh%value(idx1, idx2, idx3+1) - mesh%value(idx1, idx2-1, idx3)) / &
+    df_dx3 = (mesh%value(idx1, idx2, idx3+1) - mesh%value(idx1, idx2, idx3-1)) / &
             (mesh%x3(idx3+1) - mesh%x3(idx3-1))
 end subroutine get_mesh_derivatives
 
