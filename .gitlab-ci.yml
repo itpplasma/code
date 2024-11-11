@@ -26,7 +26,7 @@ fgsl:
     - source scripts/util.sh
     - set_branch
     - cd external
-    - ../scripts/setup_fgsl.sh
+    - ../scripts/setup/fgsl.sh
     - tar czf fgsl-1.6.0.tar.gz fgsl-1.6.0
     - upload_package fgsl 1.6.0
 
@@ -38,7 +38,7 @@ mfem:
     - source scripts/util.sh
     - set_branch
     - cd external
-    - ../scripts/setup_mfem.sh
+    - ../scripts/setup/mfem.sh
     - tar czf mfem-4.7.tar.gz mfem-4.7
     - upload_package mfem 4.7
 
@@ -53,7 +53,7 @@ stellopt:
     - source scripts/util.sh
     - set_branch
     - cd external
-    - source ../scripts/setup_stellopt.sh
+    - source ../scripts/setup/stellopt.sh
     - tar czf STELLOPT-dev.tar.gz STELLOPT
     - upload_package STELLOPT dev
 
@@ -65,7 +65,7 @@ chease:
     - source scripts/util.sh
     - set_branch
     - cd external
-    - ../scripts/setup_chease.sh
+    - ../scripts/setup/chease.sh
   artifacts:
     paths:
       - external/CHEASE/
@@ -80,8 +80,8 @@ libneo:
     - export CODE=`pwd`
     - source scripts/util.sh
     - set_branch
-    - source scripts/setup_venv.sh
-    - source scripts/setup_libneo.sh
+    - source scripts/setup/venv.sh
+    - source scripts/setup/libneo.sh
     - tar czf libneo-dev.tar.gz efit_to_boozer/ libneo/ .venv/
     - upload_package libneo dev
 
@@ -109,7 +109,7 @@ mephit:
     - install_package mfem 4.7
     - popd
     - clone_gitlab MEPHIT
-    - source scripts/setup_mephit.sh
+    - source scripts/setup/mephit.sh
   artifacts:
     paths:
       - MEPHIT/
@@ -144,7 +144,7 @@ neo2-job:
     - pushd external; install_package fgsl 1.6.0; popd
     - source activate.sh
     - clone_github NEO-2
-    - scripts/setup_neo2.sh
+    - scripts/setup/neo2.sh
   artifacts:
     paths:
       - NEO-2/
@@ -156,7 +156,7 @@ neort:
     - export CODE=`pwd`
     - source scripts/util.sh
     - set_branch
-    - source scripts/setup_neort.sh
+    - source scripts/setup/neort.sh
   artifacts:
     paths:
       - contrib/

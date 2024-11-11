@@ -11,13 +11,13 @@ If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 
 On Linux: At ITPcp all packages should be installed to get going.
-The according script is [scripts/setup_debian.sh](scripts/setup_debian.sh).
+The according script is [scripts/setup/debian.sh](scripts/setup/debian.sh).
 
 On Mac: The recommended way via **orbstack**
-and **devpod** as described in [scripts/setup_mac.sh](scripts/setup_mac.sh).
+and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
 
 On Windows: Prepare your machine with
-[scripts/setup_windows.bat](scripts/setup_windows.bat) first
+[scripts/setup/windows.bat](scripts/setup/windows.bat) first
 to install Debian Linux via WSL2. Then follow the Linux instructions.
 
 ## Installation
