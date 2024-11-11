@@ -155,7 +155,7 @@ subroutine set_b_mesh_to_jorek_formula(field_mesh)
 
     type(field_mesh_t), intent(inout) :: field_mesh
 
-    integer :: idx_R, idx_phi, idx_Z
+    integer :: idx_R, idx_phi, idx_Z, idx(3)
     real(dp) :: R
     real(dp) :: dA3_dZ, dAZ_dphi, dAR_dphi, dA3_dR, dAZ_dR, dAR_dZ, dummy
 
@@ -163,35 +163,37 @@ subroutine set_b_mesh_to_jorek_formula(field_mesh)
         R = field_mesh%A1%x1(idx_R)
         do idx_phi = 2, field_mesh%A1%n2 - 1
             do idx_Z = 2, field_mesh%A1%n3 - 1
-                    call get_mesh_derivatives(field_mesh%A1, idx_R, idx_phi, idx_Z, &
-                                              dummy, dAR_dphi, dAR_dZ)                               
-                    call get_mesh_derivatives(field_mesh%A2, idx_R, idx_phi, idx_Z, &
-                                              dA3_dR, dummy, dA3_dZ)
-                    call get_mesh_derivatives(field_mesh%A3, idx_R, idx_phi, idx_Z, &
-                                              dAZ_dR, dAZ_dphi, dummy)
-                    field_mesh%B1%value(idx_R, idx_phi, idx_Z) = (dA3_dZ - dAZ_dphi) / R
-                    field_mesh%B2%value(idx_R, idx_phi, idx_Z) = (dAZ_dR - dAR_dZ)
-                    field_mesh%B3%value(idx_R, idx_phi, idx_Z) = (dAR_dphi - dA3_dR) / R
+                idx = (/idx_R, idx_phi, idx_Z/)
+                call calc_mesh_derivs(field_mesh%A1, idx, dummy, dAR_dphi, dAR_dZ)                               
+                call calc_mesh_derivs(field_mesh%A2, idx, dA3_dR, dummy, dA3_dZ)
+                call calc_mesh_derivs(field_mesh%A3, idx, dAZ_dR, dAZ_dphi, dummy)
+                field_mesh%B1%value(idx_R, idx_phi, idx_Z) = (dA3_dZ - dAZ_dphi) / R
+                field_mesh%B2%value(idx_R, idx_phi, idx_Z) = (dAZ_dR - dAR_dZ)
+                field_mesh%B3%value(idx_R, idx_phi, idx_Z) = (dAR_dphi - dA3_dR) / R
             end do
         end do
     end do
 end subroutine set_b_mesh_to_jorek_formula
 
-
-subroutine get_mesh_derivatives(mesh, idx1, idx2, idx3, df_dx1, df_dx2, df_dx3)
+subroutine calc_mesh_derivs(mesh, idx, df_dx1, df_dx2, df_dx3)
     use neo_mesh, only: mesh_t
 
     type(mesh_t), intent(in) :: mesh
-    integer, intent(in) :: idx1, idx2, idx3
+    integer, intent(in) :: idx(3)
     real(dp), intent(out) :: df_dx1, df_dx2, df_dx3
 
+    integer :: idx1, idx2, idx3
+
+    idx1 = idx(1)
+    idx2 = idx(2)
+    idx3 = idx(3)
     df_dx1 = (mesh%value(idx1+1, idx2, idx3) - mesh%value(idx1-1, idx2, idx3)) / &
             (mesh%x1(idx1+1) - mesh%x1(idx1-1))
     df_dx2 = (mesh%value(idx1, idx2+1, idx3) - mesh%value(idx1, idx2-1, idx3)) / &
             (mesh%x2(idx2+1) - mesh%x2(idx2-1))
     df_dx3 = (mesh%value(idx1, idx2, idx3+1) - mesh%value(idx1, idx2, idx3-1)) / &
             (mesh%x3(idx3+1) - mesh%x3(idx3-1))
-end subroutine get_mesh_derivatives
+end subroutine calc_mesh_derivs
 
 
 subroutine draw_jorek_field
