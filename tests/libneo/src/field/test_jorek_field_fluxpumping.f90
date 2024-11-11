@@ -2,32 +2,33 @@ program test_jorek_field_fluxpumping
 use, intrinsic :: iso_fortran_env, only: dp => real64
 use neo_jorek_field, only: jorek_field_t
 use util_for_test, only: print_test, print_fail, print_ok
+use util, only: get_random_numbers
 
 implicit none
-character(len=400) :: haowei_file
+character(len=400) :: jorek_file
 
-haowei_file = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/&
+jorek_file = "/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/&
                &exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
-call test_haowei_field
-call draw_haowei_field_mesh
-call draw_haowei_field
+call test_jorek_field
+call draw_jorek_field_mesh
+call draw_jorek_field
 
 contains
 
 
-subroutine test_haowei_field
+subroutine test_jorek_field
     use neo_jorek_field, only: get_ranges_from_filename
 
     type(jorek_field_t) :: field
 
     real(dp) :: Rmin, Rmax, Zmin, Zmax, phimin, phimax
 
-    call print_test("test_haowei_field")
+    call print_test("test_jorek_field")
    
-    call field%jorek_field_init(haowei_file, spline_order=(/3,3,3/))
+    call field%jorek_field_init(jorek_file, spline_order=(/3,3,3/))
 
-    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, haowei_file)
+    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, jorek_file)
     Zmin = -0.4_dp ! only look in central region as near seperatrix unstable results
     Zmax = 0.4_dp
     Rmin = 1.5_dp
@@ -36,7 +37,7 @@ subroutine test_haowei_field
     call is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
 
     call print_ok
-end subroutine test_haowei_field
+end subroutine test_jorek_field
 
 subroutine is_divb_0(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     use util_for_test_field, only: compute_cylindrical_divb
@@ -104,43 +105,28 @@ subroutine is_b_curla_plus_fluxfunction(field, Rmin, Rmax, phimin, phimax, Zmin,
 end subroutine is_b_curla_plus_fluxfunction
 
 
-function get_random_numbers(xmin, xmax, n, seed) result(x)
-    real(dp), intent(in) :: xmin, xmax
-    integer, intent(in) :: n
-    integer, dimension(:), intent(in), optional :: seed
-    real(dp), dimension(:), allocatable :: x
-
-    if (present(seed)) then
-        call random_seed(put=seed)
-    end if
-    allocate(x(n))
-    call random_number(x)
-    x = xmin + (xmax - xmin) * x
-end function get_random_numbers
-
-
-subroutine draw_haowei_field_mesh
+subroutine draw_jorek_field_mesh
     use neo_jorek_field, only: load_field_mesh_from_jorek
     use neo_jorek_field, only: load_fluxfunction_mesh_from_jorek
     use neo_field_mesh, only: field_mesh_t
     use neo_mesh, only: mesh_t
 
-    type(field_mesh_t) :: haowei_mesh, b_jorek_formula_mesh, b_cyl_formula_mesh
+    type(field_mesh_t) :: jorek_mesh, b_jorek_formula_mesh, b_cyl_formula_mesh
     type(mesh_t) :: A_phi_mesh, fluxfunction_mesh
     real(dp), dimension(:,:,:), allocatable :: R
 
-    call print_test("draw_haowei_field_mesh")
+    call print_test("draw_jorek_field_mesh")
 
-    call load_field_mesh_from_jorek(haowei_file, haowei_mesh)
-    call set_field_mesh_convention_to_jorek(haowei_mesh)
-    call save_field_mesh_to_hdf5(haowei_mesh, 'haowei_field_mesh.h5')
+    call load_field_mesh_from_jorek(jorek_file, jorek_mesh)
+    call set_field_mesh_convention_to_jorek(jorek_mesh)
+    call save_field_mesh_to_hdf5(jorek_mesh, 'jorek_field_mesh.h5')
 
-    b_jorek_formula_mesh = haowei_mesh
+    b_jorek_formula_mesh = jorek_mesh
     call set_b_mesh_to_jorek_formula(b_jorek_formula_mesh)
     call save_field_mesh_to_hdf5(b_jorek_formula_mesh, 'b_jorek_formula_mesh.h5')
 
     call print_ok
-end subroutine draw_haowei_field_mesh
+end subroutine draw_jorek_field_mesh
 
 subroutine set_field_mesh_convention_to_jorek(field_mesh)
     use neo_field_mesh, only: field_mesh_t
@@ -210,19 +196,19 @@ subroutine set_b_mesh_to_jorek_formula(field_mesh)
 end subroutine set_b_mesh_to_jorek_formula
 
 
-subroutine draw_haowei_field
+subroutine draw_jorek_field
     use neo_jorek_field, only: get_ranges_from_filename
 
     type(jorek_field_t) :: field
 
     real(dp) :: Rmin, Rmax, Zmin, Zmax, phimin, phimax
    
-    call print_test("draw_haowei_field")
-    call field%jorek_field_init(haowei_file)
-    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, haowei_file)
+    call print_test("draw_jorek_field")
+    call field%jorek_field_init(jorek_file)
+    call get_ranges_from_filename(Rmin, Rmax, Zmin, Zmax, phimin, phimax, jorek_file)
     call make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     call print_ok
-end subroutine draw_haowei_field
+end subroutine draw_jorek_field
 
 subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     use neo_field_mesh, only: field_mesh_t
@@ -238,7 +224,7 @@ subroutine make_contour_plot(field, Rmin, Rmax, phimin, phimax, Zmin, Zmax)
     limits(:,2) = (/Rmax, phimax, Zmax/)
 
     call field_mesh%field_mesh_init_with_field(limits, field, n_points)
-    call save_field_mesh_to_hdf5(field_mesh, 'haowei_field.h5')
+    call save_field_mesh_to_hdf5(field_mesh, 'jorek_field.h5')
 end subroutine make_contour_plot
 
 subroutine save_field_mesh_to_hdf5(field_mesh, filename)

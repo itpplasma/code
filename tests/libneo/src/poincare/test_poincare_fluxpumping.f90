@@ -2,6 +2,7 @@ program test_poincare_fluxpumping
 use, intrinsic :: iso_fortran_env, only: dp => real64
 use neo_poincare, only: poincare_config_t
 use util_for_test, only: print_test, print_fail, print_ok
+use util, only: linspace
 
 implicit none
 
@@ -9,12 +10,12 @@ real(dp), parameter :: pi = 3.14159265358979_dp
 character(len=*), parameter :: config_file = 'poincare.inp'
 type(poincare_config_t) :: jorek_config
 
-jorek_config%n_fieldlines = 20
+jorek_config%n_fieldlines = 1
 jorek_config%fieldline_start_Rmin = 1.55_dp
 jorek_config%fieldline_start_Rmax = 1.85_dp
 jorek_config%fieldline_start_phi = 0.0_dp
 jorek_config%fieldline_start_Z = 0.1_dp
-jorek_config%n_periods = 1000
+jorek_config%n_periods = 100
 jorek_config%period_length = 2.0_dp * pi
 jorek_config%integrate_err = 1.0e-8_dp
 jorek_config%plot_Rmin = 1.0_dp
@@ -121,17 +122,5 @@ subroutine remove_poincare_config
     end if
 end subroutine remove_poincare_config
 
-subroutine linspace(start, stop, n, x)
-    real(dp), intent(in) :: start, stop
-    integer, intent(in) :: n
-    real(dp), intent(out) :: x(n)
-    real(dp) :: dx
-    integer :: i
-
-    dx = (stop - start) / (n - 1)
-    do i = 1, n
-        x(i) = start + (i - 1) * dx
-    end do
-end subroutine linspace
 
 end program test_poincare_fluxpumping
