@@ -1,7 +1,7 @@
 program test_poincare_fluxpumping
 use, intrinsic :: iso_fortran_env, only: dp => real64
 use neo_poincare, only: poincare_config_t
-use util_for_test, only: print_test, print_fail, print_ok
+use util, only: linspace
 
 implicit none
 
@@ -9,12 +9,12 @@ real(dp), parameter :: pi = 3.14159265358979_dp
 character(len=*), parameter :: config_file = 'poincare.inp'
 type(poincare_config_t) :: jorek_config
 
-jorek_config%n_fieldlines = 10
-jorek_config%fieldline_start_Rmin = 1.75_dp
-jorek_config%fieldline_start_Rmax = 2.0_dp
+jorek_config%n_fieldlines = 20
+jorek_config%fieldline_start_Rmin = 1.55_dp
+jorek_config%fieldline_start_Rmax = 1.85_dp
 jorek_config%fieldline_start_phi = 0.0_dp
-jorek_config%fieldline_start_Z = 0.0_dp
-jorek_config%n_periods = 10
+jorek_config%fieldline_start_Z = 0.1_dp
+jorek_config%n_periods = 500
 jorek_config%period_length = 2.0_dp * pi
 jorek_config%integrate_err = 1.0e-8_dp
 jorek_config%plot_Rmin = 1.0_dp
@@ -22,12 +22,12 @@ jorek_config%plot_Rmax = 2.25_dp
 jorek_config%plot_Zmin = -1.0_dp
 jorek_config%plot_Zmax = 1.0_dp
 
-call test_make_poincare_fluxpumping
+call make_poincare_fluxpumping
 
 contains
 
 
-subroutine test_make_poincare_fluxpumping
+subroutine make_poincare_fluxpumping
     use neo_poincare, only: make_poincare, read_config_file, poincare_config_t
     use neo_jorek_field, only: jorek_field_t
 
@@ -35,19 +35,29 @@ subroutine test_make_poincare_fluxpumping
     type(jorek_field_t) :: field
     type(poincare_config_t) :: config
 
-    call print_test("test_make_poincare_fluxpumping")
+    integer, parameter :: n_phi = 2
+    real(dp), parameter :: Z_at_phi0 = 0.08_dp, dZ = 0.08_dp
+    real(dp) :: phi(n_phi)
+    integer :: idx_phi
+    character(len=100) :: output_filename
 
     jorek_file ="/proj/plasma/DATA/AUG/JOREK/2024-05_test_haowei_flux_pumping/" // &
     "exprs_Rmin1.140_Rmax2.130_Zmin-0.921_Zmax0.778_phimin0.000_phimax6.283_s40000.h5"
 
-    call field%jorek_field_init(jorek_file)
+    call field%jorek_field_init(jorek_file, spline_order=(/5,5,5/))
+
     call write_poincare_config(jorek_config)
     call read_config_file(config, config_file)
-    call make_poincare(field, config)
     call remove_poincare_config
 
-    call print_ok
-end subroutine test_make_poincare_fluxpumping
+    call linspace(0.0_dp, 2.0_dp * pi, n_phi, phi)
+    do idx_phi = 1, n_phi - 1
+        config%fieldline_start_phi = jorek_config%fieldline_start_phi + phi(idx_phi)
+        config%fieldline_start_Z = Z_at_phi0 + dZ * sin(phi(idx_phi))
+        write(output_filename, '(I0, A)') idx_phi, '.dat'
+        call make_poincare(field, config, output_filename)
+    end do
+end subroutine make_poincare_fluxpumping
 
 subroutine write_poincare_config(config)
     use neo_poincare, only: poincare_config_t
@@ -101,10 +111,7 @@ subroutine remove_poincare_config
     open(newunit=file_id, iostat=stat, file=config_file, status='old')
     if (stat == 0) close(file_id, status='delete')
     inquire(file=trim(config_file), exist=exists)
-    if (exists) then
-        call print_fail
-        error stop
-    end if
 end subroutine remove_poincare_config
+
 
 end program test_poincare_fluxpumping
