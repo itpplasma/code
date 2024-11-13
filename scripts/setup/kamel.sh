@@ -40,7 +40,7 @@ mkdir bessel
 cd bessel
 cp -r ../../KAMEL/KiLCA/math/bessel/* .
 cd slatec
-gfortran -c -Wall -Wtabs -mtune=generic -msse2 -mfpmath=sse *.f
+gfortran -c -Wall -Wtabs -mtune=generic $CFLAGS *.f
 ar rcs libbessel.a *.o
 rm *.o
 mv libbessel.a ../../lib/
@@ -69,8 +69,31 @@ tar -xzvf superlu_4.1.tar.gz
 rm superlu_4.1.tar.gz
 cd SuperLU_4.1
 cp MAKE_INC/make.linux make.inc
-sed -i 's/g77/gfortran/g' make.inc
-sed -i "s|SuperLUroot\t= \$(HOME)/Codes/SuperLU_4.1|SuperLUroot = $(pwd)|" make.inc
+
+
+# Check the operating system
+if [[ "$(uname)" == "Darwin" ]]; then
+    # macOS specific compiler flags
+    CFLAGS="-O2"
+    CFLAGS+=" -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
+    sed -E "s|SuperLUroot\t=.*|SuperLUroot\t= $(pwd)|g" make.inc >> make.inc.tmp
+    mv make.inc.tmp make.inc
+    sed -E "s|BLASLIB[[:space:]]*=.*|BLASLIB = #-lblas|g" make.inc >> make.inc.tmp
+    mv make.inc.tmp make.inc
+    sed -E "s|RANLIB       = ranlib|RANLIB       = gcc-ranlib-12|g" make.inc >> make.inc.tmp
+    mv make.inc.tmp make.inc
+    sed -E "s|CC           = gcc|CC           = gcc-12|g" make.inc >> make.inc.tmp
+    mv make.inc.tmp make.inc
+    sed -E "s|ARCH         = ar|ARCH         = gcc-ar-12|g" make.inc >> make.inc.tmp
+    mv make.inc.tmp make.inc
+    sed -E "s|CFLAGS       = -O3|CFLAGS       = -O3 -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include|g" make.inc >> make.inc.tmp
+    mv make.inc.tmp make.inc
+elif [[ "$(uname)" == "Linux" ]]; then
+    # Linux specific compiler flags
+    sed -i "s|SuperLUroot\t= \$(HOME)/Codes/SuperLU_4.1|SuperLUroot = $(pwd)|" make.inc
+    sed -i 's/g77/gfortran/g' make.inc
+fi
+
 make
 
 cd ..
