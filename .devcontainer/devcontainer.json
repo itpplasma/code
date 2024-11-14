@@ -12,6 +12,8 @@
 		"DISPLAY": "host.docker.internal:0"
 	},
 
+	"postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+
 	"customizations": {
 		"vscode": {
 			"extensions": [
