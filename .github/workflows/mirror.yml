@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Fetch all history
 
     - name: Configure Git
       run: |
@@ -24,7 +26,4 @@ jobs:
       run: |
         git remote add gitlab https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.tugraz.at/plasma/code.git
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        echo `pwd`
-        echo $CURRENT_BRANCH
-        git log | head
-        git push gitlab $CURRENT_BRANCH:$CURRENT_BRANCH
+        git push gitlab $CURRENT_BRANCH
