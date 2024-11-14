@@ -66,6 +66,7 @@ tqdm
 pytest
 mpi4py
 meson
+meson-python
 ninja
 scikit-fem
 pygmsh
@@ -80,4 +81,3 @@ Shapely
 importlib-metadata
 freeqdsk
 freegs
-
