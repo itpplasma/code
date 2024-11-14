@@ -14,3 +14,5 @@ cd $CODE
 source scripts/setup.sh
 
 mv $CODE $CODE_TEMPLATE
+
+rm -rf /workspaces
