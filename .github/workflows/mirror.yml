@@ -23,5 +23,5 @@ jobs:
         GITLAB_ACCESS_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }}
       run: |
         git remote add gitlab https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.tugraz.at/plasma/code.git
-        git pull --ff-only
+        git pull gitlab --ff-only
         git push gitlab
