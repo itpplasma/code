@@ -23,7 +23,8 @@
 				"GitHub.copilot",
 				"GitHub.vscode-pull-request-github",
 				"ms-toolsai.jupyter",
-				"twxs.cmake"
+				"twxs.cmake",
+				"mesonbuild.mesonbuild"
 			]
 		}
 	},
