@@ -5,39 +5,22 @@ to setup development and use of internal and external codes. Our development
 environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
 
-## Prerequisites
-
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 
-On Linux: At ITPcp all packages should be installed to get going.
-The according script is [scripts/setup/debian.sh](scripts/setup/debian.sh).
 
-On Mac: The recommended way via **orbstack**
-and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
-
-On Windows: Prepare your machine with
-[scripts/setup/windows.bat](scripts/setup/windows.bat) first
-to install Debian Linux via WSL2. Then follow the Linux instructions.
-
-## Installation
+## Installation at ITPcp computers
 
 Clone the repository to your working copy, at the institute this is
 
-    git clone git@gitlab.tugraz.at:plasma/code /proj/plasma/CODE/<username>
+    git clone git@github.com:itpplasma/code /proj/plasma/CODE/<username>
 
 Then open the directory in VS Code with
 
     code code
 
-When asked to initialize the devcontainer, do so. If there is no message run `F1` and `Remote-Containers: Rebuild and reopen in Container`. Wait for
-`Configuring Dev Container` to finish in the lower status bar. Then open a
-new `bash` shell. You should see the prompt
-
-    Activating /workspaces/code on branch main
-    (.venv) root@fcb4ad176bde:/workspaces/code#
-
-When working outside the container, run the setup script manually with
+When asked to initialize the devcontainer, remove the message. 
+Run the setup script manually with
 
     source scripts/setup.sh
 
@@ -50,9 +33,23 @@ If you work outside a container, also manually put a line
 
 in your bashrc.
 
+
+## Installation on your own machine
+
+On Linux: At ITPcp all packages should be installed to get going.
+The according script is [scripts/setup/debian.sh](scripts/setup/debian.sh).
+
+On Mac: The recommended way via **orbstack**
+and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
+
+On Windows: Prepare your machine with
+[scripts/setup/windows.bat](scripts/setup/windows.bat) first
+to install Debian Linux via WSL2. Then follow the Linux instructions.
+
+
 ## Tests
 
-Tests can currently be performed by using
+Integration tests are run by
 
     pytest tests/
 
