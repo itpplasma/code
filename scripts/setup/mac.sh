@@ -15,4 +15,4 @@ ln -s $HOME/.devpod/agent/contexts/default/workspaces/code/content $HOME/code
 docker pull ghcr.io/itpplasma/devcontainer:latest
 
 devpod provider add docker
-devpod up git@gitlab.tugraz.at:plasma/code --id code --ide vscode
+devpod up git@github.com:itpplasma/code --id code --ide vscode
