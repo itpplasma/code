@@ -92,7 +92,7 @@ test-setup:
   stage: codes
   needs: []
   script:
-    - source setup.sh
+    - source scripts/setup.sh
     - source activate.sh
     - python -c "import libneo"
 

@@ -39,7 +39,7 @@ new `bash` shell. You should see the prompt
 
 When working outside the container, run the setup script manually with
 
-    source setup.sh
+    source scripts/setup.sh
 
 The setup will install external dependencies and create and activate
 a Python virtual environment in the hidden `.venv` directory.
