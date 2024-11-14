@@ -108,7 +108,7 @@ mephit:
     - install_package fgsl 1.6.0
     - install_package mfem 4.7
     - popd
-    - clone_gitlab MEPHIT
+    - clone_github MEPHIT
     - source scripts/setup/mephit.sh
   artifacts:
     paths:
