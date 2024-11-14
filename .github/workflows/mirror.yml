@@ -26,7 +26,5 @@ jobs:
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
         echo `pwd`
         echo $CURRENT_BRANCH
-        git status
-        git pull
-        git pull --ff-only gitlab $CURRENT_BRANCH || true
+        git log | head
         git push gitlab $CURRENT_BRANCH:$CURRENT_BRANCH
