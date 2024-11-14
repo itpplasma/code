@@ -1,5 +1,5 @@
 # base image (fundamental installations)
-FROM ghcr.io/itpplasma/devel
+FROM ghcr.io/itpplasma/devel-tex
 
 # Prevent user inputs
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,4 +11,4 @@ ENV LC_ALL=en_US.UTF-8
 
 # Devcontainer
 COPY scripts/setup/devcontainer.sh /tmp/setup_devcontainer.sh
-RUN /tmp/setup_devcontainer.sh
+RUN bash /tmp/setup_devcontainer.sh
