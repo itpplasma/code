@@ -20,7 +20,7 @@ fpdf
 xarray
 
 # Scientific computing
-numpy>=2.0.0
+numpy
 sympy
 uncertainties
 scipy
