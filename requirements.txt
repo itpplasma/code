@@ -81,3 +81,7 @@ Shapely
 importlib-metadata
 freeqdsk
 freegs
+
+# Simsopt
+simsopt
+booz-xform
