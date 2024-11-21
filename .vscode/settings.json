@@ -37,5 +37,6 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
-    "testing.openTesting": "neverOpen"
+    "testing.openTesting": "neverOpen",
+    "github.codespaces.devcontainerChangedNotificationStyle": "none"
 }
