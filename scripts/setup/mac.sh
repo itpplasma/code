@@ -5,7 +5,8 @@
 (echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> $HOME/.zprofile
 eval "$(/usr/local/bin/brew shellenv)"
 
-brew install --cask orbstack devpod visual-studio-code
+brew install gcc make cmake ninja python@3.11 python-tk@3.11
+brew install --cask orbstack devpod visual-studio-code 
 
 sudo ln -s /Applications/OrbStack.app/Contents/MacOS/xbin/docker /usr/local/bin/docker
 

@@ -52,7 +52,6 @@ lmfit
 gpr1dfusion
 astropy
 jedi
-pyttk
 omfit-classes
 bibtexparser
 contourpy
