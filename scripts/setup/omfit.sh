@@ -7,7 +7,7 @@ echo "Code access: https://omfit.io/install.html"
 deactivate
 
 export USER=`whoami`
-git clone --filter=blob:none --recursive -b unstable git@github.com:gafusion/OMFIT-source.git
+git clone --filter=blob:none --recursive -b unstable git@gitlab.tugraz.at:plasma/codes/OMFIT-source.git
 OMFIT-source/install/install.sh
 mkdir -p $HOME/.LICENSES
 cp $CODE/scripts/setup/omfit/LICENSES/* $HOME/.LICENSES/
