@@ -1,7 +1,7 @@
 # Basics
 wheel
 pip
-setuptools
+setuptools<65  # For f90wrap
 jupyterlab
 notebook
 ipython
