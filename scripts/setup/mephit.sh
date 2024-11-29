@@ -12,5 +12,5 @@ pushd MEPHIT
         cmake .. $CMAKE_ARGS
         make -j4
     popd
-    pip install -e . --no-build-isolation
+    pip install -e .
 popd
