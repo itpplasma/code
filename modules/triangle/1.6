@@ -3,8 +3,8 @@
 setenv TRIANGLE_DIR              $env(CODE)/external/triangle
 prepend-path PATH                 $env(TRIANGLE_DIR)
 prepend-path INCLUDE_PATH         $env(TRIANGLE_DIR)
-prepend-path LD_LIBRARY_PATH $env(TRIANGLE_DIR)/build
-prepend-path -d " " LDFLAGS  -L$env(TRIANGLE_DIR)/build
+prepend-path LD_LIBRARY_PATH $env(TRIANGLE_DIR)
+prepend-path -d " " LDFLAGS  -L$env(TRIANGLE_DIR)
 
 # Local Variables:
 # mode: tcl
