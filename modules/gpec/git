@@ -9,7 +9,7 @@ proc ModulesHelp { } {
 
 module-whatis "GPEC (development version)"
 
-prereq-all intel/compiler/2025.0.0 intel/mkl/2025.0 netcdf-fortran/4.6.1-intel
+prereq-all intel/compiler/2025.0.1 intel/mkl/2025.0 netcdf-fortran/4.6.1-intel
 
 setenv       GPECHOME        $env(CODE)/external/GPEC
 prepend-path PATH            $env(GPECHOME)/bin
