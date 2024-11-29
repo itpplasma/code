@@ -23,7 +23,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     fi
 
     export CMAKE_INCLUDE_PATH="/opt/homebrew/include/suitesparse:$CODE/external/triangle"
-    export CMAKE_LIBRARY_PATH="$CODE/external/triangle/build"
+    export CMAKE_LIBRARY_PATH="/opt/homebrew/lib:$CODE/external/triangle/build"
     export CMAKE_ARGS="-DBLAS_LIBRARIES=$BLAS_LIBRARIES -DLAPACK_LIBRARIES=$LAPACK_LIBRARIES"
 
 else
