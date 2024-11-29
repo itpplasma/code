@@ -22,7 +22,9 @@ if [[ "$(uname)" == "Darwin" ]]; then
         echo "Unknown processor architecture."
     fi
 
-    export CMAKE_ARGS="-DBLAS_LIBRARIES=$BLAS_LIBRARIES -DLAPACK_LIBRARIES=$LAPACK_LIBRARIES -DCMAKE_INCLUDE_PATH=/opt/homebrew/include/suitesparse"
+    export CMAKE_INCLUDE_PATH="/opt/homebrew/include/suitesparse:$CODE/external/triangle"
+    export CMAKE_LIBRARY_PATH="$CODE/external/triangle/build"
+    export CMAKE_ARGS="-DBLAS_LIBRARIES=$BLAS_LIBRARIES -DLAPACK_LIBRARIES=$LAPACK_LIBRARIES"
 
 else
     echo "Not running on macOS."
