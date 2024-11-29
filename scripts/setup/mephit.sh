@@ -9,7 +9,7 @@ pushd MEPHIT
     ../scripts/checkout_branch.sh $CODE_BRANCH
     mkdir build
     pushd build
-        cmake ..
+        cmake .. $CMAKE_ARGS
         make -j4
     popd
     pip install -e . --no-build-isolation
