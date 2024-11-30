@@ -16,6 +16,7 @@ apt-get install -y -q --no-install-recommends \
     wget \
     git \
     git-lfs \
+    git-annex \
     gpg \
     gfortran \
     ninja-build \
