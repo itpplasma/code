@@ -7,7 +7,7 @@ if [ ! -d "STELLOPT" ] ; then
     export STELLOPT_PATH=$PWD
     export MYHOME=STELLOPT_PATH/build
     export MACHINE=ubuntu
-    ./build_all
+    bash build_all
     find . -name "*.o" | xargs rm
     popd
 fi
