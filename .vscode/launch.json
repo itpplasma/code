@@ -5,20 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: f90wrap",
+           "name": "f90wrap",
             "type": "debugpy",
             "request": "launch",
             "module": "f90wrap",
-            "cwd": "${workspaceFolder}/f90wrap/examples/issue227_allocatable",
-            "args": ["-m", "itest", "-P", "alloc_output.f90", "-v"],
-        },
-        {
-            "name": "Python Debugger: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
+            "args": "-m itest -P myclass.f90 myclass_factory.f90 -v",
             "console": "integratedTerminal",
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/f90wrap/examples/issue235_allocatable_classes",
         },
         {
             "name": "simple.x in examples",
