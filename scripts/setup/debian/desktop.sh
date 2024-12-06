@@ -23,3 +23,5 @@ url="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
 curl -L -o /tmp/vscode.deb $url
 apt install /tmp/vscode.deb
 rm -f /tmp/vscode.deb
+
+apt install nextcloud-desktop
