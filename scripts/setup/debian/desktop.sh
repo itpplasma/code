@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt install i3 fuse nextcloud-desktop gnupg
+apt install i3 fuse nextcloud-desktop gnupg fonts-noto-color-emoji
 
 url="https://discord.com/api/download?platform=linux&format=deb"
 curl -L -o /tmp/discord.deb $url
