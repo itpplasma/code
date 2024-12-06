@@ -1,11 +1,11 @@
 #!/bin/bash
 
+apt install i3 fuse nextcloud-desktop gnupg
+
 url="https://discord.com/api/download?platform=linux&format=deb"
 curl -L -o /tmp/discord.deb $url
 apt install /tmp/discord.deb
 rm -f /tmp/discord.deb
-
-apt install i3
 
 # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions-recommended
 install -d -m 0755 /etc/apt/keyrings
@@ -23,5 +23,3 @@ url="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
 curl -L -o /tmp/vscode.deb $url
 apt install /tmp/vscode.deb
 rm -f /tmp/vscode.deb
-
-apt install nextcloud-desktop
