@@ -2,7 +2,7 @@
 
 module-whatis "MARS (2022)"
 
-prereq nvhpc/24.1
+prereq nvhpc/24.5
 
 setenv       MARSHOME        $env(CODE)/external/MARS/MarsQ_2022
 prepend-path PATH            $env(MARSHOME)

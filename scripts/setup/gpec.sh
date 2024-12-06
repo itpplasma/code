@@ -5,7 +5,7 @@ echo "Upstream code access: https://princetonuniversity.github.io/GPEC/developer
 
 export NETCDF_LIBS="-lnetcdf -lnetcdff"
 
-if [[ $(module list 2>&1) == *"compiler/2025.0.0"* ]]; then
+if [[ $(module list 2>&1) == *"intel/compiler"* ]]; then
     # Intel compiler (recommended)
     export CC=icx
     export CXX=icpx
