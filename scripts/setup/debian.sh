@@ -8,9 +8,9 @@ sudo sed -i -e's/ main$/ main contrib non-free non-free-firmware/g' \
 
 sudo apt-get update -y && apt-get upgrade -y -q --no-install-recommends
 
-sudo $CODE/scripts/setup/linux/base.sh
-sudo $CODE/scripts/setup/linux/interactive.sh
-sudo $CODE/scripts/setup/linux/libs.sh
-sudo $CODE/scripts/setup/linux/octave.sh
-sudo $CODE/scripts/setup/linux/texlive.sh
-sudo $CODE/scripts/setup/linux/fonts.sh
+sudo $CODE/scripts/setup/debian/base.sh
+sudo $CODE/scripts/setup/debian/interactive.sh
+sudo $CODE/scripts/setup/debian/libs.sh
+sudo $CODE/scripts/setup/debian/octave.sh
+sudo $CODE/scripts/setup/debian/texlive.sh
+sudo $CODE/scripts/setup/debian/fonts.sh
