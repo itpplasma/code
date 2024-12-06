@@ -1,5 +1,4 @@
 import pytest
-import h5py
 
 @pytest.fixture
 def run_files():
@@ -25,7 +24,7 @@ def test_get_fluxsurface_area_visual_check(run_files):
     plt.plot(spol, area/1e4, "-r", label=r"fluxsurface area $S$")
     plt.plot(spol_eqdsk, area_eqdsk, "--b", label=r"approx area from EQDSK")
     plt.xlabel(r"$s_\mathrm{pol}$")
-    plt.ylabel(r"$S \mathrm{ [m^2]}$")
+    plt.ylabel(r"$S \; \mathrm{[m^2]}$")
     plt.legend()
     plt.grid(True)
 
@@ -60,3 +59,7 @@ def get_fluxsurface_area_eqdsk(eqdsk, n_surf: int=11):
     area = area[:-1] # exclude separatrix
     spol = spol[:-1]
     return area, spol
+
+
+if __name__=="__main__":
+    pytest.main()
