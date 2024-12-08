@@ -85,16 +85,19 @@ jobs:
 
       - name: NEO-2
         run: |
+          source activate.sh
           clone_github NEO-2
           source scripts/setup/neo2.sh
 
       - name: NEO-RT
         run: |
+          source activate.sh
           clone_github NEO-RT
           source scripts/setup/neort.sh
 
       - name: SIMPLE
         run: |
+          source activate.sh
           clone_github SIMPLE
           pushd SIMPLE
             make
@@ -102,6 +105,7 @@ jobs:
 
       - name: GORILLA
         run: |
+          source activate.sh
           clone_github GORILLA
           pushd GORILLA
             ./build.sh
@@ -109,10 +113,12 @@ jobs:
 
       - name: MEPHIT
         run: |
+          source activate.sh
           clone_github MEPHIT
           source scripts/setup/mephit.sh
 
       - name: KAMEL
         run: |
+          source activate.sh
           clone_github KAMEL
           source scripts/setup/kamel.sh
