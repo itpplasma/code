@@ -27,7 +27,6 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export CMAKE_ARGS="-DBLAS_LIBRARIES=$BLAS_LIBRARIES -DLAPACK_LIBRARIES=$LAPACK_LIBRARIES"
 
 else
-    echo "Not running on macOS."
     export CMAKE_ARGS=""
 fi
 
@@ -45,5 +44,8 @@ export LD_LIBRARY_PATH
 
 source $CODE/.venv/bin/activate
 
-source /etc/profile.d/modules.sh
+if [[ -f /etc/profile.d/modules.sh ]]; then
+    source /etc/profile.d/modules.sh
+fi
+
 module use -a $CODE/modules
