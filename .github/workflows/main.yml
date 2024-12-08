@@ -79,7 +79,8 @@ jobs:
             libreadline-dev \
             h5utils \
             hdf5-tools \
-            netcdf-bin
+            netcdf-bin \
+            libtriangle-dev
 
           source scripts/setup.sh
 
@@ -114,6 +115,9 @@ jobs:
       - name: MEPHIT
         run: |
           source activate.sh
+          pushd external
+            ../scripts/setup/mfem.sh
+          popd
           clone_github MEPHIT
           source scripts/setup/mephit.sh
 
