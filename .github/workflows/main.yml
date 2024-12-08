@@ -81,40 +81,38 @@ jobs:
             hdf5-tools \
             netcdf-bin
 
-
           source scripts/setup.sh
-
-      - name: libneo
-        run: |
-          git clone https://github.com/itpplasma/libneo.git
 
       - name: NEO-2
         run: |
-          git clone https://github.com/itpplasma/NEO-2.git
+          clone_github NEO-2
+          source scripts/setup/neo2.sh
 
       - name: NEO-RT
         run: |
-          mkdir contrib
-          cd contrib
-          git clone https://github.com/itpplasma/quadpack
-          git clone https://github.com/itpplasma/vode
-          cd ..
-          git clone https://github.com/itpplasma/spline
-          git clone https://github.com/itpplasma/BOOZER_MAGFIE
-          git clone https://github.com/itpplasma/NEO-RT
+          clone_github NEO-RT
+          source scripts/setup/neort.sh
 
       - name: SIMPLE
         run: |
-          git clone https://github.com/itpplasma/SIMPLE
+          clone_github SIMPLE
+          pushd SIMPLE
+            make
+          popd
 
       - name: GORILLA
         run: |
-          git clone  https://github.com/itpplasma/GORILLA.git
+          clone_github GORILLA
+          pushd GORILLA
+            ./build.sh
+          popd
 
       - name: MEPHIT
         run: |
-          git clone https://github.com/itpplasma/MEPHIT.git
+          clone_github MEPHIT
+          source scripts/setup/mephit.sh
 
       - name: KAMEL
         run: |
-          git clone https://github.com/itpplasma/KAMEL.git
+          clone_github KAMEL
+          source scripts/setup/kamel.sh
