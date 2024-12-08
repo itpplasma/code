@@ -56,7 +56,8 @@ jobs:
             python3-tk \
             idle3 \
             findent \
-            expect
+            expect \
+            environment-modules
 
           sudo apt-get install -y -q --no-install-recommends \
             pkg-config \
@@ -76,6 +77,7 @@ jobs:
             h5utils \
             hdf5-tools \
             netcdf-bin
+
 
           source scripts/setup.sh
 
