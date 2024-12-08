@@ -104,6 +104,7 @@ mephit:
     - source scripts/util.sh
     - set_branch
     - install_package libneo dev
+    - source activate.sh
     - pushd external
     - install_package fgsl 1.6.0
     - install_package mfem 4.7
@@ -141,8 +142,8 @@ neo2-job:
     - source scripts/util.sh
     - set_branch
     - install_package libneo dev
-    - pushd external; install_package fgsl 1.6.0; popd
     - source activate.sh
+    - pushd external; install_package fgsl 1.6.0; popd
     - clone_github NEO-2
     - scripts/setup/neo2.sh
   artifacts:
