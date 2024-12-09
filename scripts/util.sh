@@ -33,6 +33,15 @@ add_to_library_path() {
     if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
         LD_LIBRARY_PATH="$1${LD_LIBRARY_PATH:+":$LD_LIBRARY_PATH"}"
     fi
+    if is_a_mac; then
+        if [ -d "$1" ] && [[ ":$DYLD_LIBRARY_PATH:" != *":$1:"* ]]; then
+            DYLD_LIBRARY_PATH="$1${DYLD_LIBRARY_PATH:+":$DYLD_LIBRARY_PATH"}"
+        fi
+    fi
+}
+
+is_a_mac() {
+    [[ "$(uname)" == "Darwin" ]]
 }
 
 
