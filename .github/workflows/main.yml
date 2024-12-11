@@ -123,8 +123,5 @@ jobs:
       - name: MEPHIT
         run: |
           source activate.sh
-          pushd external
-            ../scripts/setup/mfem.sh
-          popd
           clone_github MEPHIT
           source scripts/setup/mephit.sh
