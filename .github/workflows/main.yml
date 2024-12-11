@@ -33,51 +33,39 @@ jobs:
         run: |
           source scripts/setup.sh
 
-      # - name: NEO-2
-      #   run: |
-      #     source activate.sh
-      #     clone_github NEO-2
-      #     source scripts/setup/neo2.sh
-
-      # - name: NEO-RT
-      #   run: |
-      #     source activate.sh
-      #     clone_github NEO-RT
-      #     source scripts/setup/neort.sh
-
-      # - name: SIMPLE
-      #   run: |
-      #     source activate.sh
-      #     clone_github SIMPLE
-      #     pushd SIMPLE
-      #       make
-      #     popd
-
-      # - name: GORILLA
-      #   run: |
-      #     source activate.sh
-      #     clone_github GORILLA
-      #     pushd GORILLA
-      #       ./build.sh
-      #     popd
-
-      # - name: MEPHIT
-      #   run: |
-      #     source activate.sh
-      #     pushd external
-      #       ../scripts/setup/mfem.sh
-      #     popd
-      #     clone_github MEPHIT
-      #     source scripts/setup/mephit.sh
-
-      - name: Checkout KAMEL
-        uses: actions/checkout@v3
-        with:
-          repository: itpplasma/KAMEL
-          path: KAMEL
-          token: ${{ secrets.READ_TOKEN }}
-
-      - name: Build KAMEL
+      - name: NEO-2
         run: |
           source activate.sh
-          source scripts/setup/kamel.sh
+          clone_github NEO-2
+          source scripts/setup/neo2.sh
+
+      - name: NEO-RT
+        run: |
+          source activate.sh
+          clone_github NEO-RT
+          source scripts/setup/neort.sh
+
+      - name: SIMPLE
+        run: |
+          source activate.sh
+          clone_github SIMPLE
+          pushd SIMPLE
+            make
+          popd
+
+      - name: GORILLA
+        run: |
+          source activate.sh
+          clone_github GORILLA
+          pushd GORILLA
+            ./build.sh
+          popd
+
+      - name: MEPHIT
+        run: |
+          source activate.sh
+          pushd external
+            ../scripts/setup/mfem.sh
+          popd
+          clone_github MEPHIT
+          source scripts/setup/mephit.sh
