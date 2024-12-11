@@ -27,11 +27,15 @@ jobs:
         shell: bash
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Download tarball artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: code
+          path: /tmp
 
-      - name: Install dependencies
+      - name: Extract tarball
         run: |
-          source scripts/setup.sh
+          tar -xzvf /tmp/code.tar.gz
 
       - name: NEO-2
         run: |

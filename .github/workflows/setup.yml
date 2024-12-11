@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  workflow_dispatch:
+
+env:
+  GIT_HTTPS: "true"
+
+jobs:
+  MEPHIT:
+    name: Build and test
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/itpplasma/devel-tex:latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          source scripts/setup.sh
+          pushd external
+            ../scripts/setup/mfem.sh
+          popd
+
+      - name: Build tarball
+        run: |
+          tar -czf code.tar.gz .
+
+      - name: Upload tarball as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: code
+          path: code.tar.gz
