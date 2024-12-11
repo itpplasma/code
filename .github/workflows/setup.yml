@@ -83,10 +83,10 @@ jobs:
 
       - name: Build tarball
         run: |
-          tar -czf code.tar.gz .
+          tar -czf /tmp/code.tar.gz .
 
       - name: Upload tarball as artifact
         uses: actions/upload-artifact@v3
         with:
           name: code
-          path: code.tar.gz
+          path: /tmp/code.tar.gz
