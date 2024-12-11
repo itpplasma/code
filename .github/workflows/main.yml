@@ -1,44 +1,80 @@
+# This is a basic workflow to help you get started with Actions
+
 name: CI
 
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  GIT_HTTPS: "true"
+
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Cache Docker Image
-        uses: actions/cache@v3
-        with:
-          path: /tmp/docker-cache
-          key: docker-image-${{ github.sha }}
-          restore-keys: |
-            docker-image-
-
-      - name: Load Docker Image from Cache
-        if: steps.cache.outputs.cache-hit == 'true'
-        run: |
-          echo "Cache hit, loading image..."
-          docker load < /tmp/docker-cache/my-image.tar
-
-      - name: Pull Docker Image if Cache Miss
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          echo "Cache miss, pulling image..."
-          docker pull ghcr.io/itpplasma/devel-tex:latest
-          mkdir -p /tmp/docker-cache
-          docker save ghcr.io/itpplasma/devel-tex:latest > /tmp/docker-cache/my-image.tar
-
-  ci-job:
+  MEPHIT:
+    name: Build and test
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/itpplasma/devel-tex:latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
 
-      - name: Run CI/CD Steps
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
         run: |
-          # Your CI/CD steps
-          echo "Running tests inside the cached Docker container"
+          source scripts/setup.sh
+
+      - name: NEO-2
+        run: |
+          source activate.sh
+          clone_github NEO-2
+          source scripts/setup/neo2.sh
+
+      - name: NEO-RT
+        run: |
+          source activate.sh
+          clone_github NEO-RT
+          source scripts/setup/neort.sh
+
+      - name: SIMPLE
+        run: |
+          source activate.sh
+          clone_github SIMPLE
+          pushd SIMPLE
+            make
+          popd
+
+      - name: GORILLA
+        run: |
+          source activate.sh
+          clone_github GORILLA
+          pushd GORILLA
+            ./build.sh
+          popd
+
+      - name: MEPHIT
+        run: |
+          source activate.sh
+          pushd external
+            ../scripts/setup/mfem.sh
+          popd
+          clone_github MEPHIT
+          source scripts/setup/mephit.sh
+
+      - name: Checkout KAMEL
+        uses: actions/checkout@v3
+        with:
+          repository: itpplasma/KAMEL
+          path: KAMEL
+          token: ${{ secrets.READ_TOKEN }}
+
+      - name: Build KAMEL
+        run: |
+          source activate.sh
+          source scripts/setup/kamel.sh
