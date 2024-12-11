@@ -39,5 +39,6 @@
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
     "testing.openTesting": "neverOpen",
     "github.codespaces.devcontainerChangedNotificationStyle": "none",
-    "mesonbuild.selectRootDir": false
+    "mesonbuild.selectRootDir": false,
+    "testing.automaticallyOpenTestResults": "neverOpen"
 }
