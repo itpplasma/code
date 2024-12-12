@@ -86,7 +86,7 @@ jobs:
           tar -czf /tmp/code.tar.gz .
 
       - name: Upload tarball as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code
           path: /tmp/code.tar.gz
