@@ -1,6 +1,9 @@
 name: SETUP
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 env:
@@ -14,68 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -y && sudo apt-get install -y -q --no-install-recommends \
-            apt-transport-https \
-            build-essential \
-            ca-certificates \
-            curl \
-            libssl-dev \
-            openssh-client \
-            rsync \
-            wget \
-            git \
-            gfortran \
-            ninja-build \
-            cmake \
-            python3 \
-            python3-dev \
-            python3-pip \
-            python3-venv
-
-          sudo apt-get install -y -q --no-install-recommends \
-            procps \
-            nano \
-            vim \
-            htop \
-            ncdu \
-            less \
-            gdb \
-            cmake-curses-gui \
-            valgrind \
-            dbus-x11 \
-            kcachegrind \
-            python3-tk \
-            idle3 \
-            findent \
-            expect \
-            environment-modules
-
-          sudo apt-get install -y -q --no-install-recommends \
-            pkg-config \
-            libsuitesparse-dev \
-            libopenblas-dev \
-            libsuperlu-dev \
-            libhdf5-dev \
-            libhdf5-openmpi-dev \
-            libnetcdf-dev \
-            libnetcdff-dev \
-            libfftw3-dev \
-            libgsl-dev \
-            libopenmpi-dev \
-            libscalapack-openmpi-dev \
-            libpcre3-dev \
-            libreadline-dev \
-            h5utils \
-            hdf5-tools \
-            netcdf-bin \
-            libmetis-dev \
-            libboost-all-dev \
-            libtriangle-dev
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: apt-transport-https build-essential ca-certificates curl libssl-dev openssh-client rsync wget git gfortran ninja-build cmake python3 python3-dev python3-pip python3-venv procps nano vim htop ncdu less gdb cmake-curses-gui valgrind dbus-x11 kcachegrind python3-tk idle3 findent expect environment-modules pkg-config libsuitesparse-dev libopenblas-dev libsuperlu-dev libhdf5-dev libhdf5-openmpi-dev libnetcdf-dev libnetcdff-dev libfftw3-dev libgsl-dev libopenmpi-dev libscalapack-openmpi-dev libpcre3-dev libreadline-dev h5utils hdf5-tools netcdf-bin libmetis-dev libboost-all-dev libtriangle-dev
+          version: 1.0
 
       - name: Setup
         run: |
+          set -e
           source scripts/setup.sh
           pushd external
             ../scripts/setup/mfem.sh
@@ -83,10 +32,22 @@ jobs:
 
       - name: Build tarball
         run: |
+          set -e
           tar -czf /tmp/code.tar.gz .
 
-      - name: Upload tarball as artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
         with:
-          name: code
-          path: /tmp/code.tar.gz
+          tag_name: ${{ github.ref_name }}
+          release_name: "Release ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+
+      - name: Upload Tarball to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /tmp/code.tar.gz
+          asset_name: code-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
