@@ -1,6 +1,5 @@
 import pytest
 
-from pathlib import Path
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,19 +7,29 @@ import matplotlib.pyplot as plt
 from libneo import BoozerFile
 from libneo import read_eqdsk, FluxConverter
 
-data_path = Path(os.environ["DATA"])
-
-trial_boozer_file = data_path / "AUG/BOOZER/30835/out_neo-2_rmp_90-n0"
-trial_eqdsk_file = data_path / "AUG/EQDSK/g30835.3200_ed6"
-bc = BoozerFile(trial_boozer_file.as_posix())
-eqdsk = read_eqdsk(trial_eqdsk_file.as_posix())
-converter = FluxConverter(eqdsk["qprof"])
 no_edges = slice(10, -10)
 
 
-def test_iota():
-    stor_bc = bc.s[no_edges]
-    iota_bc = np.array(bc.iota[no_edges])
+@pytest.fixture
+def boozer(data_path):
+    trial_boozer_file = data_path / "AUG/BOOZER/30835/out_neo-2_rmp_90-n0"
+    return BoozerFile(trial_boozer_file.as_posix())
+
+
+@pytest.fixture
+def eqdsk(data_path):
+    trial_eqdsk_file = data_path / "AUG/EQDSK/g30835.3200_ed6"
+    return read_eqdsk(trial_eqdsk_file.as_posix())
+
+
+@pytest.fixture
+def converter(eqdsk):
+    return FluxConverter(eqdsk["qprof"])
+
+
+def test_iota(boozer, eqdsk, converter):
+    stor_bc = boozer.s[no_edges]
+    iota_bc = np.array(boozer.iota[no_edges])
     stor_eqdsk = converter.sqrtspol2stor(np.sqrt(eqdsk["s_pol"]))
     iota_eqdsk = np.interp(stor_bc, stor_eqdsk, 1 / eqdsk["qprof"])
     assert np.allclose(
@@ -28,9 +37,9 @@ def test_iota():
     )  # .bc file has only positive itota
 
 
-def test_get_rho_poloidal():
-    sqrtspol = bc.get_rho_poloidal()[no_edges]
-    sqrtspol_control = converter.stor2sqrtspol(bc.s)[no_edges]
+def test_get_rho_poloidal(boozer, converter):
+    sqrtspol = boozer.get_rho_poloidal()[no_edges]
+    sqrtspol_control = converter.stor2sqrtspol(boozer.s)[no_edges]
     assert np.allclose(sqrtspol, sqrtspol_control, atol=1e-2)
 
 
