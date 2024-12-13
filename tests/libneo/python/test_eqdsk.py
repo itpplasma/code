@@ -13,24 +13,28 @@ from paths import code_path, data_path
 
 golden_record_path = data_path / "TESTS/libneo/eqdsk"
 
-
 @pytest.fixture
 def test_files():
     return {
         "local": code_path / "libneo/test/resources/input_efit_file.dat",
         "PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
         "standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
+        "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",
+        # TODO: "MASTU": data_path / "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
         # TODO: "CHEASE": data_path / "DEMO/teams/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
     }
 
 
 def test_eqdsk_read(test_files):
-    for test_file in test_files.values():
+    for key, test_file in test_files.items():
+        print(f"Testing {key} EQDSK file: {test_file}")
         _ = eqdsk.eqdsk_file(test_file)
 
 
-def test_eqdsk_golden_records(test_files):
-    for test_file in test_files.values():
+def test_eqdsk_golden_records(eqdsk_test_files):
+    store_golden_records(eqdsk_test_files.values())
+
+    for test_file in eqdsk_test_files.values():
         eqdsk_object = eqdsk.eqdsk_file(test_file)
 
         data = eqdsk_object.__dict__
@@ -51,7 +55,7 @@ def get_golden_record(file_path):
         return json.loads(json_data)
 
 
-def store_golden_records(file_paths):
+def store_golden_records(file_paths, force_overwrite=False):
     """
     Stores reference data for regression tests. Call only manually after fixing
     a bug and checking that the new results are correct.
@@ -67,7 +71,9 @@ def store_golden_records(file_paths):
         outfile = golden_record_path / f"{file_base}.json.gz"
 
         if outfile.exists():
-            raise RuntimeError(f"Golden record file {outfile} already exists.")
+            print(f"Golden record {outfile} exists.")
+            if not force_overwrite:
+                continue
 
         with gzip.open(outfile, "wb") as f:
             json_data = json.dumps(data, indent=4)
