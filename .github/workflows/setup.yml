@@ -98,6 +98,8 @@ jobs:
           release_name: "Release ${{ github.ref_name }}"
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Upload Tarball to Release
         uses: actions/upload-release-asset@v1
@@ -106,3 +108,5 @@ jobs:
           asset_path: /tmp/code.tar.gz
           asset_name: code-${{ github.ref_name }}.tar.gz
           asset_content_type: application/gzip
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
