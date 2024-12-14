@@ -38,11 +38,11 @@ field_divB0_input = """0                                 ipert        ! 0=eq onl
 def test_files(code_path, data_path):
     return {
         "local": code_path / "libneo/test/resources/input_efit_file.dat",
-        "CHEASE": data_path / "DEMO/EQDSK/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
+        "DEMO CHEASE": data_path / "DEMO/EQDSK/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
         "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",
         "MASTU": data_path / "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
-        # TODO: "PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
-        # TODO: "standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
+        # TODO: "DEMO PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
+        # TODO: "DEMO standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
     }
 
 
@@ -60,12 +60,14 @@ def test_angles_and_transformation(test_files):
 
         plt.figure()
         plt.plot(th_boozers, th_geoms)
+        plt.xlabel(r"$\theta_{\mathrm{Boozer}}$")
+        plt.ylabel(r"$\theta_{\mathrm{geom}}$")
+        plt.title(f"{key}")
 
 
 @pytest.mark.slow
 def test_q_profile_eqdsk(test_files):
-
-    for key in ["CHEASE", "MASTU"]:
+    for key in ["DEMO CHEASE", "MASTU"]:
         # TODO: local, AUG, MASTU, PROCESS, standardized
         test_file = test_files[key]
         print(f"Testing {key} EQDSK file: {test_file}")
@@ -105,6 +107,7 @@ def test_q_profile_eqdsk(test_files):
         plt.figure()
         plt.plot(spol_eqdsk, q_profile_eqdsk, "-r", label=r"q profile from EQDSK")
         plt.plot(spol_eqdsk, q_profile_field_line_integration, "--b", label=r"q profile from field line integration")
+        plt.title(f"{key}")
         plt.legend()
 
         assert_allclose(q_profile_field_line_integration, q_profile_eqdsk, rtol=1e-2)
