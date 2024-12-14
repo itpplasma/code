@@ -28,6 +28,7 @@ def test_eqdsk_read(test_files):
         _ = eqdsk.eqdsk_file(test_file)
 
 
+@pytest.mark.slow
 def test_eqdsk_golden_records(data_path, test_files):
     golden_record_path = data_path / "TESTS/libneo/eqdsk"
     store_golden_records(test_files.values(), golden_record_path)
