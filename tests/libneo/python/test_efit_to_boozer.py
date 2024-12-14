@@ -65,7 +65,7 @@ def test_angles_and_transformation(test_files):
 @pytest.mark.slow
 def test_q_profile_eqdsk(test_files):
 
-    for key in ["CHEASE"]:
+    for key in ["CHEASE", "MASTU"]:
         # TODO: local, AUG, MASTU, PROCESS, standardized
         test_file = test_files[key]
         print(f"Testing {key} EQDSK file: {test_file}")
@@ -102,6 +102,11 @@ def test_q_profile_eqdsk(test_files):
 
         q_profile_field_line_integration = np.array(q_profile_field_line_integration)
 
+        plt.figure()
+        plt.plot(spol_eqdsk, q_profile_eqdsk, "-r", label=r"q profile from EQDSK")
+        plt.plot(spol_eqdsk, q_profile_field_line_integration, "--b", label=r"q profile from field line integration")
+        plt.legend()
+
         assert_allclose(q_profile_field_line_integration, q_profile_eqdsk, rtol=1e-2)
         print("Alternative safety factor calculation agrees with EQDSK file within 1%")
 
@@ -121,5 +126,7 @@ def write_input_files(tmp_path, gfile):
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-s"])
-    plt.show()
+    try:
+        pytest.main([__file__, "-s"])
+    finally:
+        plt.show()
