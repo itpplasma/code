@@ -6,8 +6,6 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-from paths import code_path, data_path
-
 import _efit_to_boozer as efit_to_boozer
 from libneo.boozer import get_angles_and_transformation
 
@@ -35,7 +33,7 @@ field_divB0_input = """0                                 ipert        ! 0=eq onl
 """
 
 @pytest.fixture
-def test_files():
+def test_files(code_path, data_path):
     return {
         "CHEASE": data_path / "DEMO/EQDSK/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
         "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",

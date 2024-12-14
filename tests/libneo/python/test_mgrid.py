@@ -3,17 +3,18 @@ import pytest
 import numpy as np
 
 from libneo.mgrid import MgridFile
-from paths import data_path
 
-testfile_path = data_path / "LHD/VMEC/makegrid_alternative/mgrid_lhd_nfp10.nc"
+@pytest.fixture
+def testfile_path(data_path):
+    return data_path / "LHD/VMEC/makegrid_alternative/mgrid_lhd_nfp10.nc"
 
 
 @pytest.fixture
-def mgrid():
+def mgrid(testfile_path):
     return MgridFile.from_file(testfile_path)
 
 
-def test_mgrid_read():
+def test_mgrid_read(testfile_path):
     f = MgridFile.from_file(testfile_path)
     print(f)
 

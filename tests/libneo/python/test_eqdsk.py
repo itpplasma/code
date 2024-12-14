@@ -8,13 +8,10 @@ import json
 import gzip
 
 from libneo import eqdsk
-from paths import code_path, data_path
 
-
-golden_record_path = data_path / "TESTS/libneo/eqdsk"
 
 @pytest.fixture
-def test_files():
+def test_files(code_path, data_path):
     return {
         "local": code_path / "libneo/test/resources/input_efit_file.dat",
         "PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
@@ -31,31 +28,32 @@ def test_eqdsk_read(test_files):
         _ = eqdsk.eqdsk_file(test_file)
 
 
-def test_eqdsk_golden_records(eqdsk_test_files):
-    store_golden_records(eqdsk_test_files.values())
+def test_eqdsk_golden_records(data_path, test_files):
+    golden_record_path = data_path / "TESTS/libneo/eqdsk"
+    store_golden_records(test_files.values(), golden_record_path)
 
-    for test_file in eqdsk_test_files.values():
+    for test_file in test_files.values():
         eqdsk_object = eqdsk.eqdsk_file(test_file)
 
         data = eqdsk_object.__dict__
         replace_array_members_by_lists(data)
 
-        assert are_dicts_equal(data, get_golden_record(test_file))
+        assert are_dicts_equal(data, get_golden_record(test_file, golden_record_path))
 
 
-def get_golden_record(file_path):
+def get_golden_record(file_path, storage_path):
     """
     Returns the golden record for the given test file.
     """
 
     file_base = file_path.stem
-    with gzip.open(golden_record_path / f"{file_base}.json.gz", "rb") as f:
+    with gzip.open(storage_path / f"{file_base}.json.gz", "rb") as f:
         compressed_data = f.read()
         json_data = compressed_data.decode("utf-8")
         return json.loads(json_data)
 
 
-def store_golden_records(file_paths, force_overwrite=False):
+def store_golden_records(file_paths, storage_path, force_overwrite=False):
     """
     Stores reference data for regression tests. Call only manually after fixing
     a bug and checking that the new results are correct.
@@ -68,7 +66,7 @@ def store_golden_records(file_paths, force_overwrite=False):
         data = eqdsk.eqdsk_file(str(f)).__dict__
         replace_array_members_by_lists(data)
 
-        outfile = golden_record_path / f"{file_base}.json.gz"
+        outfile = storage_path / f"{file_base}.json.gz"
 
         if outfile.exists():
             print(f"Golden record {outfile} exists.")
