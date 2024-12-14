@@ -41,5 +41,6 @@
     "github.codespaces.devcontainerChangedNotificationStyle": "none",
     "mesonbuild.selectRootDir": false,
     "testing.automaticallyOpenTestResults": "neverOpen",
-    "files.insertFinalNewline": true
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true
 }
