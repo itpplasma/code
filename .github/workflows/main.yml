@@ -17,7 +17,7 @@ env:
   GIT_HTTPS: "true"
 
 jobs:
-  MEPHIT:
+  code:
     name: Build and test
     runs-on: ubuntu-24.04
 
