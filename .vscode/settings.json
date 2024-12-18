@@ -40,5 +40,7 @@
     "testing.openTesting": "neverOpen",
     "github.codespaces.devcontainerChangedNotificationStyle": "none",
     "mesonbuild.selectRootDir": false,
-    "testing.automaticallyOpenTestResults": "neverOpen"
+    "testing.automaticallyOpenTestResults": "neverOpen",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true
 }

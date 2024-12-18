@@ -4,15 +4,16 @@ from libneo.eqdsk_base import approximate_fluxsurface_area_eqdsk
 
 
 @pytest.fixture
-def run_files():
+def run_files(data_path):
     from libneo import read_eqdsk
 
-    filename_eqdsk = "/proj/plasma/DATA/AUG/EQUILIRBRIUM/QCE_discharge_Neon_shot_39561/eqdsk_39461_5.38s"
+    filename_eqdsk = data_path / "AUG/EQUILIRBRIUM/QCE_discharge_Neon_shot_39561/eqdsk_39461_5.38s"
     eqdsk = read_eqdsk(filename_eqdsk)
     neo2_output = "/temp/grassl_g/Neon_discharge_axisymmetric_gleiter/RUN_lag8/neon_discharge.out"
     yield eqdsk, neo2_output
 
 
+@pytest.mark.xfail(reason="TODO: Update paths")
 def test_get_fluxsurface_area_visual_check(run_files):
     from neo2_ql import get_fluxsurface_area
     from libneo import plot_fluxsurfaces, FluxConverter
@@ -38,4 +39,4 @@ def test_get_fluxsurface_area_visual_check(run_files):
 
 
 if __name__ == "__main__":
-    pytest.main()
+    pytest.main([__file__, "-s"])

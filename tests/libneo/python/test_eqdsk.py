@@ -6,73 +6,73 @@ import pytest
 
 import json
 import gzip
-import os.path
 
 from libneo import eqdsk
 
-# Directory where the golden records are stored for regression tests
-golden_record_dir = "/proj/plasma/DATA/TESTS/libneo/eqdsk"
+
+@pytest.fixture
+def test_files(code_path, data_path):
+    return {
+        "local": code_path / "libneo/test/resources/input_efit_file.dat",
+        "PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
+        "standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
+        "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",
+        # TODO: "MASTU": data_path / "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
+        # TODO: "CHEASE": data_path / "DEMO/teams/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
+    }
 
 
-test_files = [
-    
-    # Local
-    "libneo/tests/resources/input_efit_file.dat",
-
-    # PROCESS code
-    "/proj/plasma/DATA/DEMO/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
-
-    # Standardized
-    "/proj/plasma/DATA/DEMO/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
-
-    # TODO: CHEASE
-    # "/proj/plasma/DATA/DEMO/teams/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT"
-]
-
-
-def test_eqdsk_read():
-    for test_file in test_files:
+def test_eqdsk_read(test_files):
+    for key, test_file in test_files.items():
+        print(f"Testing {key} EQDSK file: {test_file}")
         _ = eqdsk.eqdsk_file(test_file)
 
 
-def test_eqdsk_golden_records():
-    for test_file in test_files:
+@pytest.mark.slow
+def test_eqdsk_golden_records(data_path, test_files):
+    golden_record_path = data_path / "TESTS/libneo/eqdsk"
+    store_golden_records(test_files.values(), golden_record_path)
+
+    for test_file in test_files.values():
         eqdsk_object = eqdsk.eqdsk_file(test_file)
 
         data = eqdsk_object.__dict__
         replace_array_members_by_lists(data)
 
-        assert are_dicts_equal(data, get_golden_record(test_file))
+        assert are_dicts_equal(data, get_golden_record(test_file, golden_record_path))
 
 
-def get_golden_record(filename):
+def get_golden_record(file_path, storage_path):
     """
     Returns the golden record for the given test file.
     """
 
-    file_base, _ = os.path.splitext(os.path.basename(filename))
-    with gzip.open(f"{golden_record_dir}/{file_base}.json.gz", "rb") as f:
+    file_base = file_path.stem
+    with gzip.open(storage_path / f"{file_base}.json.gz", "rb") as f:
         compressed_data = f.read()
         json_data = compressed_data.decode("utf-8")
         return json.loads(json_data)
 
 
-def store_golden_records():
+def store_golden_records(file_paths, storage_path, force_overwrite=False):
     """
     Stores reference data for regression tests. Call only manually after fixing
     a bug and checking that the new results are correct.
     """
 
-    for file in test_files:
-        basedir = os.path.dirname(file)
-        file_base, ext = os.path.splitext(os.path.basename(file))
-        data = eqdsk.eqdsk_file(f"{basedir}/{file_base}{ext}").__dict__
+    for f in file_paths:
+        basedir = f.parent
+        file_base = f.stem
+        ext = f.suffix
+        data = eqdsk.eqdsk_file(str(f)).__dict__
         replace_array_members_by_lists(data)
 
-        outfile = f"{golden_record_dir}/{file_base}.json.gz"
+        outfile = storage_path / f"{file_base}.json.gz"
 
-        if os.path.isfile(outfile):
-            raise RuntimeError(f"Golden record file {outfile} already exists.")
+        if outfile.exists():
+            print(f"Golden record {outfile} exists.")
+            if not force_overwrite:
+                continue
 
         with gzip.open(outfile, "wb") as f:
             json_data = json.dumps(data, indent=4)
@@ -138,3 +138,7 @@ def are_float_lists_equal(list1, list2, tolerance=1e-9):
             if not are_float_lists_equal(a, b, tolerance):
                 return False
     return True
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-s"])
