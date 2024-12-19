@@ -5,9 +5,6 @@ to setup development and use of internal and external codes. Our development
 environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
 
-If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
-add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
-
 CODE is based around our standard Debian bookworm system at ITPcp and provides 
 
 - setup scripts `scripts/setup/...`
@@ -18,6 +15,9 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 - VSCode settings
 
 ## Getting Started
+
+If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
+add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 
 ### Installation at ITPcp computers
 
