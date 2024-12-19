@@ -8,8 +8,18 @@ there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 
+CODE is based around our standard Debian bookworm system at ITPcp and provides 
 
-## Installation at ITPcp computers
+- setup scripts `scripts/setup/...`
+- quality-of-life shell commands via `scripts/util.sh`
+- a standardized activation together with a Python virtual environment from `requirements.txt`
+- CI/CD for integration between codes and data
+- container definitions
+- VSCode settings
+
+## Getting Started
+
+### Installation at ITPcp computers
 
 Clone the repository to your working copy, at the institute this is
 
@@ -34,7 +44,7 @@ If you work outside a container, also manually put a line
 in your bashrc.
 
 
-## Installation on your own machine
+### Installation on your own machine
 
 On Linux: At ITPcp all packages should be installed to get going.
 The according script is [scripts/setup/debian.sh](scripts/setup/debian.sh).
@@ -54,3 +64,5 @@ Integration tests are run by
     pytest tests/
 
 This will perform all the tests in `tests/` and its subfolders.
+
+
