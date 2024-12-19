@@ -19,7 +19,7 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 
-### Perparing your own machine
+### Perparing your machine
 
 On Linux: At ITPcp computers all packages should be installed to get going.
 On your own Debian system, run [scripts/setup/debian.sh](scripts/setup/debian.sh).
