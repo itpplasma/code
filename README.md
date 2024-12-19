@@ -7,11 +7,11 @@ there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-
 
 CODE is based around our standard Debian bookworm system at ITPcp and provides 
 
-- setup scripts `scripts/setup/...`
-- quality-of-life shell commands via `scripts/util.sh`
-- a standardized activation together with a Python virtual environment from `requirements.txt`
+- Setup scripts `scripts/setup/...`
+- Quality-of-life shell commands via `scripts/util.sh`
+- A standardized activation together with a Python virtual environment from `requirements.txt`
 - CI/CD for integration between codes and data
-- container definitions
+- Container definitions
 - VSCode settings
 
 ## Getting Started
