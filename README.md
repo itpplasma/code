@@ -22,7 +22,7 @@ add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 ### Perparing your own machine
 
 On Linux: At ITPcp computers all packages should be installed to get going.
-The according script for your own Debian system is [scripts/setup/debian.sh](scripts/setup/debian.sh).
+On your own Debian system, run [scripts/setup/debian.sh](scripts/setup/debian.sh).
 
 On Mac: The recommended way via **orbstack**
 and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
