@@ -19,7 +19,20 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
 add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
 
-### Installation at ITPcp computers
+### Perparing your own machine
+
+On Linux: At ITPcp computers all packages should be installed to get going.
+The according script for your own Debian system is [scripts/setup/debian.sh](scripts/setup/debian.sh).
+
+On Mac: The recommended way via **orbstack**
+and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
+
+On Windows: Prepare your machine with
+[scripts/setup/windows.bat](scripts/setup/windows.bat) first
+to install Debian Linux via WSL2. Then follow the Linux instructions.
+
+
+### Initial setup
 
 Clone the repository to your working copy, at the institute this is
 
@@ -44,20 +57,7 @@ If you work outside a container, also manually put a line
 in your bashrc.
 
 
-### Installation on your own machine
-
-On Linux: At ITPcp all packages should be installed to get going.
-The according script is [scripts/setup/debian.sh](scripts/setup/debian.sh).
-
-On Mac: The recommended way via **orbstack**
-and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
-
-On Windows: Prepare your machine with
-[scripts/setup/windows.bat](scripts/setup/windows.bat) first
-to install Debian Linux via WSL2. Then follow the Linux instructions.
-
-
-## Tests
+## Testing
 
 Integration tests are run by
 
