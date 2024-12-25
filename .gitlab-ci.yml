@@ -139,7 +139,10 @@ neo2-job:
     - source activate.sh
     - pushd external; install_package fgsl 1.6.0; popd
     - clone_github NEO-2
-    - pushd NEO-2; make
+    - cd NEO-2
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
+    - make
+    - cd python; pip install -e .
   artifacts:
     paths:
       - NEO-2/
@@ -170,7 +173,7 @@ simple:
     - source activate.sh
     - clone_github SIMPLE
     - cd SIMPLE
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
     - make
   artifacts:
     paths:
@@ -185,7 +188,7 @@ gorilla:
     - set_branch
     - clone_github GORILLA
     - cd GORILLA
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
     - ./build.sh
   artifacts:
     paths:
