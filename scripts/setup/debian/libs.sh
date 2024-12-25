@@ -29,4 +29,5 @@ apt-get install -y -q --no-install-recommends \
     slepc-dev \
     h5utils \
     hdf5-tools \
-    netcdf-bin
+    netcdf-bin \
+    graphviz
