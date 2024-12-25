@@ -5,7 +5,6 @@ apt-get install -y -q --no-install-recommends \
     libtool \
     libsuitesparse-dev \
     libmetis-dev \
-    libtriangle-dev \
     libopenblas-dev \
     libsuperlu-dev \
     libhdf5-dev \

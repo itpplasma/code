@@ -5,12 +5,12 @@ source /etc/profile.d/modules.sh
 module use -a $CODE/modules
 module load mephit
 
+pushd external
+    $CODE/scripts/setup/triangle.sh
+popd
+
 pushd MEPHIT
-    ../scripts/checkout_branch.sh $CODE_BRANCH
-    mkdir build
-    pushd build
-        cmake .. $CMAKE_ARGS
-        make -j4
-    popd
+    $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+    make
     pip install -e .
 popd
