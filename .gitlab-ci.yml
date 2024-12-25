@@ -139,7 +139,7 @@ neo2-job:
     - source activate.sh
     - pushd external; install_package fgsl 1.6.0; popd
     - clone_github NEO-2
-    - scripts/setup/neo2.sh
+    - pushd NEO-2; make
   artifacts:
     paths:
       - NEO-2/
