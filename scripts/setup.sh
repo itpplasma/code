@@ -18,5 +18,3 @@ popd
 pushd $CODE
     $CODE/scripts/setup/libneo.sh
 popd
-
-source $CODE/activate.sh
