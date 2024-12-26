@@ -1,7 +1,7 @@
 # Basics
 wheel
 pip
-setuptools<65  # For f90wrap
+setuptools
 jupyterlab
 notebook
 ipython
@@ -80,4 +80,3 @@ Shapely
 importlib-metadata
 freeqdsk
 freegs
-
