@@ -14,6 +14,8 @@ alias vscode='code $CODE'
 set_branch() {
     if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
         export CODE_BRANCH=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    elif [ -n "$CI_COMMIT_REF_NAME" ]; then
+        export CODE_BRANCH=$CI_COMMIT_REF_NAME
     else
         pushd $CODE
         export CODE_BRANCH=$(git branch --show-current)

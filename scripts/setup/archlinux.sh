@@ -72,7 +72,8 @@ pacman -S --noconfirm --needed \
     pugixml \
     zstd \
     cppzmq \
-    util-linux
+    util-linux \
+    graphviz
 
 # The following packages need to be installed from the AUR:
 # - metis

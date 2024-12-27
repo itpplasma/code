@@ -1,6 +1,9 @@
 #!/bin/bash
 
 set -e
+
+source $CODE/scripts/util.sh
+
 echo "Building and installing 'efit_to_boozer'..."
 if [ ! -d "efit_to_boozer" ] ; then
     echo "Cloning 'efit_to_boozer'..."
