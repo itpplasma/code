@@ -5,7 +5,7 @@ to setup development and use of internal and external codes. Our development
 environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
 
-CODE is based around our standard Debian bookworm system at ITPcp and provides 
+CODE is based around our standard Debian bookworm system at ITPcp and provides
 
 - Setup scripts `scripts/setup/...`
 - Quality-of-life shell commands via `scripts/util.sh`
@@ -42,19 +42,19 @@ Then open the directory in VS Code with
 
     code code
 
-When asked to initialize the devcontainer, remove the message. 
+When asked to initialize the devcontainer, remove the message.
 Run the setup script manually with
 
-    source scripts/setup.sh
+    scripts/setup.sh
 
 The setup will install external dependencies and create and activate
 a Python virtual environment in the hidden `.venv` directory.
 
-If you work outside a container, also manually put a line
+If you work outside a container, also manually run
 
     source /path/to/code/activate.sh
 
-in your bashrc.
+and put this line in your bashrc.
 
 
 ## Testing
@@ -64,5 +64,3 @@ Integration tests are run by
     pytest tests/
 
 This will perform all the tests in `tests/` and its subfolders.
-
-
