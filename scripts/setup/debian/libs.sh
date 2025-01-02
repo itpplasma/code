@@ -23,7 +23,6 @@ apt-get install -y -q --no-install-recommends \
     libparmetis-dev \
     libscotch-dev \
     libzstd-dev \
-    cppzmq-dev \
     uuid-dev \
     petsc-dev \
     slepc-dev \
