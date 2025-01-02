@@ -48,14 +48,20 @@ Run the setup script manually with
 
     scripts/setup.sh
 
-The setup will install external dependencies and create and activate
+The setup will install external dependencies and create
 a Python virtual environment in the hidden `.venv` directory.
 
-If you work outside a container, also manually run
+Finally, activate the environment with
+    
+    source activate.sh
 
-    source /path/to/code/activate.sh
+To use this environment as a standard, edit your bashrc with
 
-and put this line in your bashrc.
+    code ~/.bashrc
+
+and put as a last line
+
+    source <path to your code copy>/activate.sh
 
 
 ## Testing
