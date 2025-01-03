@@ -16,8 +16,9 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 
 ## Getting Started
 
-If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen` and
-add the content of `id_rsa.pub` to Gitlab and GitHub for authentication.
+If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen`
+with a **blank passphrase** and add the content of `id_rsa.pub` to Gitlab and GitHub 
+for authentication.
 
 ### Perparing your machine
 
@@ -47,14 +48,20 @@ Run the setup script manually with
 
     scripts/setup.sh
 
-The setup will install external dependencies and create and activate
+The setup will install external dependencies and create
 a Python virtual environment in the hidden `.venv` directory.
 
-If you work outside a container, also manually run
+Finally, activate the environment with
+    
+    source activate.sh
 
-    source /path/to/code/activate.sh
+To use this environment as a standard, edit your bashrc with
 
-and put this line in your bashrc.
+    code ~/.bashrc
+
+and put as a last line
+
+    source <path to your code copy>/activate.sh
 
 
 ## Testing
