@@ -1,7 +1,7 @@
 # Basics
 wheel
 pip
-setuptools<75 # Required for f90wrap so f2py can use distutils backend
+setuptools<74  # Until resolving f90wrap issue #226 or f2py issue #27018
 jupyterlab
 notebook
 ipython
