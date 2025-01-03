@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # We check explicitly for Python 3.11 since it's the last version
 # supporting numpy.distutils, which is required by gacode for OMFIT.

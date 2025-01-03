@@ -1,4 +1,4 @@
-#/bin/bash
+#!/usr/bin/env bash
 
 export GIT_HTTPS=1
 export CODE_TEMPLATE=/usr/local/src/code_template

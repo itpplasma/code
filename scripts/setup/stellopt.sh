@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -d "STELLOPT" ] ; then
     echo "Fetching and building STELLOPT..."

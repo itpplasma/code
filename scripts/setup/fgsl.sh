@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -d "fgsl-1.6.0" ] ; then
     echo "Fetching and building FGSL..."
