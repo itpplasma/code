@@ -1,7 +1,7 @@
 # Basics
 wheel
 pip
-setuptools<74  # Until resolving f90wrap issue #226 or f2py issue #27018
+setuptools
 jupyterlab
 notebook
 ipython
