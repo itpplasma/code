@@ -6,7 +6,7 @@
 eval "$(/usr/local/bin/brew shellenv)"
 
 brew install gcc make cmake ninja python@3.11 python-tk@3.11
-brew install autoconf automake autogen
+brew install gsed autoconf automake autogen git lazygit
 brew install openblas suitesparse metis
 brew install hdf5 netcdf netcdf-fortran fftw graphviz
 brew install --cask orbstack devpod visual-studio-code
