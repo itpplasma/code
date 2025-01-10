@@ -1,5 +1,7 @@
 {
     "git.autofetch": true,
+    "editor.minimap.enabled": false,
+    "git.confirmSync": false,
     "fortran.linter.includePaths": [
         "${workspaceFolder}/libneo/build",
         "${workspaceFolder}/libneo/build/src",
@@ -13,30 +15,20 @@
     "editor.rulers": [
         88
     ],
-    "pylint.args": [
-        "--disable=C0114,C0116",
-        "--max-line-length=88"
-    ],
-    "python.languageServer": "Jedi",
     "files.associations": {
+        "*.nix": "nix",
         "*.in": "FortranFreeForm",
-        "*.nml": "FortranFreeForm",
-        "vector": "cpp",
-        "random": "cpp",
-        "*.ipp": "cpp"
+        "*.nml": "FortranFreeForm"
     },
     "python.terminal.activateEnvironment": false,
     "githubPullRequests.ignoredPullRequestBranches": [
         "main"
     ],
     "fortran.linter.modOutput": "${workspaceFolder}/.fortls",
-    "restructuredtext.pythonRecommendation.disabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
-    "testing.openTesting": "neverOpen",
     "github.codespaces.devcontainerChangedNotificationStyle": "none",
-    "mesonbuild.selectRootDir": false,
     "testing.automaticallyOpenTestResults": "neverOpen",
     "fortran.formatting.formatter": "fprettify",
     "fortran.formatting.fprettifyArgs": [
