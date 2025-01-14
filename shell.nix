@@ -2,6 +2,8 @@ with (import <nixpkgs> {});
 mkShell {
   buildInputs = [
     # Base
+    curl
+    wget
     git
     openssh
     cmake
@@ -14,8 +16,10 @@ mkShell {
     openblas
     suitesparse
     hdf5
+    hdf5-fortran
     netcdf
     netcdffortran
+    fftw
 
     # Interactive
     coreutils
