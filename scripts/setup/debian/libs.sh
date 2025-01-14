@@ -25,6 +25,7 @@ apt-get install -y -q --no-install-recommends \
     libzstd-dev \
     libgmp-dev \
     libmpfr-dev \
+    libffi-dev \
     uuid-dev \
     petsc-dev \
     slepc-dev \
