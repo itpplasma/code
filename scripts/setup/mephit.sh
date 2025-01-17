@@ -6,11 +6,11 @@ module use -a $CODE/modules
 module load mephit
 
 pushd external
-    ../scripts/setup_triangle.sh
+    $CODE/scripts/setup/triangle.sh
 popd
 
 pushd MEPHIT
-    ../scripts/checkout_branch.sh $CODE_BRANCH
+    $CODE/scripts/checkout_branch.sh $CODE_BRANCH
     make
     pip install -e .
 popd

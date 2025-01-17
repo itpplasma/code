@@ -1,11 +1,5 @@
 image: ghcr.io/itpplasma/devel-tex
 
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
-    - if: $CI_PIPELINE_SOURCE == "web"
-
 variables:
   GIT_HTTPS: "true"
 
@@ -124,7 +118,7 @@ kim:
     - set_branch
     - clone_gitlab kim
     - cd kim
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
@@ -145,7 +139,10 @@ neo2-job:
     - source activate.sh
     - pushd external; install_package fgsl 1.6.0; popd
     - clone_github NEO-2
-    - scripts/setup/neo2.sh
+    - cd NEO-2
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
+    - make
+    - cd python; pip install -e .
   artifacts:
     paths:
       - NEO-2/
@@ -176,7 +173,7 @@ simple:
     - source activate.sh
     - clone_github SIMPLE
     - cd SIMPLE
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
     - make
   artifacts:
     paths:
@@ -191,7 +188,7 @@ gorilla:
     - set_branch
     - clone_github GORILLA
     - cd GORILLA
-    - ../scripts/checkout_branch.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
     - ./build.sh
   artifacts:
     paths:

@@ -74,8 +74,7 @@ jobs:
             hdf5-tools \
             netcdf-bin \
             libmetis-dev \
-            libboost-all-dev \
-            libtriangle-dev
+            libboost-all-dev
 
       - name: Setup
         run: |

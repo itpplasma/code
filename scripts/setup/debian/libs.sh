@@ -5,7 +5,6 @@ apt-get install -y -q --no-install-recommends \
     libtool \
     libsuitesparse-dev \
     libmetis-dev \
-    libtriangle-dev \
     libopenblas-dev \
     libsuperlu-dev \
     libhdf5-dev \
@@ -24,10 +23,13 @@ apt-get install -y -q --no-install-recommends \
     libparmetis-dev \
     libscotch-dev \
     libzstd-dev \
-    cppzmq-dev \
+    libgmp-dev \
+    libmpfr-dev \
+    libffi-dev \
     uuid-dev \
     petsc-dev \
     slepc-dev \
     h5utils \
     hdf5-tools \
-    netcdf-bin
+    netcdf-bin \
+    graphviz

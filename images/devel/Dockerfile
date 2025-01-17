@@ -26,8 +26,3 @@ COPY scripts/setup/debian/octave.sh /tmp/setup_octave.sh
 RUN apt-get update -y && bash /tmp/setup_octave.sh && \
 	apt-get clean && rm -rf /var/cache/apt/* && \
 	rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
-
-# Prepare required packages for venv
-COPY requirements.txt .
-RUN python3 -m pip install -r requirements.txt --break-system-packages && \
-	python3 -m pip cache purge
