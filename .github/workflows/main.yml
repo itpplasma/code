@@ -82,7 +82,9 @@ jobs:
         run: |
           source activate.sh
           clone_github NEO-2
-          source scripts/setup/neo2.sh
+          pushd NEO-2
+            make
+          popd
 
       - name: NEO-RT
         run: |
