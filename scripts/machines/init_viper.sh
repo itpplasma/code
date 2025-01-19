@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 module load gcc/14
 module load openmpi/4.1

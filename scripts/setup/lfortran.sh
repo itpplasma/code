@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 sudo --validate || exit 1
 sudo apt update && sudo apt install -y --no-install-recommends llvm-dev

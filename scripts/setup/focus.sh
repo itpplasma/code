@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # https://princetonuniversity.github.io/FOCUS/
 #

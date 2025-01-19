@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "Setting up OMFIT..."
 echo "Requires personal Git access to OMFIT repository."

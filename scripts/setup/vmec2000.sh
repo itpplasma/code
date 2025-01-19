@@ -1,5 +1,5 @@
 
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -d "VMEC2000" ] ; then
     echo "Fetching and building VMEC2000..."

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Update the system
 pacman -Syu --noconfirm
@@ -28,8 +28,6 @@ pacman -S --noconfirm --needed \
     gettext \
     bash-completion
 
-#!/bin/bash
-
 # Install additional tools (skip already installed ones)
 pacman -S --noconfirm --needed \
     procps-ng \
@@ -49,8 +47,6 @@ pacman -S --noconfirm --needed \
     tk \
     gdb \
     findutils
-
-#!/bin/bash
 
 # Install development libraries (skip already installed ones)
 pacman -S --noconfirm --needed \
@@ -89,12 +85,8 @@ pacman -S --noconfirm --needed \
 # Use yay or another AUR helper to install these:
 # yay -S metis parmetis scotch petsc slepc scalapack triangle-bin hdf5-cpp-fortran netcdf-fortran
 
-#!/bin/bash
-
 # Install Octave and gnuplot (skip already installed ones)
 pacman -S --noconfirm --needed octave gnuplot
-
-#!/bin/bash
 
 # Install TeX Live and related tools (skip already installed ones)
 pacman -S --noconfirm --needed \
@@ -122,8 +114,6 @@ pacman -S --noconfirm --needed \
 if [ -n "$(ls /tmp/fmt* 2>/dev/null)" ]; then
   cat /tmp/fmt*
 fi
-
-#!/bin/bash
 
 # Install fonts (skip already installed ones)
 pacman -S --noconfirm --needed \

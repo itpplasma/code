@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "Setting up GPEC..."
 echo "Upstream code access: https://princetonuniversity.github.io/GPEC/developers.html"
