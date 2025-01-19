@@ -72,7 +72,7 @@ jobs:
 
       - name: Download Release  # TODO: make this dynamic
         run: |
-          wget https://github.com/itpplasma/code/releases/download/v2024.12.13/code-v2024.12.13.tar.gz -O /tmp/code.tar.gz
+          wget https://github.com/itpplasma/code/releases/download/v2025.01.02/code-v2025.01.02.tar.gz -O /tmp/code.tar.gz
 
       - name: Extract tarball
         run: |
