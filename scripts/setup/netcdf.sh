@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export FFLAGS=-fPIC
 export CFLAGS=-fPIC

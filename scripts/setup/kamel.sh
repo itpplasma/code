@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 cd external
 echo "Building Slatec..."
 mkdir slatec

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 BRANCH_NAME="${1:-main}" # Default branch name is "main"
 

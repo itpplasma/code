@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 install_lazygit() {
     if ! command -v lazygit &>/dev/null; then
