@@ -2,17 +2,21 @@ with (import <nixpkgs> {});
 mkShell {
   buildInputs = [
     # Base
+    stdenv
+    cacert
     curl
     wget
     git
     openssh
     cmake
     ninja
-    gcc
-    gfortran
+    gcc14
+    gfortran14
     mpi
+    python313
 
     # Libs
+    zlib
     openblas
     suitesparse
     hdf5
@@ -33,5 +37,8 @@ mkShell {
     export CC=gcc
     export CXX=g++
     export FC=gfortran
+    export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+      pkgs.stdenv.cc.cc
+    ]}:${pkgs.zlib}/lib
   '';
 }
