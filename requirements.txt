@@ -66,7 +66,6 @@ fprettify
 tqdm
 pytest
 mpi4py
-cmake
 meson
 meson-python
 ninja
