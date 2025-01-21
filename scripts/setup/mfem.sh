@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -d "mfem-4.7" ] ; then
     echo "Fetching and building MFEM..."

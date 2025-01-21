@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo -e "\nExecutable: $0   "
 echo -e "Job number  : $1 \n"

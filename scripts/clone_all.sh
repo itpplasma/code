@@ -1,7 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-GITHUB_REPOS="libneo spline BOOZER_MAGFIE SIMPLE GORILLA GORILLA_APPLETS NEO-2 NEO-RT"
-GITLAB_REPOS="MEPHIT kim efit_to_boozer"
+GITHUB_REPOS="libneo spline BOOZER_MAGFIE SIMPLE GORILLA GORILLA_APPLETS NEO-2 NEO-RT MEPHIT KAMEL"
 
 for REPO in $GITHUB_REPOS; do
     clone_github $REPO

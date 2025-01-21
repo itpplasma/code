@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 echo "Setting up Intel compiler..."
 
 # download the key to system keyring
@@ -29,7 +29,7 @@ then
             echo $MOD_FILE
             echo -e 'g/^module-whatis \"Version:/d\nw\nq' |      sudo ed $MOD_FILE
             echo -e 'g/^module-whatis \"Dependencies:/d\nw\nq' | sudo ed $MOD_FILE
-            echo -e 'g/^module-whatis \"URL:/d\nw\nq' |          sudo ed $MOD_FILE 
+            echo -e 'g/^module-whatis \"URL:/d\nw\nq' |          sudo ed $MOD_FILE
         done
     else
         echo "## ENVIRONMENT Modules - where is the config directory?"

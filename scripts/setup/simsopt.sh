@@ -1,5 +1,5 @@
 
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -d "simsopt" ] ; then
     echo "Fetching and building simsopt..."

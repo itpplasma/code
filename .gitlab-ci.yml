@@ -76,7 +76,7 @@ libneo:
     - set_branch
     - source scripts/setup/venv.sh
     - source scripts/setup/libneo.sh
-    - tar czf libneo-dev.tar.gz efit_to_boozer/ libneo/ .venv/
+    - tar czf libneo-dev.tar.gz libneo/ .venv/
     - upload_package libneo dev
 
 
@@ -102,6 +102,7 @@ mephit:
     - pushd external
     - install_package fgsl 1.6.0
     - install_package mfem 4.7
+    - ../scripts/setup/triangle.sh
     - popd
     - clone_github MEPHIT
     - source scripts/setup/mephit.sh

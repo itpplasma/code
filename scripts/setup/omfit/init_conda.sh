@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Manually deactivate any existing venv
 if [[ -n "$VIRTUAL_ENV" ]]; then

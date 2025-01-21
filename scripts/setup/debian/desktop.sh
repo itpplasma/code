@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 apt install i3 fuse nextcloud-desktop gnupg fonts-noto-color-emoji
 

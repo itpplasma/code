@@ -1,5 +1,5 @@
 
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Setup for SBGeom - A simple package for creating blanket geometries
 # derived from Fourier Surfaces. Package author: Timo Bogaarts, TU Eindhoven
