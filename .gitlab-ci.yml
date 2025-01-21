@@ -102,6 +102,7 @@ mephit:
     - pushd external
     - install_package fgsl 1.6.0
     - install_package mfem 4.7
+    - scripts/setup/triangle.sh
     - popd
     - clone_github MEPHIT
     - source scripts/setup/mephit.sh
