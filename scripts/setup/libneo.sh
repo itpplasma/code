@@ -3,6 +3,7 @@
 set -e
 
 source $CODE/scripts/util.sh
+set_branch
 
 echo "Building and installing 'libneo'..."
 if [ ! -d "libneo" ] ; then

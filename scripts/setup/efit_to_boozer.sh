@@ -3,6 +3,7 @@
 set -e
 
 source $CODE/scripts/util.sh
+set_branch
 
 echo "Building and installing 'efit_to_boozer'..."
 if [ ! -d "efit_to_boozer" ] ; then

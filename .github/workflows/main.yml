@@ -15,6 +15,7 @@ on:
 
 env:
   GIT_HTTPS: "true"
+  CI_MERGE_REQUEST_SOURCE_BRANCH_NAME: "${{ github.head_ref }}"
 
 jobs:
   code:
@@ -119,4 +120,3 @@ jobs:
           $CODE/scripts/checkout_branch.sh $CODE_BRANCH
           make
           pip install -e .
-
