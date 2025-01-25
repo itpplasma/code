@@ -15,7 +15,7 @@ on:
 
 env:
   GIT_HTTPS: "true"
-  CODE_BRANCH: "${{ github.head_ref }}"
+  CI_MERGE_REQUEST_SOURCE_BRANCH_NAME: "${{ github.head_ref }}"
 
 jobs:
   code:
