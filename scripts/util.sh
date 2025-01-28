@@ -96,6 +96,9 @@ clone_gitlab() (
     fi
 
     git clone $URL
+    cd $repo 
+    set_branch
+    git checkout $CODE_BRANCH
 )
 
 
@@ -111,6 +114,9 @@ clone_github() (
     fi
 
     git clone $URL
+    cd $repo
+    set_branch
+    git checkout $CODE_BRANCH
 )
 
 
