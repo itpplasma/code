@@ -98,7 +98,7 @@ clone_gitlab() (
     git clone $URL
     cd $repo 
     set_branch
-    git checkout $CODE_BRANCH
+    git checkout $CODE_BRANCH 2>/dev/null || true
 )
 
 
@@ -116,7 +116,7 @@ clone_github() (
     git clone $URL
     cd $repo
     set_branch
-    git checkout $CODE_BRANCH
+    git checkout $CODE_BRANCH 2>/dev/null || true
 )
 
 
