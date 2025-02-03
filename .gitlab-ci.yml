@@ -111,25 +111,6 @@ mephit:
     paths:
       - MEPHIT/
 
-kim:
-  stage: codes
-  needs: []
-  script:
-    - export CODE=`pwd`
-    - source scripts/util.sh
-    - set_branch
-    - clone_gitlab kim
-    - cd kim
-    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
-    - mkdir build
-    - cd build
-    - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
-    - make
-  artifacts:
-    paths:
-      - kim/
-  allow_failure: true
-
 neo2-job:
   stage: codes
   needs: ["fgsl", "libneo"]
