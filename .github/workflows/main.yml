@@ -106,7 +106,7 @@ jobs:
           source activate.sh
           clone_github GORILLA
           pushd GORILLA
-            ./build.sh
+            make
           popd
 
       - name: MEPHIT
