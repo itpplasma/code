@@ -6,3 +6,4 @@ prereq nvhpc/24.1
 
 setenv       MARSHOME        $env(CODE)/external/MARS/MarsQ_2022
 prepend-path PATH            $env(MARSHOME)
+prepend-path PATH            $env(CODE)/external/MARS/CheaseMerge
