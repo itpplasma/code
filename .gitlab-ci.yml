@@ -172,7 +172,7 @@ gorilla:
     - clone_github GORILLA
     - cd GORILLA
     - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
-    - ./build.sh
+    - make
   artifacts:
     paths:
       - GORILLA/
