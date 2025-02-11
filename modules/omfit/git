@@ -15,14 +15,6 @@ set    OMFIT_ROOT /temp/AG-plasma/opt/OMFIT-source
 setenv OMFIT_ROOT $OMFIT_ROOT
 prepend-path PATH $OMFIT_ROOT/bin
 
-puts stdout "source $env(CODE)/scripts/OMFIT/init_conda.sh;"
-
-proc module-unload { } {
-    exec mamba deactivate
-    exec mamba deactivate
-    source-sh bash $env(CODE)/activate.sh
-}
-
 # Local Variables:
 # mode: tcl
 # End:

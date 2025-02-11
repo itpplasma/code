@@ -4,7 +4,7 @@ module-whatis "NetCDF (Intel compiler)"
 
 prereq hdf5/1.14.5-intel
 
-setenv NETCDFHOME $env(CODE)/external/intel/netcdf-c-4.9.2/build
+setenv NETCDFHOME /temp/AG-plasma/opt/intel/netcdf-c-4.9.2/build
 prepend-path LD_LIBRARY_PATH $env(NETCDFHOME)/lib
 prepend-path PATH            $env(NETCDFHOME)/bin
 prepend-path -d " " CFLAGS   -I$env(NETCDFHOME)/include

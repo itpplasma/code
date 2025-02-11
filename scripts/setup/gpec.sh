@@ -7,10 +7,10 @@ export NETCDF_LIBS="-lnetcdf -lnetcdff"
 
 if [[ $(module list 2>&1) == *"intel/compiler"* ]]; then
     # Intel compiler (recommended)
-    export CC=icx
-    export CXX=icpx
-    export FC=ifx
-    export MKLROOT=/opt/intel/oneapi/mkl/2025.0
+    export CC=icc
+    export CXX=icpc
+    export FC=ifort
+    export MKLROOT=/afs/itp.tugraz.at/opt/intel/2018.1/mkl
     export OMPFLAG="-qopenmp"
     module load netcdf-fortran/4.6.1-intel
 else
@@ -40,9 +40,7 @@ else
     export OMPFLAG="-fopenmp"
 fi
 
-pushd $CODE/external
-    git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git GPEC
-    pushd GPEC/install
-        make NETCDFLIBS="-lnetcdff -lnetcdf"
-    popd
+git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git GPEC
+pushd GPEC/install
+    make NETCDFLIBS="-lnetcdff -lnetcdf"
 popd
