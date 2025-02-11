@@ -2,7 +2,7 @@
 
 module-whatis "NetCDF Fortran (NVIDIA compiler)"
 
-prereq nvhpc/24.5
+prereq nvhpc/25.1
 prereq netcdf/4.9.2-nvidia
 
 setenv NETCDF_FORTRAN_HOME /temp/AG-plasma/opt/nvidia/netcdf-fortran-4.6.1/build
