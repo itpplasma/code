@@ -2,7 +2,7 @@
 
 module-whatis "MARS (2022)"
 
-prereq nvhpc/25.1
+prereq nvhpc/24.1
 
 setenv       MARSHOME        /temp/AG-plasma/opt/nvidia/MARS/MarsQ_2022
 prepend-path PATH            $env(MARSHOME)
