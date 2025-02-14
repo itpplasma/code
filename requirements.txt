@@ -25,13 +25,12 @@ sympy
 uncertainties
 scipy
 cython
-# numba from git avoids version pin numpy<2.1
-git+https://github.com/numba/numba.git@release0.61#egg=numba
+numba>=0.61
 matplotlib
 plotly>=5.22
 scikit-build
 scikit-build-core
-f90wrap>=0.2.16
+git+https://github.com/jameskermode/f90wrap.git@master#egg=f90wrap
 pybind11
 statsmodels
 
