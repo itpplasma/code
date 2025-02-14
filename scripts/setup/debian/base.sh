@@ -27,4 +27,5 @@ apt-get install -y -q --no-install-recommends \
     python3-venv \
     nix-bin \
     bash \
-    csh
+    csh \
+    time
