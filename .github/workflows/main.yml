@@ -83,31 +83,34 @@ jobs:
         run: |
           source activate.sh
           clone_github NEO-2
-          pushd NEO-2
-            make
-          popd
+          cd NEO-2
+          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          make
 
       - name: NEO-RT
         run: |
           source activate.sh
           clone_github NEO-RT
-          source scripts/setup/neort.sh
+          cd NEO-RT
+          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          make
 
       - name: SIMPLE
         run: |
           source activate.sh
           clone_github SIMPLE
-          pushd SIMPLE
-            make
-          popd
+          cd SIMPLE
+          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          make
+
 
       - name: GORILLA
         run: |
           source activate.sh
           clone_github GORILLA
-          pushd GORILLA
-            make
-          popd
+          cd GORILLA
+          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          make
 
       - name: MEPHIT
         run: |

@@ -137,12 +137,12 @@ neort:
     - export CODE=`pwd`
     - source scripts/util.sh
     - set_branch
-    - source scripts/setup/neort.sh
+    - clone_github NEO-RT
+    - cd NEO-RT
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
+    - make
   artifacts:
     paths:
-      - contrib/
-      - spline/
-      - BOOZER_MAGFIE/
       - NEO-RT/
 
 simple:
