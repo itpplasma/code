@@ -2,6 +2,10 @@
     "git.autofetch": true,
     "editor.minimap.enabled": false,
     "git.confirmSync": false,
+    "fortran.fortls.excludeDirectories": [
+        "**/BUILD",
+        "**/build"
+    ],
     "fortran.linter.includePaths": [
         "${workspaceFolder}/libneo/build",
         "${workspaceFolder}/libneo/build/src",
@@ -49,5 +53,8 @@
         "1",
         "1"
     ],
-    "sarif-viewer.connectToGithubCodeScanning": "off"
+    "sarif-viewer.connectToGithubCodeScanning": "off",
+    "fortran.fortls.excludeSuffixes": [
+        "-pp.f90"
+    ]
 }
