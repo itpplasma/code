@@ -5,7 +5,8 @@
     "fortran.linter.includePaths": [
         "${workspaceFolder}/libneo/build",
         "${workspaceFolder}/libneo/build/src",
-        "${workspaceFolder}/SIMPLE/build/SRC"
+        "${workspaceFolder}/SIMPLE/build/SRC",
+        "${workspaceFolder}/NEO-RT/build/OBJS"
     ],
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "files.exclude": {
