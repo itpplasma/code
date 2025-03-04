@@ -64,6 +64,7 @@ fprettify
 # Misc
 tqdm
 pytest
+pytest-time
 mpi4py
 meson
 meson-python

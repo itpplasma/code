@@ -34,6 +34,8 @@
     "python.testing.pytestEnabled": true,
     "python.testing.autoTestDiscoverOnSaveEnabled": true,
     "github.codespaces.devcontainerChangedNotificationStyle": "none",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
     "testing.automaticallyOpenTestResults": "neverOpen",
     "fortran.formatting.formatter": "fprettify",
     "fortran.formatting.fprettifyArgs": [
