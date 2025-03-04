@@ -177,20 +177,3 @@ gorilla:
     paths:
       - GORILLA/
 
-
-### Projects
-
-ntv-demo:
-  stage: projects
-  needs: ["libneo"]
-  script:
-    - export CODE=`pwd`
-    - source scripts/util.sh
-    - set_branch
-    - install_package libneo dev
-    - source activate.sh
-    - clone_github ntv-demo
-    - cd ntv-demo
-  artifacts:
-    paths:
-      - ntv-demo/
