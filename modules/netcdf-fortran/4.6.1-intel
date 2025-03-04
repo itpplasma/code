@@ -4,7 +4,7 @@ module-whatis "NetCDF Fortran (Intel compiler)"
 
 prereq netcdf/4.9.2-intel
 
-setenv NETCDF_FORTRAN_HOME $env(CODE)/external/intel/netcdf-fortran-4.6.1/build
+setenv NETCDF_FORTRAN_HOME /temp/AG-plasma/opt/intel/netcdf-fortran-4.6.1/build
 prepend-path LD_LIBRARY_PATH $env(NETCDF_FORTRAN_HOME)/lib
 prepend-path PATH            $env(NETCDF_FORTRAN_HOME)/bin
 prepend-path -d " " FFLAGS   -I$env(NETCDF_FORTRAN_HOME)/include

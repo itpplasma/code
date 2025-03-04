@@ -1,3 +1,6 @@
+# January 2025
+- Switch to static library build
+
 # August 2024
 - Adding field module to libneo and clean up build process
 

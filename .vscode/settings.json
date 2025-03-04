@@ -2,10 +2,15 @@
     "git.autofetch": true,
     "editor.minimap.enabled": false,
     "git.confirmSync": false,
+    "fortran.fortls.excludeDirectories": [
+        "**/BUILD",
+        "**/build"
+    ],
     "fortran.linter.includePaths": [
         "${workspaceFolder}/libneo/build",
         "${workspaceFolder}/libneo/build/src",
-        "${workspaceFolder}/SIMPLE/build/SRC"
+        "${workspaceFolder}/SIMPLE/build/SRC",
+        "${workspaceFolder}/NEO-RT/build/OBJS"
     ],
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "files.exclude": {
@@ -49,5 +54,9 @@
         "1",
         "1",
         "1"
+    ],
+    "sarif-viewer.connectToGithubCodeScanning": "off",
+    "fortran.fortls.excludeSuffixes": [
+        "-pp.f90"
     ]
 }

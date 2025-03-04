@@ -60,9 +60,9 @@ run_in_dir() (
 # Run a git command in all in the current directory and in top-level git subdirectories.
 # Usage: git_all commit | push | pull | fetch | status | branch ...
 git_all() (
-    local cmd="$*"
+    local cmd=("$@")
     echo "$(pwd)"
-    (git $cmd) &
+    (git "${cmd[@]}") &
     jobs=($!)
 
     for dir in $(ls -d */); do
@@ -70,7 +70,7 @@ git_all() (
             echo "$dir"
             (
                 cd "$dir" || exit 1
-                git $cmd
+                git "${cmd[@]}"
             ) &
             jobs+=($!)  # Capture the PID of the background process
         fi
@@ -96,6 +96,9 @@ clone_gitlab() (
     fi
 
     git clone $URL
+    cd $repo
+    set_branch
+    git checkout $CODE_BRANCH 2>/dev/null || true
 )
 
 
@@ -111,6 +114,9 @@ clone_github() (
     fi
 
     git clone $URL
+    cd $repo
+    set_branch
+    git checkout $CODE_BRANCH 2>/dev/null || true
 )
 
 

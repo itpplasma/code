@@ -2,10 +2,10 @@
 
 module-whatis "NetCDF (NVIDIA compiler)"
 
-prereq nvhpc/24.5
+prereq nvhpc/25.1
 prereq hdf5/1.14.3-nvidia
 
-setenv NETCDFHOME $env(CODE)/external/nvidia/netcdf-c-4.9.2/build
+setenv NETCDFHOME /temp/AG-plasma/opt/nvidia/netcdf-c-4.9.2/build
 prepend-path LD_LIBRARY_PATH $env(NETCDFHOME)/lib
 prepend-path PATH            $env(NETCDFHOME)/bin
 prepend-path -d " " CFLAGS   -I$env(NETCDFHOME)/include

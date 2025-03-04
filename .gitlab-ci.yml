@@ -75,8 +75,9 @@ libneo:
     - source scripts/util.sh
     - set_branch
     - source scripts/setup/venv.sh
+    - source scripts/setup/efit_to_boozer.sh
     - source scripts/setup/libneo.sh
-    - tar czf libneo-dev.tar.gz libneo/ .venv/
+    - tar czf libneo-dev.tar.gz libneo/ efit_to_boozer/ .venv/
     - upload_package libneo dev
 
 
@@ -110,25 +111,6 @@ mephit:
     paths:
       - MEPHIT/
 
-kim:
-  stage: codes
-  needs: []
-  script:
-    - export CODE=`pwd`
-    - source scripts/util.sh
-    - set_branch
-    - clone_gitlab kim
-    - cd kim
-    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
-    - mkdir build
-    - cd build
-    - cmake .. -DCMAKE_Fortran_FLAGS=-I/usr/include/hdf5/serial
-    - make
-  artifacts:
-    paths:
-      - kim/
-  allow_failure: true
-
 neo2-job:
   stage: codes
   needs: ["fgsl", "libneo"]
@@ -155,12 +137,12 @@ neort:
     - export CODE=`pwd`
     - source scripts/util.sh
     - set_branch
-    - source scripts/setup/neort.sh
+    - clone_github NEO-RT
+    - cd NEO-RT
+    - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
+    - make
   artifacts:
     paths:
-      - contrib/
-      - spline/
-      - BOOZER_MAGFIE/
       - NEO-RT/
 
 simple:
@@ -190,7 +172,7 @@ gorilla:
     - clone_github GORILLA
     - cd GORILLA
     - ../scripts/checkout_branch.sh $CI_COMMIT_REF_NAME
-    - ./build.sh
+    - make
   artifacts:
     paths:
       - GORILLA/
