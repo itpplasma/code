@@ -56,7 +56,4 @@
         "1"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "off",
-    "fortran.fortls.excludeSuffixes": [
-        "-pp.f90"
-    ]
 }
