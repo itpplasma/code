@@ -20,8 +20,8 @@ apt-get install -y -q --no-install-recommends \
     libboost-filesystem-dev \
     libboost-timer-dev \
     libpugixml-dev \
-    libparmetis-dev \
     libscotch-dev \
+    libscotchparmetis-dev \
     libzstd-dev \
     libgmp-dev \
     libmpfr-dev \

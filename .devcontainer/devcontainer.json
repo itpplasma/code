@@ -24,7 +24,7 @@
 				"GitHub.vscode-pull-request-github",
 				"ms-toolsai.jupyter",
 				"twxs.cmake",
-				"mesonbuild.mesonbuild"
+        		"tamasfe.even-better-toml"
 			]
 		}
 	},

@@ -6,6 +6,7 @@
         "GitHub.copilot",
         "GitHub.vscode-pull-request-github",
         "ms-toolsai.jupyter",
-        "twxs.cmake"
+        "twxs.cmake",
+        "tamasfe.even-better-toml"
     ]
 }
