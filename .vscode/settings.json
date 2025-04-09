@@ -47,7 +47,6 @@
         "--whitespace-relational",
         "--whitespace-logical",
         "--whitespace-print",
-        "--whitespace-type",
         "--whitespace-intrinsics",
         "--case",
         "1",
