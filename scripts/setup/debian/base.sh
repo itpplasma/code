@@ -28,4 +28,5 @@ apt-get install -y -q --no-install-recommends \
     nix-bin \
     bash \
     csh \
-    time
+    time \
+    ed
