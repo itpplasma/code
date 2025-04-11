@@ -16,6 +16,6 @@ apt-get install -y -q --no-install-recommends \
     dbus-x11 \
     kcachegrind \
     python3-tk \
-    idle3 \
+    idle \
     findent \
     expect

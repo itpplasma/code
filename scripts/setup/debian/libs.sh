@@ -15,7 +15,6 @@ apt-get install -y -q --no-install-recommends \
     libgsl-dev \
     libopenmpi-dev \
     libscalapack-openmpi-dev \
-    libpcre3-dev \
     libreadline-dev \
     libboost-filesystem-dev \
     libboost-timer-dev \
