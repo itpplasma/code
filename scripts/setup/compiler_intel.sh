@@ -38,14 +38,12 @@ else
     echo "## ENVIRONMENT Modules - don't know how to configure!"
 fi
 
-module load intel/compiler intel/mkl
+module load intel/compiler/2024.2.1 intel/mkl
 
 export FC=ifx
 export CC=icx
 export CXX=icpx
 
-sudo mkdir -p /temp/AG-plasma/opt/intel
-sudo chown $USER /temp/AG-plasma/opt/intel
-pushd /temp/AG-plasma/opt/intel
-  $CODE/scripts/setup/netcdf.sh
+pushd $CODE/external/intel
+  source $CODE/scripts/setup/netcdf.sh
 popd
