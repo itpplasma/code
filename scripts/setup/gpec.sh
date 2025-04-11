@@ -10,7 +10,7 @@ export CC=icx
 export CXX=icpx
 export FC=ifort
 export OMPFLAG="-qopenmp"
-cd /temp/AG-plasma/opt/intel
+cd $CODE/external/intel
 
 git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git GPEC
 pushd GPEC/install

@@ -9,9 +9,9 @@ proc ModulesHelp { } {
 
 module-whatis "GPEC (development version)"
 
-prereq-all intel/compiler/2018.1 netcdf-fortran/4.6.1-intel
+prereq-all intel/compiler-rt netcdf-fortran/4.6.1-intel
 
-setenv       GPECHOME        /temp/AG-plasma/opt/intel/GPEC
+setenv       GPECHOME        $env(CODE)/external/intel/GPEC
 prepend-path PATH            $env(GPECHOME)/bin
 
 puts stdout "ulimit -s unlimited"
