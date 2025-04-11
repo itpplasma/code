@@ -12,7 +12,7 @@ echo "deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] http
     | sudo tee /etc/apt/sources.list.d/nvhpc.list
 
 sudo apt-get update  --quiet --quiet
-sudo apt-get install --quiet --yes nvhpc-24-5
+sudo apt-get install --quiet --yes nvhpc-24-1
 
 # create configuration for "environment modules"
 if [ -d /opt/nvidia/hpc_sdk/modulefiles/ ] ; then
@@ -26,3 +26,13 @@ if [ -d /opt/nvidia/hpc_sdk/modulefiles/ ] ; then
 else
     echo "## ENVIRONMENT Modules - don't know how to configure!"
 fi
+
+module load nvhpc
+
+export FC=nvfortran
+
+sudo mkdir -p /temp/AG-plasma/opt/nvidia
+sudo chown $USER /temp/AG-plasma/opt/nvidia
+pushd /temp/AG-plasma/opt/nvidia
+  $CODE/scripts/setup/netcdf.sh
+popd

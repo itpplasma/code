@@ -2,7 +2,7 @@
 
 module-whatis "NetCDF (NVIDIA compiler)"
 
-prereq nvhpc/25.1
+prereq nvhpc/24.1
 prereq hdf5/1.14.3-nvidia
 
 setenv NETCDFHOME /temp/AG-plasma/opt/nvidia/netcdf-c-4.9.2/build

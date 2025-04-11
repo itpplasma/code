@@ -6,13 +6,13 @@ wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCT
     | sudo gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
 
 # add signed entry to apt sources and configure the APT client to use Intel repository:
-echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
+echo "deb [trusted=yes] https://apt.repos.intel.com/oneapi all main" \
     | sudo tee /etc/apt/sources.list.d/oneAPI.list
 
 # upgrade  & install
 sudo apt-get update  --yes
 sudo apt-get upgrade --yes
-sudo apt-get install --yes --quiet --no-install-recommends intel-basekit intel-hpckit
+sudo apt-get install --yes --quiet --no-install-recommends intel-basekit-2024.2 intel-hpckit-2024.2
 sudo apt-get autoremove --yes
 
 # create configuration for "environment modules"
@@ -37,3 +37,15 @@ then
 else
     echo "## ENVIRONMENT Modules - don't know how to configure!"
 fi
+
+module load intel/compiler intel/mkl
+
+export FC=ifx
+export CC=icx
+export CXX=icpx
+
+sudo mkdir -p /temp/AG-plasma/opt/intel
+sudo chown $USER /temp/AG-plasma/opt/intel
+pushd /temp/AG-plasma/opt/intel
+  $CODE/scripts/setup/netcdf.sh
+popd

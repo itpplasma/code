@@ -2,7 +2,7 @@
 
 module-whatis "HDF5 (Intel compiler)"
 
-prereq intel/compiler/2018.1
+prereq intel/compiler/2024.2
 
 setenv HDF5_ROOT /temp/AG-plasma/opt/intel/hdf5-1.14.5/build
 prepend-path LD_LIBRARY_PATH $env(HDF5_ROOT)/lib
