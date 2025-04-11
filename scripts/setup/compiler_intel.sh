@@ -38,7 +38,7 @@ else
     echo "## ENVIRONMENT Modules - don't know how to configure!"
 fi
 
-module load intel/compiler/2024.2.1 intel/mkl
+module load intel/compiler/2024.2.1 intel/compiler-rt/2024.2.1 intel/mkl
 
 export FC=ifx
 export CC=icx
