@@ -9,7 +9,7 @@ proc ModulesHelp { } {
 
 module-whatis "use OMFIT"
 
-prereq gpec/git
+prereq-all gpec/git mars/2022
 
 set    OMFIT_ROOT $env(CODE)/external/OMFIT-source
 setenv OMFIT_ROOT $OMFIT_ROOT
