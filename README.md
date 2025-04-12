@@ -55,13 +55,10 @@ Finally, activate the environment with
     
     source activate.sh
 
-To use this environment as a standard, edit your bashrc with
+To use this environment as a standard, put the activation
+script into bashrc with
 
-    code ~/.bashrc
-
-and put as a last line
-
-    source <path to your code copy>/activate.sh
+    echo "source $CODE/activate.sh" >> ~/.bashrc
 
 
 ## Testing
