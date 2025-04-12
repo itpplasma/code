@@ -1,5 +1,6 @@
-
 #!/usr/bin/env bash
+
+cd $CODE/external
 
 if [ ! -d "VMEC2000" ] ; then
     echo "Fetching and building VMEC2000..."
