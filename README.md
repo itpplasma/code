@@ -52,13 +52,13 @@ The setup will install external dependencies and create
 a Python virtual environment in the hidden `.venv` directory.
 
 Finally, activate the environment with
-    
+
     source activate.sh
 
 To use this environment as a standard, put the activation
 script into bashrc with
 
-    echo "source $CODE/activate.sh" >> ~/.bashrc
+    echo "source $PWD/activate.sh" >> ~/.bashrc
 
 
 ## Testing
