@@ -11,7 +11,7 @@ module-whatis "use OMFIT"
 
 prereq gpec/git
 
-set    OMFIT_ROOT /temp/AG-plasma/opt/OMFIT-source
+set    OMFIT_ROOT $env(CODE)/external/OMFIT-source
 setenv OMFIT_ROOT $OMFIT_ROOT
 prepend-path PATH $OMFIT_ROOT/bin
 

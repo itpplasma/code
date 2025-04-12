@@ -2,7 +2,7 @@
 
 module-whatis "MARS (2022)"
 
-prereq intel/compiler-rt/2024.2.1
+prereq intel/compiler-rt/2024.2.1 intel/mkl intel/mpi
 
 setenv       MARSHOME        $env(CODE)/external/intel/MARS/MarsQ_2022
 prepend-path PATH            $env(MARSHOME)
