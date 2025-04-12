@@ -4,8 +4,6 @@ echo "Setting up OMFIT..."
 echo "Requires personal Git access to OMFIT repository."
 echo "Code access: https://omfit.io/install.html"
 
-deactivate
-
 export USER=`whoami`
 cd $CODE/external
 git clone --filter=blob:none -b unstable git@gitlab.tugraz.at:plasma/codes/OMFIT-source.git

@@ -84,6 +84,7 @@ codes based on GNU Fortran in the same shell.
 OMFIT requires its own Python environment provided via `conda`. Both will be installed
 to `$CODE/external` by running
 
+    deactivate
     scripts/setup/omfit.sh
 
 OMFIT can then be loaded with
