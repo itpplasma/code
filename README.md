@@ -17,7 +17,7 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 ## Getting Started
 
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen`
-with a **blank passphrase** and add the content of `id_rsa.pub` to Gitlab and GitHub 
+with a **blank passphrase** and add the content of `id_rsa.pub` to Gitlab and GitHub
 for authentication.
 
 ### Perparing your machine
@@ -60,6 +60,40 @@ script into bashrc with
 
     echo "source $PWD/activate.sh" >> ~/.bashrc
 
+## External codes
+
+### Intel compiler for codes GPEC and MARS
+GPEC and MARS require the Intel toolchain with classic `ifort` to be installed. Run
+
+    scripts/setup/compiler_intel.sh
+
+to install the compiler and libraries HDF5 and NetCDFwith modules. Then the commands
+
+    scripts/setup/gpec.sh
+    scripts/setup/mars.sh
+
+will install GPEC and MARS into `$CODE/external/intel`. They can then be loaded with
+
+    module load gpec
+    module load mars
+
+to make dependencies and binaries available in the shell. Be careful not to work on
+codes based on GNU Fortran in the same shell.
+
+### OMFIT
+OMFIT requires its own Python environment provided via `conda`. Both will be installed
+to `$CODE/external` by running
+
+    scripts/setup/omfit.sh
+
+OMFIT can then be loaded with
+
+    deactivate
+    source $CODE/external/mambaforge/bin/activate omfit
+    module load omfit
+
+and then started with `omfit` in the shell. Be careful not to work on codes
+based on the standard Python venv in the same shell.
 
 ## Testing
 
