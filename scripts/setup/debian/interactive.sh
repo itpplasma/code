@@ -18,4 +18,5 @@ apt-get install -y -q --no-install-recommends \
     python3-tk \
     idle \
     findent \
-    expect
+    expect \
+    mc
