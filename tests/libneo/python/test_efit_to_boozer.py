@@ -8,7 +8,6 @@ from numpy.testing import assert_allclose
 import matplotlib.pyplot as plt
 
 import _efit_to_boozer as efit_to_boozer
-from libneo.boozer import get_angles_and_transformation
 from libneo import read_eqdsk, FluxConverter
 
 efit_to_boozer_input = """3600      nstep    - number of integration steps
@@ -44,25 +43,6 @@ def test_files(code_path, data_path):
         # TODO: "DEMO PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
         # TODO: "DEMO standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
     }
-
-
-@pytest.mark.slow
-def test_angles_and_transformation(test_files):
-    stor = 0.4
-    num_theta = 64
-    for key, test_file in test_files.items():
-        print(f"Testing {key} EQDSK file: {test_file}")
-        tmp_path = init_run_path(test_file)
-        print(f"Running in {tmp_path}")
-        os.chdir(tmp_path)
-        efit_to_boozer.efit_to_boozer.init()
-        th_boozers, th_geoms, Gs = get_angles_and_transformation(stor, num_theta)
-
-        plt.figure()
-        plt.plot(th_boozers, th_geoms)
-        plt.xlabel(r"$\theta_{\mathrm{Boozer}}$")
-        plt.ylabel(r"$\theta_{\mathrm{geom}}$")
-        plt.title(f"{key}")
 
 
 @pytest.mark.slow
