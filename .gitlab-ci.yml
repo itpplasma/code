@@ -76,8 +76,7 @@ libneo:
     - set_branch
     - source scripts/setup/venv.sh
     - source scripts/setup/libneo.sh
-    - source scripts/setup/efit_to_boozer.sh
-    - tar czf libneo-dev.tar.gz libneo/ efit_to_boozer/ .venv/
+    - tar czf libneo-dev.tar.gz libneo/ .venv/
     - upload_package libneo dev
 
 
@@ -176,4 +175,3 @@ gorilla:
   artifacts:
     paths:
       - GORILLA/
-
