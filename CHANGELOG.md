@@ -1,5 +1,6 @@
 # April 2025
 - Evaluate use of fpm
+- Fully integrate efit_to_boozer
 
 # March 2025
 - Integrate efit_to_boozer
