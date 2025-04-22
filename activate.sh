@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ -n "$CODE" ]; then
-    echo "Already in code environment: $CODE. Not activating"
-    return 0
-fi
-
 export CODE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Check if the OS is macOS
