@@ -16,6 +16,7 @@ openpyxl
 xlrd
 h5py
 netcdf4
+h5netcdf
 fpdf
 xarray
 
