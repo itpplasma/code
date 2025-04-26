@@ -17,5 +17,4 @@ popd
 
 pushd $CODE
     $CODE/scripts/setup/libneo.sh
-    $CODE/scripts/setup/efit_to_boozer.sh
 popd
