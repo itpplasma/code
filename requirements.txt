@@ -16,6 +16,7 @@ openpyxl
 xlrd
 h5py
 netcdf4
+h5netcdf
 fpdf
 xarray
 
@@ -39,23 +40,6 @@ pyarrow
 pandas
 scikit-learn
 
-# For OMFIT
-boto3
-configobj
-dill
-pyodbc
-pyotp
-pidly
-numexpr
-bottleneck
-lmfit
-gpr1dfusion
-astropy
-jedi
-omfit-classes
-bibtexparser
-contourpy
-
 # Development tools
 black
 fortls
@@ -77,8 +61,31 @@ elabapy
 colorcet
 poetry
 
-# FreeGS
+# Tokamak
+eqdsk
+
+## For OMFIT
+boto3
+configobj
+dill
+pyodbc
+pyotp
+pidly
+numexpr
+bottleneck
+lmfit
+gpr1dfusion
+astropy
+jedi
+omfit-classes
+bibtexparser
+contourpy
+
+## FreeGS
 Shapely
 importlib-metadata
 freeqdsk
 freegs
+
+# Stellarator
+booz_xform
