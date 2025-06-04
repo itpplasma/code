@@ -5,9 +5,9 @@ export CODE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Check if the OS is macOS
 if [[ "$(uname)" == "Darwin" ]]; then
     echo "Running on macOS"
-    export CC=gcc-14
-    export CXX=g++-14
-    export FC=gfortran-14
+    export CC=gcc-15
+    export CXX=g++-15
+    export FC=gfortran-15
 
     # Check the processor type
     if [[ "$(uname -m)" == "arm64" ]]; then
