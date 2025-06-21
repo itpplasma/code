@@ -44,6 +44,7 @@ scikit-learn
 black
 fortls
 fprettify
+ford
 
 # Misc
 tqdm
@@ -89,3 +90,4 @@ freegs
 
 # Stellarator
 booz_xform
+
