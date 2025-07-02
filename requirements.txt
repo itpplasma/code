@@ -53,7 +53,6 @@ pytest-time
 mpi4py
 meson
 meson-python
-ninja
 scikit-fem
 pygmsh
 f90nml
