@@ -45,6 +45,7 @@ black
 fortls
 fprettify
 ford
+pre-commit
 
 # Misc
 tqdm
