@@ -64,12 +64,20 @@ dnf install -y \
     SuperLU-devel \
     hdf5 \
     hdf5-devel \
+    hdf5-openmpi \
+    hdf5-openmpi-devel \
     netcdf \
     netcdf-devel \
     netcdf-fortran \
     netcdf-fortran-devel \
+    netcdf-openmpi \
+    netcdf-openmpi-devel \
     fftw \
     fftw-devel \
+    fftw-libs-single \
+    fftw-libs-double \
+    fftw-libs-long \
+    fftw-libs-quad \
     gsl \
     gsl-devel \
     openmpi \
