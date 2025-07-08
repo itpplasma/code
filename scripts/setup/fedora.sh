@@ -77,7 +77,6 @@ dnf install -y \
     fftw-libs-single \
     fftw-libs-double \
     fftw-libs-long \
-    fftw-libs-quad \
     gsl \
     gsl-devel \
     openmpi \
@@ -91,7 +90,7 @@ dnf install -y \
     pugixml \
     pugixml-devel \
     zstd \
-    zstd-devel \
+    libzstd-devel \
     cppzmq-devel \
     util-linux \
     graphviz \
@@ -101,32 +100,32 @@ dnf install -y \
 dnf install -y \
     metis \
     metis-devel \
-    parmetis \
-    parmetis-devel \
     scotch \
     scotch-devel \
-    petsc \
-    petsc-devel \
-    slepc \
-    slepc-devel \
-    scalapack \
-    scalapack-devel
+    petsc-openmpi \
+    petsc-openmpi-devel \
+    scalapack-openmpi \
+    scalapack-openmpi-devel
 
-# Note: triangle package might need to be compiled from source or found in COPR repos
-# For triangle, you may need to:
-# 1. Enable a COPR repository that provides it, or
-# 2. Build from source: https://www.cs.cmu.edu/~quake/triangle.html
+# Note: The following packages might need to be installed from COPR repos or compiled from source:
+# - parmetis (parallel METIS)
+# - slepc (eigenvalue solver based on PETSc)
+# - triangle (mesh generator)
+# 
+# For these packages:
+# 1. Enable appropriate COPR repositories if available
+# 2. Or build from source
 
 # Install Octave and gnuplot (skip already installed ones)
 dnf install -y octave gnuplot
 
 # Install TeX Live and related tools (skip already installed ones)
 dnf install -y \
-    texlive-scheme-full \
+    texlive-scheme-basic \
     texlive-latex \
-    texlive-latexextra \
-    texlive-publishers \
-    texlive-science \
+    texlive-collection-latexextra \
+    texlive-collection-publishers \
+    texlive-collection-science \
     texlive-bibtex \
     texlive-luatex \
     biber \
