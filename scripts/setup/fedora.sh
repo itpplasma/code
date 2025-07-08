@@ -19,6 +19,7 @@ dnf install -y \
     ninja-build \
     cmake \
     python3 \
+    python3-devel \
     python3-pip \
     python3-virtualenv \
     python3-setuptools \
