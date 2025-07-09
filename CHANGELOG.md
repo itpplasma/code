@@ -1,3 +1,6 @@
+# July 2025
+- Move updated VMEC routines from SIMPLE
+
 # April 2025
 - Evaluate use of fpm
 - Fully integrate efit_to_boozer
