@@ -11,7 +11,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
 
     # Check the processor type
     if [[ "$(uname -m)" == "arm64" ]]; then
-        echo "This is an Apple Silicon (M1/M2) Mac."
+        echo "This is an Apple Silicon Mac."
         export BLAS_LIBRARIES=/opt/homebrew/opt/openblas/lib/libopenblas.dylib
         export LAPACK_LIBRARIES=/opt/homebrew/opt/openblas/lib/liblapack.dylib
     elif [[ "$(uname -m)" == "x86_64" ]]; then
