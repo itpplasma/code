@@ -8,7 +8,6 @@ if [ ! -d "STELLOPT" ] ; then
 fi
     pushd STELLOPT
         export STELLOPT_PATH=$PWD
-        export MYHOME=STELLOPT_PATH/build
         select_machine
         bash build_all
         find . -name "*.o" | xargs rm
