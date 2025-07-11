@@ -19,4 +19,6 @@ apt-get install -y -q --no-install-recommends \
     idle \
     findent \
     expect \
-    mc
+    mc \
+    tree \
+    ripgrep

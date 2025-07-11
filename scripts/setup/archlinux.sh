@@ -46,7 +46,10 @@ pacman -S --noconfirm --needed \
     kcachegrind \
     tk \
     gdb \
-    findutils
+    findutils \
+    mc \
+    tree \
+    ripgrep
 
 # Install development libraries (skip already installed ones)
 pacman -S --noconfirm --needed \
