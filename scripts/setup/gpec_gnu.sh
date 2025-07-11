@@ -11,7 +11,7 @@ export CXX=g++
 export FC=gfortran
 export FFLAGS="-fdefault-real-8 -fdefault-double-8 -fallow-argument-mismatch"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [[ $(sysctl -n machdep.cpu.brand_string) == *"Apple M1"* ]]; then
+    if [[ $(sysctl -n machdep.cpu.brand_string) == *"Apple"* ]]; then
         export LAPACK_HOME="/opt/homebrew/include"
         export NETCDF_FORTRAN_HOME="/opt/homebrew/include"
         export CFLAGS="-I/opt/homebrew/include"
