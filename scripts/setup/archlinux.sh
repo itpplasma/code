@@ -49,7 +49,8 @@ pacman -S --noconfirm --needed \
     findutils \
     mc \
     tree \
-    ripgrep
+    ripgrep \
+    bc
 
 # Install development libraries (skip already installed ones)
 pacman -S --noconfirm --needed \

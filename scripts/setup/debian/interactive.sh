@@ -21,4 +21,5 @@ apt-get install -y -q --no-install-recommends \
     expect \
     mc \
     tree \
-    ripgrep
+    ripgrep \
+    bc
