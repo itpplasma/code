@@ -29,4 +29,6 @@ apt-get install -y -q --no-install-recommends \
     bash \
     csh \
     time \
-    ed
+    ed \
+    gcovr \
+    lcov

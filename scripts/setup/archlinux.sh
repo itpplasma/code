@@ -26,7 +26,9 @@ pacman -S --noconfirm --needed \
     base-devel \
     openssl \
     gettext \
-    bash-completion
+    bash-completion \
+    gcovr \
+    lcov
 
 # Install additional tools (skip already installed ones)
 pacman -S --noconfirm --needed \
