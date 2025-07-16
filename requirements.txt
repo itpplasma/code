@@ -10,6 +10,7 @@ sphinx
 mkdocs
 pdm
 setuptools_scm
+git-filter-repo
 
 # File formats
 openpyxl
