@@ -22,4 +22,5 @@ apt-get install -y -q --no-install-recommends \
     mc \
     tree \
     ripgrep \
-    bc
+    bc \
+    nodejs
