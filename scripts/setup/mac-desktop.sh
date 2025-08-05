@@ -6,6 +6,7 @@ brew install --cask lm-studio
 brew install --cask discord
 brew install --cask xquartz
 brew install --cask microsoft-office
+brew install --cask gimp
 
 # sudo ln -s /Applications/OrbStack.app/Contents/MacOS/xbin/docker /usr/local/bin/docker
 # sudo systemsetup -setremotelogin on
