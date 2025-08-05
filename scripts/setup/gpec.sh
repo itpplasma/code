@@ -12,6 +12,8 @@ export FC=ifort
 export OMPFLAG="-qopenmp"
 cd $CODE/external/intel
 
+../../scripts/setup/netcdf.sh
+
 git clone -b master git@gitlab.tugraz.at:plasma/codes/gpec.git GPEC
 pushd GPEC/install
     make NETCDFLIBS="-lnetcdff -lnetcdf"
