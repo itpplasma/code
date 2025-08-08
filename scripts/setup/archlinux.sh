@@ -75,7 +75,9 @@ pacman -S --noconfirm --needed \
     zstd \
     cppzmq \
     util-linux \
-    graphviz
+    graphviz \
+    docker \
+    docker-compose
 
 # The following packages need to be installed from the AUR:
 # - metis
