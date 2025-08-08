@@ -102,6 +102,7 @@ pacman -S --noconfirm --needed \
     texlive-science \
     texlive-bibtexextra \
     texlive-luatex \
+    texlive-binextra \
     biber \
     ghostscript \
     doxygen \
