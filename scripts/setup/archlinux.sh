@@ -97,12 +97,15 @@ pacman -S --noconfirm --needed octave gnuplot
 # Install TeX Live and related tools (skip already installed ones)
 pacman -S --noconfirm --needed \
     texlive-core \
+    texlive-bin \
+    texlive-latex \
     texlive-latexextra \
     texlive-publishers \
     texlive-science \
     texlive-bibtexextra \
     texlive-luatex \
     texlive-binextra \
+    texlive-fontsextra \
     biber \
     ghostscript \
     doxygen \
