@@ -1,6 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-export CODE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Determine the script location in a shell-agnostic way
+if [ -n "$BASH_SOURCE" ]; then
+    # Running in bash
+    SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+elif [ -n "$ZSH_VERSION" ]; then
+    # Running in zsh
+    SCRIPT_SOURCE="${(%):-%x}"
+else
+    # Fallback
+    SCRIPT_SOURCE="$0"
+fi
+
+export CODE="$( cd "$( dirname "$SCRIPT_SOURCE" )" && pwd )"
 
 # Check if the OS is macOS
 if [[ "$(uname)" == "Darwin" ]]; then
