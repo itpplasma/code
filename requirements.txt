@@ -47,6 +47,8 @@ fortls
 fprettify
 ford
 pre-commit
+pycobertura
+lcov_cobertura
 
 # Misc
 tqdm
