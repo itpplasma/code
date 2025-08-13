@@ -7,5 +7,6 @@ brew install openblas suitesparse metis gsl petsc swig
 brew install node vim tmux htop wget gcovr lcov
 brew install modules tree mc ripgrep bc
 brew install texlive poppler
+brew install chezmoi
 
 echo "source /opt/homebrew/opt/modules/init/zsh" >> $HOME/.zshrc
