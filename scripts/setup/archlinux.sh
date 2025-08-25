@@ -108,6 +108,7 @@ pacman -S --noconfirm --needed \
     texlive-luatex \
     texlive-binextra \
     texlive-fontsextra \
+    texlive-langgreek \
     biber \
     ghostscript \
     doxygen \
