@@ -6,7 +6,7 @@ brew install open-mpi hdf5-mpi netcdf netcdf-fortran fftw graphviz
 brew install openblas suitesparse metis gsl petsc swig
 brew install node vim tmux htop wget gcovr lcov
 brew install modules tree mc ripgrep bc
-brew install texlive poppler
+brew install texlive poppler pandoc
 brew install chezmoi age zinit fzf zoxide
 
 echo "source /opt/homebrew/opt/modules/init/zsh" >> $HOME/.zshrc
