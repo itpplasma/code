@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Bash/Zsh activation script
+# For fish shell users, use: source activate.fish
+
+# Early fish detection to prevent parsing errors
+test -n "$FISH_VERSION" && echo "ERROR: You are using fish shell. Use 'source activate.fish' instead." && return 1 2>/dev/null
+
+# Determine the script location for bash/zsh
+if [ -n "$BASH_SOURCE" ]; then
+    # Running in bash
+    SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+elif [ -n "$ZSH_VERSION" ]; then
+    # Running in zsh
+    SCRIPT_SOURCE="${(%):-%x}"
+else
+    # Fallback
+    SCRIPT_SOURCE="$0"
+fi
+
+SCRIPT_DIR="$( cd "$( dirname "$SCRIPT_SOURCE" )" && pwd )"
+
+# Check if we're in fish shell and redirect
+if [ -n "$FISH_VERSION" ]; then
+    echo "Fish shell detected! Please use:"
+    echo "  source $SCRIPT_DIR/activate.fish"
+    return 1 2>/dev/null || exit 1
+fi
+
+# Source the bash activation script
+source "$SCRIPT_DIR/activate.sh"
