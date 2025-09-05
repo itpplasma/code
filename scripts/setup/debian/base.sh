@@ -25,6 +25,7 @@ apt-get install -y -q --no-install-recommends \
     python3-dev \
     python3-pip \
     python3-venv \
+    python-dev-is-python3 \
     nix-bin \
     bash \
     csh \
