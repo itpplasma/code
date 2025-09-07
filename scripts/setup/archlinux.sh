@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Update the system
 pacman -Syu --noconfirm
 
@@ -37,22 +39,20 @@ pacman -S --noconfirm --needed \
     vim \
     man-db \
     stow \
-    bash-completion \
     htop \
     ncdu \
     less \
     gdb \
-    cmake \
     valgrind \
     dbus \
-    kcachegrind \
-    tk \
-    gdb \
     findutils \
     mc \
     tree \
     ripgrep \
-    bc
+    bc \
+    perl-image-exiftool \
+    qpdf \
+    kitty-terminfo
 
 # Install development libraries (skip already installed ones)
 pacman -S --noconfirm --needed \
@@ -79,23 +79,6 @@ pacman -S --noconfirm --needed \
     docker \
     docker-compose
 
-# The following packages need to be installed from the AUR:
-# - metis
-# - parmetis
-# - scotch
-# - petsc
-# - slepc
-# - scalapack
-# - triangle-bin
-# - hdf5-tools (tools are included in hdf5, additional ones might be in `hdf5-cpp-fortran`)
-# - netcdf-tools (covered by netcdf, or install `netcdf-fortran`)
-
-# Use yay or another AUR helper to install these:
-# yay -S metis parmetis scotch petsc slepc scalapack triangle-bin hdf5-cpp-fortran netcdf-fortran
-
-# Install Octave and gnuplot (skip already installed ones)
-pacman -S --noconfirm --needed octave gnuplot
-
 # Install TeX Live and related tools (skip already installed ones)
 pacman -S --noconfirm --needed \
     texlive-core \
@@ -115,22 +98,8 @@ pacman -S --noconfirm --needed \
     poppler \
     imagemagick
 
-# The following packages need to be installed from the AUR:
-# - latexmk
-# - lyx
-# - dvipng
-# - lmodern
-
-# Use yay to install these:
-# yay -S latexmk lyx dvipng lmodern
-
-if [ -n "$(ls /tmp/fmt* 2>/dev/null)" ]; then
-  cat /tmp/fmt*
-fi
-
 # Install fonts (skip already installed ones)
 pacman -S --noconfirm --needed \
-    texlive-fontsextra \
     noto-fonts-cjk \
     ttf-inconsolata \
     ttf-linux-libertine \
