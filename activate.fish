@@ -3,9 +3,19 @@
 # Fish shell activation script
 # Usage: source activate.fish
 
-# Get the directory containing this script
+# Get the directory containing this script (absolute, without changing PWD)
 set SCRIPT_DIR (dirname (status --current-filename))
-set -gx CODE (cd $SCRIPT_DIR; and pwd)
+if type -q path
+    set -gx CODE (path resolve $SCRIPT_DIR)
+else if type -q realpath
+    set -gx CODE (realpath $SCRIPT_DIR)
+else
+    # Fallback: temporarily cd and restore
+    set -l __oldpwd $PWD
+    cd $SCRIPT_DIR
+    set -gx CODE $PWD
+    cd $__oldpwd
+end
 
 echo "Setting CODE environment to: $CODE"
 
@@ -66,9 +76,11 @@ function set_branch_fish
     else if test -n "$CI_COMMIT_REF_NAME"
         set -gx CODE_BRANCH $CI_COMMIT_REF_NAME
     else
-        pushd $CODE
-        set -gx CODE_BRANCH (git branch --show-current)
-        popd
+        # Avoid directory changes; query git directly in $CODE
+        set -gx CODE_BRANCH (git -C $CODE branch --show-current)
+        if test -z "$CODE_BRANCH"
+            set -gx CODE_BRANCH (git -C $CODE rev-parse --short HEAD)
+        end
     end
     echo "Activating $CODE on branch $CODE_BRANCH"
 end
