@@ -115,4 +115,6 @@ if command -v code > /dev/null
     alias vscode="code $CODE"
 end
 
+module use -a $CODE/modules
+
 echo "Fish shell activation complete!"
