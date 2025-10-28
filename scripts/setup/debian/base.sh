@@ -26,6 +26,10 @@ apt-get install -y -q --no-install-recommends \
     python3-pip \
     python3-venv \
     python-dev-is-python3 \
+    python3-numpy \
+    python3-scipy \
+    python3-matplotlib \
+    python3-pytest \
     nix-bin \
     bash \
     csh \
