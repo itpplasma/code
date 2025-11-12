@@ -33,7 +33,7 @@ plotly>=5.22
 scikit-build
 scikit-build-core
 git+https://github.com/jameskermode/f90wrap.git@master#egg=f90wrap
-pybind11
+pybind11<3.0.0
 statsmodels
 
 # Statistics
