@@ -58,6 +58,10 @@ else
     add_to_library_path $CODE/libneo/build
     add_to_library_path $CODE/local/lib
     add_to_library_path $CODE/lib
+    # Add module library paths (LD_RUN_PATH is set by spack modules)
+    if [ -n "$LD_RUN_PATH" ]; then
+        export LD_LIBRARY_PATH="$LD_RUN_PATH:$LD_LIBRARY_PATH"
+    fi
     export LD_LIBRARY_PATH
 
     source $CODE/.venv/bin/activate

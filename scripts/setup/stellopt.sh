@@ -7,8 +7,12 @@ select_machine() {
             export MACHINE=osx_brew_m1
             ;;
         Linux)
+            # Check for VSC5 cluster (hostname contains vsc or l5 node pattern)
+            if [[ "$(hostname)" == *vsc* ]] || [[ "$(hostname)" == l5* ]] || [[ -n "$VSC_INSTITUTE" ]]; then
+                cp $CODE/scripts/setup/stellopt/make_vsc5.inc $CODE/external/STELLOPT/SHARE
+                export MACHINE=vsc5
             # Detect distro family from /etc/os-release
-            if [ -f /etc/os-release ]; then
+            elif [ -f /etc/os-release ]; then
                 . /etc/os-release
                 case "$ID_LIKE" in
                     *rhel*|*centos*|*fedora*)
@@ -47,7 +51,7 @@ pushd $CODE/external
 
 if [ ! -d "STELLOPT" ] ; then
     echo "Fetching and building STELLOPT..."
-    git clone --filter=blob:none git@github.com:itpplasma/STELLOPT.git STELLOPT
+    git clone git@github.com:itpplasma/STELLOPT.git STELLOPT
     pushd STELLOPT
         git remote add upstream git@github.com:PrincetonUniversity/STELLOPT.git
     popd
