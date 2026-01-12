@@ -1,19 +1,5 @@
 #!/usr/bin/env bash
 
-pushd $CODE/external
-
-if [ ! -d "STELLOPT" ] ; then
-    echo "Fetching and building STELLOPT..."
-    git clone --filter=blob:none https://github.com/PrincetonUniversity/STELLOPT.git STELLOPT
-fi
-    pushd STELLOPT
-        export STELLOPT_PATH=$PWD
-        select_machine
-        bash build_all
-        find . -name "*.o" | xargs rm
-    popd
-popd
-
 select_machine() {
     case "$(uname -s)" in
         Darwin)
@@ -21,7 +7,34 @@ select_machine() {
             export MACHINE=osx_brew_m1
             ;;
         Linux)
-            export MACHINE=ubuntu
+            # Detect distro family from /etc/os-release
+            if [ -f /etc/os-release ]; then
+                . /etc/os-release
+                case "$ID_LIKE" in
+                    *rhel*|*centos*|*fedora*)
+                        export MACHINE=redhat
+                        ;;
+                    *debian*|*ubuntu*)
+                        export MACHINE=ubuntu
+                        ;;
+                    *)
+                        # Fallback: check ID directly
+                        case "$ID" in
+                            rhel|centos|fedora|almalinux|rocky)
+                                export MACHINE=redhat
+                                ;;
+                            debian|ubuntu|mint)
+                                export MACHINE=ubuntu
+                                ;;
+                            *)
+                                export MACHINE=ubuntu
+                                ;;
+                        esac
+                        ;;
+                esac
+            else
+                export MACHINE=ubuntu
+            fi
             ;;
         *)
             echo "Unknown OS: $(uname -s)" >&2
@@ -29,3 +42,19 @@ select_machine() {
             ;;
     esac
 }
+
+pushd $CODE/external
+
+if [ ! -d "STELLOPT" ] ; then
+    echo "Fetching and building STELLOPT..."
+    git clone --filter=blob:none git@github.com:itpplasma/STELLOPT.git STELLOPT
+    pushd STELLOPT
+        git remote add upstream git@github.com:PrincetonUniversity/STELLOPT.git
+    popd
+fi
+    pushd STELLOPT
+        export STELLOPT_PATH=$PWD
+        select_machine
+        bash build_all -o release -j $(nproc)
+    popd
+popd
