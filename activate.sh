@@ -63,6 +63,7 @@ else
     source $CODE/.venv/bin/activate
 
     if [ -f /etc/profile.d/modules.sh ]; then
+        unalias ml 2>/dev/null
         source /etc/profile.d/modules.sh
     fi
 
