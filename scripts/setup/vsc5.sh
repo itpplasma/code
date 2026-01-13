@@ -16,16 +16,16 @@ read -r -d '' MODULE_BLOCK << 'EOF' || true
 # === CODE/VSC5 Scientific Computing Environment ===
 # GCC 12.2.0 toolchain with compatible spack modules
 # netcdf-fortran auto-loads: openmpi/4.1.5, hdf5/1.12.2 (with Fortran!), netcdf-c/4.9.0
-module purge 2>/dev/null
-module load gcc/12.2.0-gcc-9.5.0-ohbahza
-module load mkl/2022.0.1
-module load netcdf-fortran/4.6.0-gcc-12.2.0-ad7kryt
-module load fftw/3.3.10-gcc-12.2.0-jstgwxm
-module load python/3.12.8-gcc-12.2.0-4y5tbpr
-module load cmake/3.31.6-gcc-12.2.0-b55yivf
+module purge &>/dev/null
+module load gcc/12.2.0-gcc-9.5.0-ohbahza &>/dev/null
+module load mkl/2022.0.1 &>/dev/null
+module load netcdf-fortran/4.6.0-gcc-12.2.0-ad7kryt &>/dev/null
+module load fftw/3.3.10-gcc-12.2.0-jstgwxm &>/dev/null
+module load python/3.12.8-gcc-12.2.0-4y5tbpr &>/dev/null
+module load cmake/3.31.6-gcc-12.2.0-b55yivf &>/dev/null
 
-# Activate CODE environment
-source $HOME/code/activate.sh
+# Activate CODE environment (quietly)
+source $HOME/code/activate.sh &>/dev/null
 # === END CODE/VSC5 ===
 EOF
 
