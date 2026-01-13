@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Ensure CODE is exported for make configs
+export CODE
+
 select_machine() {
     case "$(uname -s)" in
         Darwin)
