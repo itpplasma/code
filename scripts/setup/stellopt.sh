@@ -11,27 +11,43 @@ select_machine() {
             if [[ "$(hostname)" == *vsc* ]] || [[ "$(hostname)" == l5* ]] || [[ -n "$VSC_INSTITUTE" ]]; then
                 cp $CODE/scripts/setup/stellopt/make_vsc5.inc $CODE/external/STELLOPT/SHARE
                 export MACHINE=vsc5
+            # Check for scluster
+            elif [[ "$(hostname)" == scluster* ]]; then
+                cp $CODE/scripts/setup/stellopt/make_scluster.inc $CODE/external/STELLOPT/SHARE
+                export MACHINE=scluster
             # Detect distro family from /etc/os-release
             elif [ -f /etc/os-release ]; then
                 . /etc/os-release
-                case "$ID_LIKE" in
-                    *rhel*|*centos*|*fedora*)
-                        export MACHINE=redhat
-                        ;;
-                    *debian*|*ubuntu*)
-                        export MACHINE=ubuntu
+                case "$ID" in
+                    arch|manjaro)
+                        cp $CODE/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
+                        export MACHINE=arch_linux
                         ;;
                     *)
-                        # Fallback: check ID directly
-                        case "$ID" in
-                            rhel|centos|fedora|almalinux|rocky)
+                        case "$ID_LIKE" in
+                            *rhel*|*centos*|*fedora*)
                                 export MACHINE=redhat
                                 ;;
-                            debian|ubuntu|mint)
+                            *debian*|*ubuntu*)
                                 export MACHINE=ubuntu
                                 ;;
+                            *arch*)
+                                cp $CODE/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
+                                export MACHINE=arch_linux
+                                ;;
                             *)
-                                export MACHINE=ubuntu
+                                # Fallback: check ID directly
+                                case "$ID" in
+                                    rhel|centos|fedora|almalinux|rocky)
+                                        export MACHINE=redhat
+                                        ;;
+                                    debian|ubuntu|mint)
+                                        export MACHINE=ubuntu
+                                        ;;
+                                    *)
+                                        export MACHINE=ubuntu
+                                        ;;
+                                esac
                                 ;;
                         esac
                         ;;
@@ -51,10 +67,7 @@ pushd $CODE/external
 
 if [ ! -d "STELLOPT" ] ; then
     echo "Fetching and building STELLOPT..."
-    git clone git@github.com:itpplasma/STELLOPT.git STELLOPT
-    pushd STELLOPT
-        git remote add upstream git@github.com:PrincetonUniversity/STELLOPT.git
-    popd
+    git clone git@github.com:PrincetonUniversity/STELLOPT.git STELLOPT
 fi
     pushd STELLOPT
         export STELLOPT_PATH=$PWD
