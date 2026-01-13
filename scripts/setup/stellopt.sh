@@ -108,4 +108,6 @@ apply_patches
 
 select_machine
 echo "Building STELLOPT with MACHINE=$MACHINE"
-./build_all -o release -j ${NPROC:-$(nproc)}
+# Cap parallel jobs at 8 to avoid race conditions in STELLOPT's Makefile
+nproc_safe=$(( $(nproc) > 8 ? 8 : $(nproc) ))
+./build_all -o release -j ${NPROC:-$nproc_safe}
