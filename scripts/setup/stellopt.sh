@@ -77,6 +77,21 @@ select_machine() {
     esac
 }
 
+apply_patches() {
+    local patches_dir="$CODE/scripts/setup/stellopt/patches"
+    if [ -d "$patches_dir" ]; then
+        for patch in "$patches_dir"/*.patch; do
+            [ -f "$patch" ] || continue
+            if git apply --check "$patch" 2>/dev/null; then
+                echo "Applying patch: $(basename "$patch")"
+                git apply "$patch"
+            else
+                echo "Patch already applied or not applicable: $(basename "$patch")"
+            fi
+        done
+    fi
+}
+
 cd $CODE/external
 
 if [ ! -d "STELLOPT" ] ; then
@@ -86,6 +101,10 @@ fi
 
 cd STELLOPT
 export STELLOPT_PATH=$PWD
+
+# Apply patches before building
+apply_patches
+
 select_machine
 echo "Building STELLOPT with MACHINE=$MACHINE"
 ./build_all -o release -j ${NPROC:-$(nproc)}
