@@ -11,7 +11,11 @@ $CODE/scripts/setup/venv.sh
 source $CODE/.venv/bin/activate
 
 pushd $CODE/external
+    $CODE/scripts/setup/openblas.sh
+    $CODE/scripts/setup/gsl.sh
     $CODE/scripts/setup/fgsl.sh
+    $CODE/scripts/setup/fftw.sh
+    $CODE/scripts/setup/netcdf.sh
     $CODE/scripts/setup/triangle.sh
 popd
 
