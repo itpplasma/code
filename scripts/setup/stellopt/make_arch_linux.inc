@@ -25,7 +25,7 @@
   MPI_COMPILE = mpif90
   MPI_COMPILE_FREE = mpif90 -ffree-form \
                      -ffree-line-length-none -ffixed-line-length-none
-  MPI_COMPILE_C = mpicc.openmpi
+  MPI_COMPILE_C = mpicc
   MPI_LINK = mpif90
   MPI_RUN = mpiexec
   MPI_RUN_OPTS = -np 4
