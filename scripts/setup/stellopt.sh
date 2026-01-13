@@ -4,6 +4,9 @@ set -e
 # Ensure CODE is exported for make configs
 export CODE
 
+# Create ~/bin for libstell symlinks
+mkdir -p ~/bin
+
 select_machine() {
     case "$(uname -s)" in
         Darwin)
