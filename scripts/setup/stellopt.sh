@@ -4,8 +4,15 @@ set -e
 # Ensure CODE is exported for make configs
 export CODE
 
-# Create ~/bin for libstell symlinks
+# Create ~/bin for libstell symlinks and ensure it's in PATH
 mkdir -p ~/bin
+if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+    export PATH="$HOME/bin:$PATH"
+    # Add to .bashrc if not already there
+    if ! grep -q 'export PATH="$HOME/bin:$PATH"' ~/.bashrc 2>/dev/null; then
+        echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+    fi
+fi
 
 select_machine() {
     case "$(uname -s)" in
