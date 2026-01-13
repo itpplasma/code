@@ -20,7 +20,7 @@
   FLAGS_R = -O2 -fexternal-blas -fbacktrace -march=native
   FLAGS_D = -g -O0 -fexternal-blas -fcheck=all
   # Use OpenBLAS (includes LAPACK)
-  OPENBLAS_DIR = $(CODE)/external/OpenBLAS-0.3.28/install
+  OPENBLAS_DIR = $(CODE_ROOT)/external/OpenBLAS-0.3.28/install
   LIBS = -L$(OPENBLAS_DIR)/lib -lopenblas
 
   GFORTRAN_VERSION := $(shell $(FC) -dumpversion)
@@ -68,7 +68,7 @@
 #            HDF5 Options (from netcdf-install which includes HDF5)
 #######################################################################
   LHDF5 = T
-  HDF5_DIR = $(CODE)/external/netcdf-install
+  HDF5_DIR = $(CODE_ROOT)/external/netcdf-install
   HDF5_INC = -I$(HDF5_DIR)/include
   HDF5_LIB = -L$(HDF5_DIR)/lib -lhdf5_fortran -lhdf5_hl -lhdf5 -lz
 

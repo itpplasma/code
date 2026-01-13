@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-# Ensure CODE is exported for make configs
-export CODE
+# Ensure CODE_ROOT is exported for make configs (can't use CODE - build_all uses it)
+export CODE_ROOT="$CODE"
 
 # Create ~/bin for libstell symlinks and ensure it's in PATH
 mkdir -p ~/bin
