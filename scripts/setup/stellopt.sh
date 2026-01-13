@@ -33,35 +33,36 @@ select_machine() {
             elif [ -f /etc/os-release ]; then
                 . /etc/os-release
                 case "$ID" in
-                    arch|manjaro)
+                    arch|manjaro|cachyos|endeavouros|garuda|artix)
                         cp $CODE/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
                         export MACHINE=arch_linux
                         ;;
+                    rhel|centos|fedora|almalinux|rocky)
+                        export MACHINE=redhat
+                        ;;
+                    debian|ubuntu|mint)
+                        export MACHINE=ubuntu
+                        ;;
                     *)
                         case "$ID_LIKE" in
+                            *arch*)
+                                cp $CODE/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
+                                export MACHINE=arch_linux
+                                ;;
                             *rhel*|*centos*|*fedora*)
                                 export MACHINE=redhat
                                 ;;
                             *debian*|*ubuntu*)
                                 export MACHINE=ubuntu
                                 ;;
-                            *arch*)
-                                cp $CODE/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
-                                export MACHINE=arch_linux
-                                ;;
                             *)
-                                # Fallback: check ID directly
-                                case "$ID" in
-                                    rhel|centos|fedora|almalinux|rocky)
-                                        export MACHINE=redhat
-                                        ;;
-                                    debian|ubuntu|mint)
-                                        export MACHINE=ubuntu
-                                        ;;
-                                    *)
-                                        export MACHINE=ubuntu
-                                        ;;
-                                esac
+                                # Fallback: check for pacman (Arch-based)
+                                if command -v pacman &>/dev/null; then
+                                    cp $CODE/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
+                                    export MACHINE=arch_linux
+                                else
+                                    export MACHINE=ubuntu
+                                fi
                                 ;;
                         esac
                         ;;
