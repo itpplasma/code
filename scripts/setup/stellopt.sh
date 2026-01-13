@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 select_machine() {
     case "$(uname -s)" in
@@ -63,15 +64,15 @@ select_machine() {
     esac
 }
 
-pushd $CODE/external
+cd $CODE/external
 
 if [ ! -d "STELLOPT" ] ; then
-    echo "Fetching and building STELLOPT..."
+    echo "Cloning STELLOPT..."
     git clone git@github.com:PrincetonUniversity/STELLOPT.git STELLOPT
 fi
-    pushd STELLOPT
-        export STELLOPT_PATH=$PWD
-        select_machine
-        bash build_all -o release -j $(nproc)
-    popd
-popd
+
+cd STELLOPT
+export STELLOPT_PATH=$PWD
+select_machine
+echo "Building STELLOPT with MACHINE=$MACHINE"
+./build_all -o release -j ${NPROC:-$(nproc)}
