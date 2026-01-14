@@ -92,5 +92,5 @@ freeqdsk
 freegs
 
 # Stellarator
-booz_xform @ git+https://github.com/hiddenSymmetries/booz_xform.git@main
-simsopt
+# booz_xform @ git+https://github.com/hiddenSymmetries/booz_xform.git@main
+# simsopt
