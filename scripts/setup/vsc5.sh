@@ -24,6 +24,7 @@ module load fftw/3.3.10-gcc-12.2.0-jstgwxm &>/dev/null
 module load python/3.12.8-gcc-12.2.0-4y5tbpr &>/dev/null
 module load cmake/3.31.6-gcc-12.2.0-b55yivf &>/dev/null
 module load boost/1.80.0-gcc-12.2.0-3fphho7 &>/dev/null
+module load gmp/6.2.1-gcc-12.2.0-hmbnkk4 &>/dev/null
 
 # Activate CODE environment (quietly)
 source $HOME/code/activate.sh &>/dev/null
