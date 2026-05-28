@@ -1,0 +1,35 @@
+# Template: downstream reverse-dependency validation (proposed).
+#
+# Commit this once into each tracked consumer's .github/workflows/. An upstream
+# release workflow dispatches it with the upstream ref to build against. It
+# builds THIS code's own default branch against that ref, with no commit and no
+# pin change, and the upstream polls the run conclusion to gate its release tag.
+#
+# Prerequisite: this code's find_or_fetch honors LIBNEO_BRANCH (see the
+# <DEP>_BRANCH convention in docs/development-model.md).
+
+name: integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      libneo_ref:
+        description: libneo branch or tag to build against
+        required: true
+        default: main
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      # find_or_fetch fetches libneo at this ref; the committed pin stays untouched
+      LIBNEO_BRANCH: ${{ inputs.libneo_ref }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        run: |
+          # Per-code build. CMake codes:
+          cmake -S . -B build -G Ninja
+          cmake --build build -j
+          ctest --test-dir build --output-on-failure
+          # Make-based codes substitute their own `make && make test`.

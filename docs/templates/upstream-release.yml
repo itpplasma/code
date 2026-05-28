@@ -1,0 +1,66 @@
+# Template: upstream release orchestration (proposed skeleton, untested).
+#
+# Lives in the hub repo (libneo). Cuts a release branch, validates the tracked
+# downstreams against it, gates the tag on all-green, then opens tag-pinned bump
+# PRs. The downstream list is the inverted find_or_fetch graph; the set below is
+# libneo's current consumers. See docs/development-model.md for the full model.
+
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: release version YY.MINOR.PATCH (e.g. 26.1.0)
+        required: true
+
+env:
+  DOWNSTREAMS: "SIMPLE NEO-2 NEO-RT MEPHIT KAMEL rabe"
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cut release branch
+        run: |
+          V="${{ inputs.version }}"              # 26.1.0
+          BRANCH="release/${V%.*}"               # release/26.1
+          git switch -c "$BRANCH" || git switch "$BRANCH"
+          git push -u origin "$BRANCH"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+      - name: Dispatch downstream validation
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}   # needs actions:write on the downstreams
+        run: |
+          for d in $DOWNSTREAMS; do
+            gh workflow run integration.yml -R "itpplasma/$d" -f "libneo_ref=$BRANCH"
+          done
+          # TODO: capture each dispatched run id (poll the runs API right after dispatch)
+
+      - name: Gate on all downstreams green
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+        run: |
+          # TODO: poll each downstream's latest integration run for libneo_ref=$BRANCH
+          # until conclusion != null; fail this job if any conclusion != success.
+          echo "TODO: poll conclusions, fail on any non-success"
+
+      - name: Tag the release
+        run: |
+          # Only reached when the gate passed. Tag the exact branch head that
+          # the downstreams validated against.
+          git tag "${{ inputs.version }}"
+          git push origin "${{ inputs.version }}"
+
+      - name: Open bump PRs (pin the tag, never the branch)
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+        run: |
+          # TODO: for each downstream, edit its standardized libneo pin to the
+          # tag ${{ inputs.version }}, open a PR, assign code owners. No merge.
+          echo "TODO: open tag-pinned bump PRs; maintainers merge on their own schedule"
