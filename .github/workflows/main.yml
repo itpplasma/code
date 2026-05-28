@@ -71,14 +71,30 @@ jobs:
             libmetis-dev \
             libboost-all-dev
 
+      - name: Checkout infra sources
+        uses: actions/checkout@v4
+        with:
+          path: infra-src
+
       - name: Download Release  # TODO: make this dynamic
         run: |
           wget https://github.com/itpplasma/code/releases/download/v2025.01.02/code-v2025.01.02.tar.gz -O /tmp/code.tar.gz
 
-      - name: Extract tarball
+      - name: Assemble infra
         run: |
+          # The release tarball carries the prebuilt deps (.venv, external) but
+          # its scripts are frozen at release time. Overlay the current checkout
+          # so activation and setup scripts match this branch.
           mkdir -p infra
-          tar -xzvf /tmp/code.tar.gz -C infra
+          tar -xzf /tmp/code.tar.gz -C infra
+          rsync -a --exclude='.git' --exclude='.venv' --exclude='external' infra-src/ infra/
+          # The release .venv was built at a different path; relocate its
+          # console-script shebangs to where it now lives.
+          NEWV="$PWD/infra/.venv"
+          OLDV=$(sed -n '1s|^#!\(.*\)/bin/python.*|\1|p' infra/.venv/bin/f2py 2>/dev/null || true)
+          if [ -n "$OLDV" ] && [ "$OLDV" != "$NEWV" ]; then
+            grep -rIl "$OLDV" infra/.venv/bin | xargs -r sed -i "s|$OLDV|$NEWV|g"
+          fi
 
       - name: NEO-2
         run: |
