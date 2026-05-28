@@ -22,13 +22,15 @@ environment variable `$CODE`; this repository is `$INFRA`, equal to
 
     $CODE/
       infra/      this repository (activation, setup scripts, modules, .venv)
+      external/   prebuilt third-party libs, shared by all codes
       libneo/     code checkout
       SIMPLE/     code checkout
       ...
 
-Activation exports both. `$INFRA` holds the infra-owned paths (`scripts`,
-`.venv`, `external`, `modules`). `$CODE` is the workspace root, so the codes
-resolve their dependencies as `$CODE/<name>`.
+Activation exports both. `$INFRA` holds the infra-private paths (`scripts`,
+`.venv`, `modules`). `$CODE` is the workspace root, so the codes resolve their
+dependencies as `$CODE/<name>` and read prebuilt libraries from
+`$CODE/external`.
 
 ## Getting Started
 
@@ -89,7 +91,7 @@ to install the compiler and libraries HDF5 and NetCDFwith modules. Then the comm
     scripts/setup/gpec.sh
     scripts/setup/mars.sh
 
-will install GPEC and MARS into `$INFRA/external/intel`. They can then be loaded with
+will install GPEC and MARS into `$CODE/external/intel`. They can then be loaded with
 
     module load gpec
     module load mars
@@ -99,7 +101,7 @@ codes based on GNU Fortran in the same shell.
 
 ### OMFIT
 OMFIT requires its own Python environment provided via `conda`. Both will be installed
-to `$INFRA/external` by running
+to `$CODE/external` by running
 
     deactivate
     scripts/setup/omfit.sh
@@ -107,7 +109,7 @@ to `$INFRA/external` by running
 OMFIT can then be loaded with
 
     deactivate
-    source $INFRA/external/mambaforge/bin/activate omfit
+    source $CODE/external/mambaforge/bin/activate omfit
     module load omfit
 
 and then started with `omfit` in the shell. Be careful not to work on codes

@@ -35,15 +35,15 @@ if [ "$(uname)" = "Darwin" ]; then
         echo "Unknown processor architecture."
     fi
 
-    export CMAKE_INCLUDE_PATH="/opt/homebrew/include/suitesparse:$INFRA/external/triangle"
-    export CMAKE_LIBRARY_PATH="/opt/homebrew/lib:$INFRA/external/triangle/build"
+    export CMAKE_INCLUDE_PATH="/opt/homebrew/include/suitesparse:$CODE/external/triangle"
+    export CMAKE_LIBRARY_PATH="/opt/homebrew/lib:$CODE/external/triangle/build"
     export CMAKE_ARGS="-DBLAS_LIBRARIES=$BLAS_LIBRARIES -DLAPACK_LIBRARIES=$LAPACK_LIBRARIES"
 else
     export CMAKE_ARGS=""
 
     # Use locally built OpenBLAS if system BLAS headers not available
     if [ ! -f /usr/include/cblas.h ] && [ ! -f /usr/include/openblas/cblas.h ]; then
-        OPENBLAS_PREFIX="$INFRA/external/OpenBLAS-0.3.28/install"
+        OPENBLAS_PREFIX="$CODE/external/OpenBLAS-0.3.28/install"
         if [ -d "$OPENBLAS_PREFIX" ]; then
             export BLAS_LIBRARIES="$OPENBLAS_PREFIX/lib/libopenblas.so"
             export LAPACK_LIBRARIES="$OPENBLAS_PREFIX/lib/libopenblas.so"
@@ -53,30 +53,30 @@ else
     fi
 
     # Use locally built GSL only if system GSL not available
-    if ! command -v gsl-config &> /dev/null && [ -d "$INFRA/external/gsl-2.8/install" ]; then
-        export GSL_ROOT_DIR="$INFRA/external/gsl-2.8/install"
+    if ! command -v gsl-config &> /dev/null && [ -d "$CODE/external/gsl-2.8/install" ]; then
+        export GSL_ROOT_DIR="$CODE/external/gsl-2.8/install"
         export PKG_CONFIG_PATH="$GSL_ROOT_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
     fi
 
     # Use locally built FFTW if system headers not available
-    if [ ! -f /usr/include/fftw3.h ] && [ -d "$INFRA/external/fftw-3.3.10/install" ]; then
-        export FFTW_ROOT="$INFRA/external/fftw-3.3.10/install"
+    if [ ! -f /usr/include/fftw3.h ] && [ -d "$CODE/external/fftw-3.3.10/install" ]; then
+        export FFTW_ROOT="$CODE/external/fftw-3.3.10/install"
     fi
 
     # Use locally built HDF5/NetCDF if system nf-config not available
-    if ! command -v nf-config &> /dev/null && [ -d "$INFRA/external/netcdf-install" ]; then
-        export HDF5_ROOT="$INFRA/external/netcdf-install"
-        export NETCDF_ROOT="$INFRA/external/netcdf-install"
-        export PATH="$INFRA/external/netcdf-install/bin:$PATH"
+    if ! command -v nf-config &> /dev/null && [ -d "$CODE/external/netcdf-install" ]; then
+        export HDF5_ROOT="$CODE/external/netcdf-install"
+        export NETCDF_ROOT="$CODE/external/netcdf-install"
+        export PATH="$CODE/external/netcdf-install/bin:$PATH"
     fi
 
     # Use locally installed NVIDIA HPC SDK if available (optional)
-    NVHPC_ROOT="$INFRA/external/nvhpc/Linux_x86_64"
+    NVHPC_ROOT="$CODE/external/nvhpc/Linux_x86_64"
     if [ -d "$NVHPC_ROOT" ]; then
         # Find the installed version
         NVHPC_VERSION=$(ls "$NVHPC_ROOT" 2>/dev/null | grep -E '^[0-9]+\.[0-9]+$' | sort -V | tail -1)
         if [ -n "$NVHPC_VERSION" ]; then
-            export NVHPC="$INFRA/external/nvhpc"
+            export NVHPC="$CODE/external/nvhpc"
             export NVHPC_ROOT="$NVHPC_ROOT/$NVHPC_VERSION"
             export PATH="$NVHPC_ROOT/compilers/bin:$PATH"
             export PATH="$NVHPC_ROOT/comm_libs/mpi/bin:$PATH"

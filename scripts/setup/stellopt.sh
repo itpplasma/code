@@ -3,7 +3,7 @@ set -e
 
 # CODE_ROOT feeds the STELLOPT make configs, which read $(CODE_ROOT)/external/...
 # That tree lives in the infra repo, so point it at $INFRA.
-export CODE_ROOT="$INFRA"
+export CODE_ROOT="$CODE"
 
 # Create ~/bin for libstell symlinks and ensure it's in PATH
 mkdir -p ~/bin
@@ -18,24 +18,24 @@ fi
 select_machine() {
     case "$(uname -s)" in
         Darwin)
-            cp $INFRA/scripts/setup/stellopt/make_osx_brew_m1.inc $INFRA/external/STELLOPT/SHARE
+            cp $INFRA/scripts/setup/stellopt/make_osx_brew_m1.inc $CODE/external/STELLOPT/SHARE
             export MACHINE=osx_brew_m1
             ;;
         Linux)
             # Check for VSC5 cluster (hostname contains vsc or l5 node pattern)
             if [[ "$(hostname)" == *vsc* ]] || [[ "$(hostname)" == l5* ]] || [[ -n "$VSC_INSTITUTE" ]]; then
-                cp $INFRA/scripts/setup/stellopt/make_vsc5.inc $INFRA/external/STELLOPT/SHARE
+                cp $INFRA/scripts/setup/stellopt/make_vsc5.inc $CODE/external/STELLOPT/SHARE
                 export MACHINE=vsc5
             # Check for scluster
             elif [[ "$(hostname)" == scluster* ]]; then
-                cp $INFRA/scripts/setup/stellopt/make_scluster.inc $INFRA/external/STELLOPT/SHARE
+                cp $INFRA/scripts/setup/stellopt/make_scluster.inc $CODE/external/STELLOPT/SHARE
                 export MACHINE=scluster
             # Detect distro family from /etc/os-release
             elif [ -f /etc/os-release ]; then
                 . /etc/os-release
                 case "$ID" in
                     arch|manjaro|cachyos|endeavouros|garuda|artix)
-                        cp $INFRA/scripts/setup/stellopt/make_arch_linux.inc $INFRA/external/STELLOPT/SHARE
+                        cp $INFRA/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
                         export MACHINE=arch_linux
                         ;;
                     rhel|centos|fedora|almalinux|rocky)
@@ -47,7 +47,7 @@ select_machine() {
                     *)
                         case "$ID_LIKE" in
                             *arch*)
-                                cp $INFRA/scripts/setup/stellopt/make_arch_linux.inc $INFRA/external/STELLOPT/SHARE
+                                cp $INFRA/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
                                 export MACHINE=arch_linux
                                 ;;
                             *rhel*|*centos*|*fedora*)
@@ -59,7 +59,7 @@ select_machine() {
                             *)
                                 # Fallback: check for pacman (Arch-based)
                                 if command -v pacman &>/dev/null; then
-                                    cp $INFRA/scripts/setup/stellopt/make_arch_linux.inc $INFRA/external/STELLOPT/SHARE
+                                    cp $INFRA/scripts/setup/stellopt/make_arch_linux.inc $CODE/external/STELLOPT/SHARE
                                     export MACHINE=arch_linux
                                 else
                                     export MACHINE=ubuntu
@@ -94,7 +94,7 @@ apply_patches() {
     fi
 }
 
-cd $INFRA/external
+cd $CODE/external
 
 if [ ! -d "STELLOPT" ] ; then
     echo "Cloning STELLOPT..."

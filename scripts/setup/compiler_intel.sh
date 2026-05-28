@@ -44,6 +44,6 @@ export FC=ifx
 export CC=icx
 export CXX=icpx
 
-pushd $INFRA/external/intel
+pushd $CODE/external/intel
   source $INFRA/scripts/setup/netcdf.sh
 popd

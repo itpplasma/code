@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd $INFRA/external
+cd $CODE/external
 
 if [ ! -d "VMEC2000" ] ; then
     echo "Fetching and building VMEC2000..."

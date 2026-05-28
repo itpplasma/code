@@ -38,8 +38,8 @@ if test (uname) = "Darwin"
         echo "Unknown processor architecture."
     end
 
-    set -gx CMAKE_INCLUDE_PATH "/opt/homebrew/include/suitesparse:$INFRA/external/triangle"
-    set -gx CMAKE_LIBRARY_PATH "/opt/homebrew/lib:$INFRA/external/triangle/build"
+    set -gx CMAKE_INCLUDE_PATH "/opt/homebrew/include/suitesparse:$CODE/external/triangle"
+    set -gx CMAKE_LIBRARY_PATH "/opt/homebrew/lib:$CODE/external/triangle/build"
     set -gx CMAKE_ARGS "-DBLAS_LIBRARIES=$BLAS_LIBRARIES -DLAPACK_LIBRARIES=$LAPACK_LIBRARIES"
 else
     set -gx CMAKE_ARGS ""

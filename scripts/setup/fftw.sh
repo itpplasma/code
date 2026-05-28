@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-cd "$INFRA/external" || exit 1
+cd "$CODE/external" || exit 1
 
 FFTW_VERSION=3.3.10
-INSTALL_PREFIX="$INFRA/external/fftw-${FFTW_VERSION}/install"
+INSTALL_PREFIX="$CODE/external/fftw-${FFTW_VERSION}/install"
 
 # Check if system FFTW is available
 if [ -f /usr/include/fftw3.h ] || [ -f /usr/local/include/fftw3.h ]; then

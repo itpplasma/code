@@ -4,11 +4,11 @@
 
 set -e
 
-cd "$INFRA/external" || exit 1
+cd "$CODE/external" || exit 1
 
 CGAL_VERSION="5.6.1"
 CGAL_DIR="CGAL-${CGAL_VERSION}"
-CGAL_INSTALL="$INFRA/external/cgal"
+CGAL_INSTALL="$CODE/external/cgal"
 
 if [ ! -d "$CGAL_INSTALL/include/CGAL" ]; then
     echo "Fetching and installing CGAL ${CGAL_VERSION}..."

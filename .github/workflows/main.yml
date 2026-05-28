@@ -88,6 +88,8 @@ jobs:
           mkdir -p infra
           tar -xzf /tmp/code.tar.gz -C infra
           rsync -a --exclude='.git' --exclude='.venv' --exclude='external' infra-src/ infra/
+          # external is workspace-shared; the codes read $CODE/external (= ./external here)
+          rm -rf external && mv infra/external external
           # The release .venv was built at a different path; relocate its
           # console-script shebangs to where it now lives.
           NEWV="$PWD/infra/.venv"

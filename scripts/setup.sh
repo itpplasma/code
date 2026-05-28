@@ -14,7 +14,9 @@ pushd $INFRA
     source $INFRA/.venv/bin/activate
 popd
 
-pushd $INFRA/external
+# external prebuilt deps are workspace-shared; the codes read $CODE/external
+mkdir -p $CODE/external
+pushd $CODE/external
     $INFRA/scripts/setup/openblas.sh
     $INFRA/scripts/setup/gsl.sh
     $INFRA/scripts/setup/fgsl.sh
