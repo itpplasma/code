@@ -98,7 +98,7 @@ jobs:
 
       - name: NEO-2
         run: |
-          source infra/activate.sh
+          set +e; source infra/activate.sh; set -e
           clone_github NEO-2
           cd NEO-2
           $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
@@ -106,7 +106,7 @@ jobs:
 
       - name: NEO-RT
         run: |
-          source infra/activate.sh
+          set +e; source infra/activate.sh; set -e
           clone_github NEO-RT
           cd NEO-RT
           $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
@@ -114,7 +114,7 @@ jobs:
 
       - name: SIMPLE
         run: |
-          source infra/activate.sh
+          set +e; source infra/activate.sh; set -e
           clone_github SIMPLE
           cd SIMPLE
           $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
@@ -123,7 +123,7 @@ jobs:
 
       - name: GORILLA
         run: |
-          source infra/activate.sh
+          set +e; source infra/activate.sh; set -e
           clone_github GORILLA
           cd GORILLA
           $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
@@ -131,7 +131,7 @@ jobs:
 
       - name: MEPHIT
         run: |
-          source infra/activate.sh
+          set +e; source infra/activate.sh; set -e
           clone_github MEPHIT
           source /etc/profile.d/modules.sh
           module use -a $INFRA/modules
