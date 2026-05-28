@@ -10,7 +10,7 @@ export CC=icx
 export CXX=icpx
 export FC=ifx
 export OMPFLAG="-qopenmp"
-cd $CODE/external/intel
+cd $INFRA/external/intel
 
 ../../scripts/setup/netcdf.sh
 

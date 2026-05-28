@@ -2,7 +2,7 @@
 
 OPENBLAS_VERSION=0.3.28
 
-cd "$CODE/external" || exit 1
+cd "$INFRA/external" || exit 1
 
 # Check if system BLAS/LAPACK dev headers exist
 if [ -f /usr/include/cblas.h ] || [ -f /usr/include/openblas/cblas.h ]; then
@@ -15,5 +15,5 @@ elif [ ! -f "OpenBLAS-${OPENBLAS_VERSION}/install/lib/libopenblas.a" ]; then
     cd OpenBLAS-${OPENBLAS_VERSION}
     # Build with ZEN target for AMD EPYC
     make -j$(nproc) TARGET=ZEN USE_OPENMP=1
-    make PREFIX=$CODE/external/OpenBLAS-${OPENBLAS_VERSION}/install install
+    make PREFIX=$INFRA/external/OpenBLAS-${OPENBLAS_VERSION}/install install
 fi

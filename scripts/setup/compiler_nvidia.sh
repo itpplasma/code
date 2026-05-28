@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # NVIDIA HPC SDK setup script (optional - not included in default setup.sh)
-# Installs to $CODE/external/nvhpc without requiring root access
+# Installs to $INFRA/external/nvhpc without requiring root access
 
 set -e
 
@@ -8,9 +8,9 @@ NVHPC_VERSION=25.11
 NVHPC_YEAR=2025
 CUDA_VERSION=13.0
 
-INSTALL_DIR="$CODE/external/nvhpc"
+INSTALL_DIR="$INFRA/external/nvhpc"
 
-cd "$CODE/external" || exit 1
+cd "$INFRA/external" || exit 1
 
 # Check if already installed
 if [ -f "$INSTALL_DIR/Linux_x86_64/$NVHPC_VERSION/compilers/bin/nvfortran" ]; then
@@ -47,7 +47,7 @@ export NVHPC_INSTALL_LOCAL_DIR=""
 
 ./install
 
-cd "$CODE/external"
+cd "$INFRA/external"
 
 # Verify installation
 if [ -f "$INSTALL_DIR/Linux_x86_64/$NVHPC_VERSION/compilers/bin/nvfortran" ]; then

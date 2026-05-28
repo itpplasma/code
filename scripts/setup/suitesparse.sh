@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd $CODE/external
+cd $INFRA/external
 git clone https://github.com/DrTimothyAldenDavis/SuiteSparse
 cd SuiteSparse/build
 git checkout v7.10.2

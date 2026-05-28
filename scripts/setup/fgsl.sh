@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd "$CODE/external" || exit 1
+cd "$INFRA/external" || exit 1
 
 if [ ! -f "fgsl-1.6.0/.libs/libfgsl.a" ] ; then
     echo "Fetching and building FGSL..."
@@ -9,7 +9,7 @@ if [ ! -f "fgsl-1.6.0/.libs/libfgsl.a" ] ; then
     if command -v gsl-config &> /dev/null; then
         GSL_CONFIG=gsl-config
     else
-        GSL_PREFIX=$CODE/external/gsl-2.8/install
+        GSL_PREFIX=$INFRA/external/gsl-2.8/install
         if [ -d "$GSL_PREFIX" ]; then
             GSL_CONFIG="$GSL_PREFIX/bin/gsl-config"
             export LD_LIBRARY_PATH="$GSL_PREFIX/lib:$LD_LIBRARY_PATH"

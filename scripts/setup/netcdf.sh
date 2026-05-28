@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-cd "$CODE/external" || exit 1
+cd "$INFRA/external" || exit 1
 
 HDF5_VERSION=1.14.5
 NETCDF_C_VERSION=4.9.2
 NETCDF_F_VERSION=4.6.1
 
-INSTALL_PREFIX="$CODE/external/netcdf-install"
+INSTALL_PREFIX="$INFRA/external/netcdf-install"
 
 # Check if system NetCDF-Fortran is available
 if command -v nf-config &> /dev/null; then
@@ -40,7 +40,7 @@ if [ ! -f "$INSTALL_PREFIX/lib/libhdf5.so" ]; then
           -DBUILD_SHARED_LIBS=ON \
           -DHDF5_BUILD_FORTRAN=ON ..
     make -j$(nproc) install
-    cd "$CODE/external"
+    cd "$INFRA/external"
 fi
 
 # Build NetCDF-C
@@ -54,7 +54,7 @@ if [ ! -f "$INSTALL_PREFIX/lib/libnetcdf.so" ]; then
     LDFLAGS="-L$INSTALL_PREFIX/lib -Wl,-rpath,$INSTALL_PREFIX/lib" \
     ./configure --prefix="$INSTALL_PREFIX" --disable-libxml2 --disable-byterange
     make -j$(nproc) install
-    cd "$CODE/external"
+    cd "$INFRA/external"
 fi
 
 # Build NetCDF-Fortran
@@ -70,7 +70,7 @@ if [ ! -f "$INSTALL_PREFIX/lib/libnetcdff.so" ]; then
           -DNETCDF_C_INCLUDE_DIR="$INSTALL_PREFIX/include" \
           -DCMAKE_PREFIX_PATH="$INSTALL_PREFIX" ..
     make -j$(nproc) install
-    cd "$CODE/external"
+    cd "$INFRA/external"
 fi
 
 echo "NetCDF stack installed to $INSTALL_PREFIX"

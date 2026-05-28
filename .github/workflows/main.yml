@@ -77,49 +77,50 @@ jobs:
 
       - name: Extract tarball
         run: |
-          tar -xzvf /tmp/code.tar.gz
+          mkdir -p infra
+          tar -xzvf /tmp/code.tar.gz -C infra
 
       - name: NEO-2
         run: |
-          source activate.sh
+          source infra/activate.sh
           clone_github NEO-2
           cd NEO-2
-          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
           make
 
       - name: NEO-RT
         run: |
-          source activate.sh
+          source infra/activate.sh
           clone_github NEO-RT
           cd NEO-RT
-          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
           make
 
       - name: SIMPLE
         run: |
-          source activate.sh
+          source infra/activate.sh
           clone_github SIMPLE
           cd SIMPLE
-          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
           make
 
 
       - name: GORILLA
         run: |
-          source activate.sh
+          source infra/activate.sh
           clone_github GORILLA
           cd GORILLA
-          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
           make
 
       - name: MEPHIT
         run: |
-          source activate.sh
+          source infra/activate.sh
           clone_github MEPHIT
           source /etc/profile.d/modules.sh
-          module use -a $CODE/modules
+          module use -a $INFRA/modules
           module load mephit
           cd MEPHIT
-          $CODE/scripts/checkout_branch.sh $CODE_BRANCH
+          $INFRA/scripts/checkout_branch.sh $CODE_BRANCH
           make
           pip install -e .

@@ -14,6 +14,22 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 - Container definitions
 - VSCode settings
 
+## Layout
+
+This repository is the `infra` directory of a workspace. The workspace is the
+environment variable `$CODE`; this repository is `$INFRA`, equal to
+`$CODE/infra`. The code checkouts sit in the workspace next to `infra`:
+
+    $CODE/
+      infra/      this repository (activation, setup scripts, modules, .venv)
+      libneo/     code checkout
+      SIMPLE/     code checkout
+      ...
+
+Activation exports both. `$INFRA` holds the infra-owned paths (`scripts`,
+`.venv`, `external`, `modules`). `$CODE` is the workspace root, so the codes
+resolve their dependencies as `$CODE/<name>`.
+
 ## Getting Started
 
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen`
@@ -35,30 +51,31 @@ to install Debian Linux via WSL2. Then follow the Linux instructions.
 
 ### Initial setup
 
-Clone the repository to your working copy, at the institute this is
+Clone this repository into an `infra` directory inside your workspace. At the
+institute the workspace is `/proj/plasma/CODE/<username>`:
 
-    git clone git@github.com:itpplasma/code /proj/plasma/CODE/<username>
+    git clone git@github.com:itpplasma/code /proj/plasma/CODE/<username>/infra
 
-Then open the directory in VS Code with
+Open the workspace in VS Code with
 
-    code code
+    code /proj/plasma/CODE/<username>
 
 When asked to initialize the devcontainer, remove the message.
 Run the setup script manually with
 
-    scripts/setup.sh
+    infra/scripts/setup.sh
 
-The setup will install external dependencies and create
-a Python virtual environment in the hidden `.venv` directory.
+The setup installs external dependencies and creates the Python virtual
+environment in `infra/.venv`.
 
 Finally, activate the environment with
 
-    source activate.sh
+    source infra/activate.sh
 
 To use this environment as a standard, put the activation
 script into bashrc with
 
-    echo "source $PWD/activate.sh" >> ~/.bashrc
+    echo "source /proj/plasma/CODE/<username>/infra/activate.sh" >> ~/.bashrc
 
 ## External codes
 
@@ -72,7 +89,7 @@ to install the compiler and libraries HDF5 and NetCDFwith modules. Then the comm
     scripts/setup/gpec.sh
     scripts/setup/mars.sh
 
-will install GPEC and MARS into `$CODE/external/intel`. They can then be loaded with
+will install GPEC and MARS into `$INFRA/external/intel`. They can then be loaded with
 
     module load gpec
     module load mars
@@ -82,7 +99,7 @@ codes based on GNU Fortran in the same shell.
 
 ### OMFIT
 OMFIT requires its own Python environment provided via `conda`. Both will be installed
-to `$CODE/external` by running
+to `$INFRA/external` by running
 
     deactivate
     scripts/setup/omfit.sh
@@ -90,7 +107,7 @@ to `$CODE/external` by running
 OMFIT can then be loaded with
 
     deactivate
-    source $CODE/external/mambaforge/bin/activate omfit
+    source $INFRA/external/mambaforge/bin/activate omfit
     module load omfit
 
 and then started with `omfit` in the shell. Be careful not to work on codes

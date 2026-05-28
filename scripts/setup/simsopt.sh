@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd $CODE/external
+cd $INFRA/external
 
 if [ ! -d "simsopt" ] ; then
     echo "Fetching and building simsopt..."
