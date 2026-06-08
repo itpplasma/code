@@ -17,17 +17,20 @@ released. This is a proposal from a design session, not settled policy.
       ...
 
 Activation exports `INFRA=$CODE/infra` and `CODE` as its parent. Infra-private
-paths (`scripts`, `.venv`, `modules`) live under `$INFRA`. The codes resolve
-their dependencies as `$CODE/<name>` and read prebuilt libraries from
-`$CODE/external`. `infra` is no longer the workspace root, so its git tree stops
-seeing the sibling checkouts.
+paths (`scripts`, `.venv`, `modules`) live under `$INFRA`. Codes read prebuilt
+third-party libraries from `$CODE/external`. First-party dependencies are fetched
+at a resolved ref, not read from the sibling checkouts (see Dependency graph), so
+a local checkout is for editing that code, not for wiring one code against
+another. `infra` is no longer the workspace root, so its git tree stops seeing
+the sibling checkouts.
 
 ## Dependency graph
 
-Each code declares its first-party dependencies in CMake through `find_or_fetch`
-(use `$CODE/<dep>` if present, else fetch from GitHub). The graph is therefore
-self-describing: read it by inverting those declarations rather than maintaining
-a list by hand.
+Each code declares its first-party dependencies in CMake through `find_or_fetch`,
+which fetches each one from GitHub at a resolved ref (see The one convention).
+There is no local-path shortcut: a sibling checkout is not consulted, so the
+build is reproducible from the declaration alone. The graph is self-describing:
+read it by inverting those declarations rather than keeping a list by hand.
 
 Current hub: libneo. Consumers with a declared edge: SIMPLE, NEO-2, NEO-RT,
 MEPHIT, KAMEL, rabe. Secondary first-party dependency: fortplot (SIMPLE,
@@ -42,11 +45,11 @@ job against a frozen release tarball. We retire it.
 
 Replacement, in two layers:
 
-1. Per-code CI at the source. Each code builds against the current libneo in its
-   own CI, so a breaking change surfaces in the pull request that caused it.
+1. Per-code CI at the source. Each code builds against the libneo release branch
+   it tracks, so a breaking change surfaces in the pull request that caused it.
 2. Release-time reverse-dependency validation, owned by the upstream. Before
-   libneo releases, it builds its tracked consumers against the candidate and
-   gates the release on the result.
+   libneo releases, it dispatches each tracked consumer's own CI against the
+   candidate and gates the release on the result.
 
 A tracked downstream is a code with a real `find_or_fetch` edge to the upstream
 and its own CI/CD. Both are checkable, so the set is computed, not curated, and
@@ -54,38 +57,54 @@ the long tail of small projects drops out automatically.
 
 ## The one convention
 
-Every tracked downstream honors `<DEP>_BRANCH` (environment or CMake cache
-variable): when set, `find_or_fetch` fetches that dependency at the given ref
-instead of the committed default. `LIBNEO_BRANCH` is the instance for libneo,
-and SIMPLE already implements it. This single hook lets the upstream build any
-downstream against any candidate ref with no commit to the downstream. It is the
-multi-repo stand-in for a global build graph, and the only piece that has to be
-standardized across the codes.
+Every tracked downstream resolves each first-party dependency through one ladder
+in `find_or_fetch`:
+
+1. `<DEP>_REF` (environment or CMake cache): a branch, tag, or commit. It is
+   validated against the remote and ignored if absent. The upstream sets it to
+   build the downstream against a candidate.
+2. `<DEP>_RELEASE` (committed cache variable): the release branch the code tracks
+   by default. Never main.
+3. the current branch if it exists in the remote, otherwise main.
+
+`LIBNEO_REF` and `LIBNEO_RELEASE` are the instances for libneo. The override lets
+the upstream build any downstream against any candidate ref with no commit to the
+downstream. It is the multi-repo stand-in for a global build graph, and the only
+piece standardized across the codes.
 
 ## Release model
 
-Release branches, no release-candidate tags.
+Codes track the latest libneo release branch. Tags are reproducibility
+snapshots, not what a code follows.
 
 1. libneo cuts `release/YY.MINOR` off main.
-2. For each tracked downstream, dispatch its integration workflow with
-   `LIBNEO_BRANCH=release/YY.MINOR` (a `workflow_dispatch` input: no commit, no
-   pull request). The downstream builds its own main against the candidate.
-3. libneo polls the dispatched runs and gates the tag on all of them passing.
-4. On all-green, tag `YY.MINOR.0` at the release-branch head.
-5. A bot opens a bump pull request in each downstream pinning the tag, never the
-   branch. The maintainer reviews and merges on their own schedule; no
-   auto-merge.
+2. For each tracked downstream, the release workflow dispatches the downstream's
+   own CI with `LIBNEO_REF=release/YY.MINOR` (a `workflow_dispatch` input: no
+   commit, no pull request). The downstream builds and tests its main against the
+   candidate, golden records included.
+3. libneo polls the dispatched runs and gates on all of them passing.
+4. On all-green, a bot opens a bump pull request in each pinning downstream that
+   sets `LIBNEO_RELEASE` to the new branch, and enables auto-merge. Each
+   downstream's own CI gates that merge; no human step.
+5. Tagging `YY.MINOR.PATCH` at the branch head is a separate, on-demand step. The
+   tag is a citation and reproducibility snapshot; downstreams keep tracking the
+   branch.
 
-Invariants:
+Properties:
 
-- A downstream's main only ever pins released tags. Branch refs live only in the
-  ephemeral dispatch override, never in a committed pin.
-- Validation needs green CI, not merged pull requests, so waiting for
-  maintainers never blocks the upstream release.
-- No automatic downstream releases. A downstream releases on its own cadence.
-  Propagate a release only along a real edge, and only when behavior changed
-  (for example a libneo change that alters NEO-2 output, NEO-2 being itself an
-  upstream of NEO-RT).
+- A downstream's committed pin is a release branch, never main. Exact reproduction
+  uses a tag.
+- Validation needs green CI, not merged pull requests, so a slow downstream never
+  blocks the upstream.
+- The gate dispatches each downstream's existing CI by name (`release/downstreams`
+  lists the workflow file per repo). There is no separate integration workflow to
+  maintain.
+- Transitive consumers are listed explicitly. NEO-RT reaches libneo through NEO-2,
+  so its CI sets `LIBNEO_REF` as an environment variable and it propagates to the
+  libneo fetch inside the NEO-2 that NEO-RT builds.
+- No automatic downstream releases. A downstream releases on its own cadence, and
+  only when behavior changed (for example a libneo change that alters NEO-2
+  output, NEO-2 being itself an upstream of NEO-RT).
 
 Patch releases reuse the branch: cherry-pick onto `release/YY.MINOR`, re-run the
 downstream dispatch, tag `YY.MINOR.PATCH`.
