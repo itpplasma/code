@@ -70,6 +70,26 @@ else
         export PATH="$CODE/external/netcdf-install/bin:$PATH"
     fi
 
+    ENZYME_PREFIX="$CODE/enzyme/current"
+    if [ -d "$ENZYME_PREFIX/lib" ]; then
+        export ENZYME_HOME="$ENZYME_PREFIX"
+        export ENZYME_ROOT="$ENZYME_PREFIX"
+        export ENZYME_PLUGIN_DIR="$ENZYME_PREFIX/lib"
+        export ENZYME_CMAKE_DIR="$ENZYME_PREFIX/lib/cmake/Enzyme"
+        export Enzyme_ROOT="$ENZYME_PREFIX"
+        export Enzyme_DIR="$ENZYME_CMAKE_DIR"
+        if [ -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so" ]; then
+            export ENZYME_PLUGIN="$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so"
+        elif [ -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme.so" ]; then
+            export ENZYME_PLUGIN="$ENZYME_PLUGIN_DIR/LLVMEnzyme.so"
+        fi
+        case ":${CMAKE_PREFIX_PATH:-}:" in
+            *":$ENZYME_PREFIX:"*) ;;
+            *) export CMAKE_PREFIX_PATH="$ENZYME_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}" ;;
+        esac
+    fi
+    unset ENZYME_PREFIX
+
     # Use locally installed NVIDIA HPC SDK if available (optional)
     NVHPC_ROOT="$CODE/external/nvhpc/Linux_x86_64"
     if [ -d "$NVHPC_ROOT" ]; then
@@ -118,6 +138,9 @@ else
     fi
     if [ -n "$HDF5_ROOT" ]; then
         add_to_library_path $HDF5_ROOT/lib
+    fi
+    if [ -n "${ENZYME_PLUGIN_DIR:-}" ]; then
+        add_to_library_path $ENZYME_PLUGIN_DIR
     fi
     if [ -n "$NVHPC_ROOT" ] && [ -d "$NVHPC_ROOT/compilers/lib" ]; then
         add_to_library_path $NVHPC_ROOT/compilers/lib

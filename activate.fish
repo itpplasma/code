@@ -87,6 +87,24 @@ function set_branch_fish
     echo "Activating $INFRA on branch $CODE_BRANCH"
 end
 
+set -l ENZYME_PREFIX "$CODE/enzyme/current"
+if test -d "$ENZYME_PREFIX/lib"
+    set -gx ENZYME_HOME "$ENZYME_PREFIX"
+    set -gx ENZYME_ROOT "$ENZYME_PREFIX"
+    set -gx ENZYME_PLUGIN_DIR "$ENZYME_PREFIX/lib"
+    set -gx ENZYME_CMAKE_DIR "$ENZYME_PREFIX/lib/cmake/Enzyme"
+    set -gx Enzyme_ROOT "$ENZYME_PREFIX"
+    set -gx Enzyme_DIR "$ENZYME_CMAKE_DIR"
+    if test -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so"
+        set -gx ENZYME_PLUGIN "$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so"
+    else if test -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme.so"
+        set -gx ENZYME_PLUGIN "$ENZYME_PLUGIN_DIR/LLVMEnzyme.so"
+    end
+    if not contains "$ENZYME_PREFIX" $CMAKE_PREFIX_PATH
+        set -gx CMAKE_PREFIX_PATH "$ENZYME_PREFIX" $CMAKE_PREFIX_PATH
+    end
+end
+
 # Set up paths
 set_branch_fish
 add_to_path_fish $INFRA/scripts
@@ -96,6 +114,9 @@ add_to_path_fish $INFRA/bin
 add_to_library_path_fish $CODE/libneo/build
 add_to_library_path_fish $INFRA/local/lib
 add_to_library_path_fish $INFRA/lib
+if set -q ENZYME_PLUGIN_DIR
+    add_to_library_path_fish $ENZYME_PLUGIN_DIR
+end
 
 # Activate Python virtual environment
 if test -f $INFRA/.venv/bin/activate.fish
@@ -117,6 +138,8 @@ if command -v code > /dev/null
     alias vscode="code $CODE"
 end
 
-module use -a $INFRA/modules
+if type -q module
+    module use -a $INFRA/modules
+end
 
 echo "Fish shell activation complete!"
