@@ -17,8 +17,13 @@ add_subdirectory(field)
 add_subdirectory(poincare)
 
 # Sparse front end integration test (itpplasma/code#13). Only build when the
-# installed libneo ships the consolidated LIBNEO::sparse target, so hosts
-# without the optional SuiteSparse build are unaffected.
-if(TARGET sparse)
+# installed libneo ships the optional SuiteSparse-backed sparse library, so
+# hosts without it are unaffected. This standalone project discovers libneo's
+# build-tree libraries via link_directories rather than an imported package,
+# so check for the sparse library itself instead of a CMake target.
+find_library(LIBNEO_SPARSE_LIB sparse PATHS ${LIBNEO_DIR} NO_DEFAULT_PATH)
+if(LIBNEO_SPARSE_LIB)
     add_subdirectory(sparse)
+else()
+    message(STATUS "libneo sparse library not found; skipping sparse integration test")
 endif()
