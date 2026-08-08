@@ -17,7 +17,7 @@
 #######################################################################
 #            Define Compiler Flags
 #######################################################################
-  FLAGS_R = -O2 -fexternal-blas -fbacktrace -march=native
+  FLAGS_R = -O2 -fexternal-blas -fbacktrace -march=avx2
   FLAGS_D = -g -O0 -fexternal-blas -fcheck=all
   # Use MKL for BLAS/LAPACK
   LIBS = -L$(MKLROOT)/lib/intel64 -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
