@@ -46,52 +46,52 @@ def test_files(code_path, data_path):
 
 
 @pytest.mark.slow
-def test_q_profile_eqdsk(test_files):
-    for key in ["DEMO CHEASE", "MASTU"]:
-        # TODO: local, AUG, MASTU, PROCESS, standardized
-        test_file = test_files[key]
-        print(f"Testing {key} EQDSK file: {test_file}")
-        tmp_path = init_run_path(test_file)
-        print(f"Running in {tmp_path}")
-        os.chdir(tmp_path)
-        eqdsk_data = read_eqdsk(str(test_file))
+@pytest.mark.parametrize("key", ["DEMO CHEASE", "MASTU"])
+def test_q_profile_eqdsk(key, test_files):
+    # TODO: local, AUG, PROCESS, standardized
+    test_file = test_files[key]
+    print(f"Testing {key} EQDSK file: {test_file}")
+    tmp_path = init_run_path(test_file)
+    print(f"Running in {tmp_path}")
+    os.chdir(tmp_path)
+    eqdsk_data = read_eqdsk(str(test_file))
 
-        # The data in EQDSK is writting in poloidal flux label,
-        # but efit_to_boozer uses toroidal flux label. Therefore, we need a mapping
-        q_profile_eqdsk = eqdsk_data["qprof"]
-        spol_eqdsk = np.linspace(0.0, 1.0, q_profile_eqdsk.shape[0])
-        converter = FluxConverter(q_profile_eqdsk)
-        stor_eqdsk = converter.spol2stor(spol_eqdsk)
+    # The data in EQDSK is writting in poloidal flux label,
+    # but efit_to_boozer uses toroidal flux label. Therefore, we need a mapping
+    q_profile_eqdsk = eqdsk_data["qprof"]
+    spol_eqdsk = np.linspace(0.0, 1.0, q_profile_eqdsk.shape[0])
+    converter = FluxConverter(q_profile_eqdsk)
+    stor_eqdsk = converter.spol2stor(spol_eqdsk)
 
-        # The safety factor can be calculated alternatively using field line integration
-        # this is done as part of the symmetry flux transformation and given as output here
+    # The safety factor can be calculated alternatively using field line integration
+    # this is done as part of the symmetry flux transformation and given as output here
 
-        q_profile_field_line_integration = []
+    q_profile_field_line_integration = []
 
-        # inp_label = 1 makes it that efit_to_boozer.magdata_in_symfluxcoord_ext uses the
-        # flux label si instead of the actual flux psi to determine which
-        # flux surface one is on. Therefore psi is just set as a dummy variable here.
-        inp_label = 1
-        psi = np.array(0.0)
-        theta = np.array(0.0)
+    # inp_label = 1 makes it that efit_to_boozer.magdata_in_symfluxcoord_ext uses the
+    # flux label si instead of the actual flux psi to determine which
+    # flux surface one is on. Therefore psi is just set as a dummy variable here.
+    inp_label = 1
+    psi = np.array(0.0)
+    theta = np.array(0.0)
 
-        efit_to_boozer.efit_to_boozer.init()
-        for si in stor_eqdsk:
-            (q, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) = (
-                efit_to_boozer.magdata_in_symfluxcoord_ext(inp_label, si, psi, theta)
-            )
-            q_profile_field_line_integration.append(q)
+    efit_to_boozer.efit_to_boozer.init()
+    for si in stor_eqdsk:
+        (q, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) = (
+            efit_to_boozer.magdata_in_symfluxcoord_ext(inp_label, si, psi, theta)
+        )
+        q_profile_field_line_integration.append(q)
 
-        q_profile_field_line_integration = np.array(q_profile_field_line_integration)
+    q_profile_field_line_integration = np.array(q_profile_field_line_integration)
 
-        plt.figure()
-        plt.plot(spol_eqdsk, q_profile_eqdsk, "-r", label=r"q profile from EQDSK")
-        plt.plot(spol_eqdsk, q_profile_field_line_integration, "--b", label=r"q profile from field line integration")
-        plt.title(f"{key}")
-        plt.legend()
+    plt.figure()
+    plt.plot(spol_eqdsk, q_profile_eqdsk, "-r", label=r"q profile from EQDSK")
+    plt.plot(spol_eqdsk, q_profile_field_line_integration, "--b", label=r"q profile from field line integration")
+    plt.title(f"{key}")
+    plt.legend()
 
-        assert_allclose(q_profile_field_line_integration, q_profile_eqdsk, rtol=1e-2)
-        print("Alternative safety factor calculation agrees with EQDSK file within 1%")
+    assert_allclose(q_profile_field_line_integration, q_profile_eqdsk, rtol=1e-2)
+    print("Alternative safety factor calculation agrees with EQDSK file within 1%")
 
 
 def init_run_path(gfile):
