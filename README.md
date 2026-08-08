@@ -103,3 +103,13 @@ Integration tests are run by
     pytest tests/
 
 This will perform all the tests in `tests/` and its subfolders.
+
+## Retired repositories
+
+The following `itpplasma` repositories are obsolete and have been retired
+(see issue #17); they are neither maintained nor cloned by `scripts/clone_all.sh`:
+
+- `magdif` — obsolete, functionality superseded by `itpplasma/MEPHIT`
+- `NEO-EQ` — obsolete, functionality superseded by `itpplasma/MEPHIT`
+- `magfie` — retired/removed
+
