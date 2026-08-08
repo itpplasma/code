@@ -10,14 +10,14 @@ no_edges = slice(10, -10)
 
 
 @pytest.fixture
-def boozer(data_path):
-    trial_boozer_file = data_path / "AUG/BOOZER/30835/out_neo-2_rmp_90-n0"
+def boozer(require_data):
+    (trial_boozer_file,) = require_data("AUG/BOOZER/30835/out_neo-2_rmp_90-n0")
     return BoozerFile(str(trial_boozer_file))
 
 
 @pytest.fixture
-def eqdsk(data_path):
-    trial_eqdsk_file = data_path / "AUG/EQDSK/g30835.3200_ed6"
+def eqdsk(require_data):
+    (trial_eqdsk_file,) = require_data("AUG/EQDSK/g30835.3200_ed6")
     return read_eqdsk(str(trial_eqdsk_file))
 
 

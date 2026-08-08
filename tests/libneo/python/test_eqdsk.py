@@ -10,15 +10,22 @@ import gzip
 from libneo import eqdsk
 
 
+# Reference EQDSK files stored in the shared DATA repository.
+DATA_EQDSK_FILES = {
+    "PROCESS": "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
+    "standardized": "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
+    "AUG": "AUG/EQDSK/g30835.3200_ed6",
+    # TODO: "MASTU": "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
+    # TODO: "CHEASE": "DEMO/teams/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
+}
+
+
 @pytest.fixture
-def test_files(code_path, data_path):
+def test_files(code_path, require_data):
+    data = dict(zip(DATA_EQDSK_FILES, require_data(*DATA_EQDSK_FILES.values())))
     return {
         "local": code_path / "libneo/test/resources/input_efit_file.dat",
-        "PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
-        "standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
-        "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",
-        # TODO: "MASTU": data_path / "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
-        # TODO: "CHEASE": data_path / "DEMO/teams/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
+        **data,
     }
 
 
@@ -29,9 +36,13 @@ def test_eqdsk_read(test_files):
 
 
 @pytest.mark.slow
-def test_eqdsk_golden_records(data_path, test_files):
-    golden_record_path = data_path / "TESTS/libneo/eqdsk"
-    store_golden_records(test_files.values(), golden_record_path)
+def test_eqdsk_golden_records(request, test_files, require_data):
+    (golden_record_path,) = require_data("TESTS/libneo/eqdsk")
+
+    # Golden records are compared read-only unless explicitly regenerated,
+    # so a CI run never silently writes into the shared DATA tree.
+    if request.config.getoption("--regenerate-golden"):
+        store_golden_records(test_files.values(), golden_record_path, force_overwrite=True)
 
     for test_file in test_files.values():
         eqdsk_object = eqdsk.eqdsk_file(test_file)

@@ -103,3 +103,19 @@ Integration tests are run by
     pytest tests/
 
 This will perform all the tests in `tests/` and its subfolders.
+
+Several tests exercise libneo's EQDSK, Boozer, MGRID and `efit_to_boozer`
+readers against real experimental and design equilibria stored in the shared
+`gitlab.tugraz.at/plasma/data` repository. To fetch the required subtrees into
+`$DATA`, set a read-only GitLab token and run
+
+    export GITLAB_ACCESS_TOKEN=<read-only token>
+    export DATA=$PWD/.testdata
+    scripts/fetch_data.sh AUG/EQDSK AUG/BOOZER/30835 DEMO/EQDSK MASTU/EQDSK \
+        LHD/VMEC/makegrid_alternative TESTS/libneo/eqdsk
+    pytest tests/
+
+Without a token (or a partial fetch), `scripts/fetch_data.sh` skips gracefully
+and the data-dependent tests skip instead of failing. GitHub Actions runs this
+automatically in `.github/workflows/tests.yml`, fetching DATA when
+`GITLAB_ACCESS_TOKEN` is available and otherwise reporting passes and skips.
