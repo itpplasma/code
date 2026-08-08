@@ -15,3 +15,10 @@ link_directories(${LIBUTIL_FOR_TEST_FIELD_DIR})
 
 add_subdirectory(field)
 add_subdirectory(poincare)
+
+# Sparse front end integration test (itpplasma/code#13). Only build when the
+# installed libneo ships the consolidated LIBNEO::sparse target, so hosts
+# without the optional SuiteSparse build are unaffected.
+if(TARGET sparse)
+    add_subdirectory(sparse)
+endif()
