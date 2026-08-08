@@ -7,7 +7,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import matplotlib.pyplot as plt
 
-import _efit_to_boozer as efit_to_boozer
+efit_to_boozer = pytest.importorskip("_efit_to_boozer")
 from libneo import read_eqdsk, FluxConverter
 
 efit_to_boozer_input = """3600      nstep    - number of integration steps
@@ -34,12 +34,20 @@ field_divB0_input = """0                                 ipert        ! 0=eq onl
 """
 
 @pytest.fixture
-def test_files(code_path, data_path):
+def test_files(code_path, require_data):
+    data = dict(
+        zip(
+            ["DEMO CHEASE", "AUG", "MASTU"],
+            require_data(
+                "DEMO/EQDSK/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
+                "AUG/EQDSK/g30835.3200_ed6",
+                "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
+            ),
+        )
+    )
     return {
         "local": code_path / "libneo/test/resources/input_efit_file.dat",
-        "DEMO CHEASE": data_path / "DEMO/EQDSK/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
-        "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",
-        "MASTU": data_path / "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
+        **data,
         # TODO: "DEMO PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
         # TODO: "DEMO standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
     }
