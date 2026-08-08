@@ -20,6 +20,10 @@ If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen
 with a **blank passphrase** and add the content of `id_rsa.pub` to Gitlab and GitHub
 for authentication.
 
+For EUROfusion/IMAS work, your account is requested by the group lead
+(not self-service); see [docs/eurofusion-access.md](docs/eurofusion-access.md)
+for the request route, SSH setup, and access verification.
+
 ### Perparing your machine
 
 On Linux: At ITPcp computers all packages should be installed to get going.
