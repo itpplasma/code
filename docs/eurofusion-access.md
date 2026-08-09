@@ -22,9 +22,14 @@ Chris, Winny, Sergei, Max.
 
 ## What you need
 
-- **Gateway (SSH) account**: grants command-line access to
-  EUROfusion-provided systems. You receive the exact host from the
-  account-grant mail; use that, do not guess a hostname.
+- **Gateway (SSH) account**: grants command-line access to the
+  EUROfusion Gateway (EFGW), reachable at `login.eufus.eu`. Access is
+  not self-service: register in the CINECA **UserDB portal**
+  (`userdb.cineca.it`), send the signed GUA to the EUROfusion
+  Coordination Officer, then submit the HPC-access request on UserDB.
+  Granting is confirmed by CINECA emails with your username and the
+  2FA set-up link (see
+  <https://docs.hpc.cineca.it/specific_users/gateway.html>).
 - **DevOps GitLab membership**: group/project membership on the
   EUROfusion DevOps GitLab, via the web SSO login. *Having an account
   is not the same as having access to the relevant project*; confirm
@@ -42,13 +47,11 @@ to your EUROfusion profile where the account grant instructs.
 On your ITPcp machine, after your account is granted:
 
 ```bash
-# 1. Interactive login to the EUROfusion Gateway front-end
-#    (exact host: take from the account-grant mail, do not guess)
-ssh <user>@<gateway-host>
+# 1. Interactive login to the EUROfusion Gateway front-end (EFGW)
+ssh <user>@login.eufus.eu
 
-# 2. Git access to the EUROfusion DevOps GitLab
-#    (exact host: take from the account-grant mail, do not guess)
-ssh -T git@<eufus-gitlab-host>
+# 2. Git access to the EUROfusion DevOps GitLab (hosted by CINECA)
+ssh -T git@gitlab-ssh.hpc.cineca.it
 #    Expected: "Welcome to GitLab, @<user>!"
 
 # 3. Web SSO
