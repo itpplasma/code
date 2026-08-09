@@ -25,11 +25,13 @@ Chris, Winny, Sergei, Max.
 - **Gateway (SSH) account**: grants command-line access to the
   EUROfusion Gateway (EFGW), reachable at `login.eufus.eu`. Access is
   not self-service: register in the CINECA **UserDB portal**
-  (`userdb.cineca.it`), send the signed GUA to the EUROfusion
+  (https://userdb.hpc.cineca.it), send the signed GUA to the EUROfusion
   Coordination Officer, then submit the HPC-access request on UserDB.
   Granting is confirmed by CINECA emails with your username and the
-  2FA set-up link (see
+  set-up link for 2FA plus the time-limited SSH certificate issued via
+  the `efgw` smallstep (step-CA) provisioner (see
   <https://docs.hpc.cineca.it/specific_users/gateway.html>).
+
 - **DevOps GitLab membership**: group/project membership on the
   EUROfusion DevOps GitLab, via the web SSO login at
   <https://gitlab.hpc.cineca.it/> (the same CINECA-hosted GitLab as
@@ -40,17 +42,41 @@ Chris, Winny, Sergei, Max.
 
 ## SSH key setup
 
-Reuse the SSH key you already set up for GitHub/GitLab (see
-[README.md](../README.md#getting-started), `~/.ssh` with a blank
-passphrase). There is no need to generate a new key; add `id_rsa.pub`
-to your EUROfusion profile where the account grant instructs.
+Two different kinds of SSH credentials are involved, and they must not
+be confused:
+
+- **GitLab SSH key**: for Git access to the EUROfusion DevOps GitLab,
+  reuse the SSH key you already set up for GitHub/GitLab (see
+  [README.md](../README.md#getting-started), `~/.ssh` with a blank
+  passphrase). There is no need to generate a new key; add `id_rsa.pub`
+  to your DevOps GitLab profile
+  (<https://gitlab.hpc.cineca.it/-/user_settings/ssh_keys>).
+- **Gateway (EFGW) authentication**: contrary to the GitLab SSH key,
+  the Gateway does **not** accept a bare `id_rsa` key. Logging in
+  requires a **time-limited SSH certificate** obtained from the
+  `efgw` smallstep (step-CA) provisioner, which additionally enforces
+  2FA. Install the
+  [smallstep CLI](https://smallstep.com/docs/step-cli/installation/)
+  and log in once per certificate lifetime (by default repeatedly
+  re-running the login when prompted) with:
+
+  ```bash
+  step ssh login <user> --provisioner efgw
+  ```
+
+  This prompts for the 2FA code and writes a short-lived SSH
+  certificate into `~/.ssh` that the Gateway accepts; the Gateway is
+  reached through the `login.eufus.eu` host (see
+  <https://docs.hpc.cineca.it/specific_users/gateway.html>).
 
 ## Verifying access
 
 On your ITPcp machine, after your account is granted:
 
 ```bash
-# 1. Interactive login to the EUROfusion Gateway front-end (EFGW)
+# 1. Obtain the time-limited Gateway SSH certificate (2FA required)
+step ssh login <user> --provisioner efgw
+#    Then interactive login to the EUROfusion Gateway front-end (EFGW)
 ssh <user>@login.eufus.eu
 
 # 2. Git access to the EUROfusion DevOps GitLab (hosted by CINECA)
