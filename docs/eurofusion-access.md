@@ -31,9 +31,12 @@ Chris, Winny, Sergei, Max.
   2FA set-up link (see
   <https://docs.hpc.cineca.it/specific_users/gateway.html>).
 - **DevOps GitLab membership**: group/project membership on the
-  EUROfusion DevOps GitLab, via the web SSO login. *Having an account
-  is not the same as having access to the relevant project*; confirm
-  the group membership, not just the account.
+  EUROfusion DevOps GitLab, via the web SSO login at
+  <https://gitlab.hpc.cineca.it/> (the same CINECA-hosted GitLab as
+  the `gitlab-ssh.hpc.cineca.it` endpoint, reached through the ITPcp
+  group [eurofusion](https://gitlab.hpc.cineca.it/groups/eurofusion)).
+  *Having an account is not the same as having access to the relevant
+  project*; confirm the group membership, not just the account.
 
 ## SSH key setup
 
@@ -55,8 +58,10 @@ ssh -T git@gitlab-ssh.hpc.cineca.it
 #    Expected: "Welcome to GitLab, @<user>!"
 
 # 3. Web SSO
-#    log in to the DevOps GitLab web UI and confirm membership of the
-#    ITPcp group/project (step 3 is the one that matters operationally)
+#    log in at https://gitlab.hpc.cineca.it/ and, under the
+#    eurofusion group (https://gitlab.hpc.cineca.it/groups/eurofusion),
+#    confirm membership of the ITPcp group/project
+#    (step 3 is the one that matters operationally)
 ```
 
 Only when all three succeed — and step 3 shows the required group
