@@ -14,6 +14,24 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 - Container definitions
 - VSCode settings
 
+## Layout
+
+This repository is the `infra` directory of a workspace. The workspace is the
+environment variable `$CODE`; this repository is `$INFRA`, equal to
+`$CODE/infra`. The code checkouts sit in the workspace next to `infra`:
+
+    $CODE/
+      infra/      this repository (activation, setup scripts, modules, .venv)
+      external/   prebuilt third-party libs, shared by all codes
+      libneo/     code checkout
+      SIMPLE/     code checkout
+      ...
+
+Activation exports both. `$INFRA` holds the infra-private paths (`scripts`,
+`.venv`, `modules`). `$CODE` is the workspace root, so the codes resolve their
+dependencies as `$CODE/<name>` and read prebuilt libraries from
+`$CODE/external`.
+
 ## Getting Started
 
 If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen`
@@ -35,30 +53,31 @@ to install Debian Linux via WSL2. Then follow the Linux instructions.
 
 ### Initial setup
 
-Clone the repository to your working copy, at the institute this is
+Clone this repository into an `infra` directory inside your workspace. At the
+institute the workspace is `/proj/plasma/CODE/<username>`:
 
-    git clone git@github.com:itpplasma/code /proj/plasma/CODE/<username>
+    git clone git@github.com:itpplasma/code /proj/plasma/CODE/<username>/infra
 
-Then open the directory in VS Code with
+Open the workspace in VS Code with
 
-    code code
+    code /proj/plasma/CODE/<username>
 
 When asked to initialize the devcontainer, remove the message.
 Run the setup script manually with
 
-    scripts/setup.sh
+    infra/scripts/setup.sh
 
-The setup will install external dependencies and create
-a Python virtual environment in the hidden `.venv` directory.
+The setup installs external dependencies and creates the Python virtual
+environment in `infra/.venv`.
 
 Finally, activate the environment with
 
-    source activate.sh
+    source infra/activate.sh
 
 To use this environment as a standard, put the activation
 script into bashrc with
 
-    echo "source $PWD/activate.sh" >> ~/.bashrc
+    echo "source /proj/plasma/CODE/<username>/infra/activate.sh" >> ~/.bashrc
 
 ## External codes
 

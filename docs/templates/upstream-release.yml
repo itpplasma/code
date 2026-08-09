@@ -1,0 +1,17 @@
+# Pointer, not a template.
+#
+# The upstream release gate is implemented, not templated. The canonical version
+# lives in the hub repo:
+#
+#   itpplasma/libneo: .github/workflows/release.yml
+#                     release/downstreams          (blocking set + per-repo CI file)
+#                     release/check-downstreams.sh (advisory drift check)
+#
+# It dispatches each downstream's existing CI (by the workflow file named in
+# release/downstreams) with LIBNEO_REF set to the release branch, polls each run,
+# and gates on all-green. On a new release branch it opens auto-merge bump PRs
+# that set each pinning downstream's LIBNEO_RELEASE to that branch; tagging
+# YY.MINOR.PATCH is a separate reproducibility snapshot.
+#
+# Copy that workflow into another hub (for example fortplot) and swap libneo for
+# the hub name. See docs/development-model.md for the model.

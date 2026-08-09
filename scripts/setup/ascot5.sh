@@ -2,7 +2,7 @@
 
 set -e
 
-source $CODE/scripts/util.sh
+source $INFRA/scripts/util.sh
 
 echo "Setting up ASCOT5..."
 

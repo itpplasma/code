@@ -1,9 +1,12 @@
 #!/bin/bash
 
 CODE_TEMPLATE=/usr/local/src/code_template
-CODE=/workspaces/code
+INFRA=/workspaces/code
+CODE=/workspaces
 
-ln -s $CODE_TEMPLATE/.venv $CODE/.venv
+# .venv is infra-private; external and libneo are workspace-shared
+ln -s $CODE_TEMPLATE/.venv $INFRA/.venv
+mkdir -p $CODE/external
 ln -s $CODE_TEMPLATE/external/fgsl-1.6.0 $CODE/external/fgsl-1.6.0
 cp -r $CODE_TEMPLATE/libneo $CODE/libneo
 

@@ -12,7 +12,11 @@ else
     SCRIPT_SOURCE="$0"
 fi
 
-export CODE="$( cd "$( dirname "$SCRIPT_SOURCE" )" && pwd )"
+# INFRA is this repository. CODE is the workspace one level up that holds it
+# next to the actual code checkouts (libneo, SIMPLE, ...). The codes resolve
+# their dependencies as $CODE/<name> (find_or_fetch), so CODE is the parent.
+export INFRA="$( cd "$( dirname "$SCRIPT_SOURCE" )" && pwd )"
+export CODE="$( cd "$INFRA/.." && pwd )"
 
 # Check if the OS is macOS
 if [ "$(uname)" = "Darwin" ]; then
@@ -66,6 +70,26 @@ else
         export PATH="$CODE/external/netcdf-install/bin:$PATH"
     fi
 
+    ENZYME_PREFIX="$CODE/enzyme/current"
+    if [ -d "$ENZYME_PREFIX/lib" ]; then
+        export ENZYME_HOME="$ENZYME_PREFIX"
+        export ENZYME_ROOT="$ENZYME_PREFIX"
+        export ENZYME_PLUGIN_DIR="$ENZYME_PREFIX/lib"
+        export ENZYME_CMAKE_DIR="$ENZYME_PREFIX/lib/cmake/Enzyme"
+        export Enzyme_ROOT="$ENZYME_PREFIX"
+        export Enzyme_DIR="$ENZYME_CMAKE_DIR"
+        if [ -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so" ]; then
+            export ENZYME_PLUGIN="$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so"
+        elif [ -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme.so" ]; then
+            export ENZYME_PLUGIN="$ENZYME_PLUGIN_DIR/LLVMEnzyme.so"
+        fi
+        case ":${CMAKE_PREFIX_PATH:-}:" in
+            *":$ENZYME_PREFIX:"*) ;;
+            *) export CMAKE_PREFIX_PATH="$ENZYME_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}" ;;
+        esac
+    fi
+    unset ENZYME_PREFIX
+
     # Use locally installed NVIDIA HPC SDK if available (optional)
     NVHPC_ROOT="$CODE/external/nvhpc/Linux_x86_64"
     if [ -d "$NVHPC_ROOT" ]; then
@@ -86,22 +110,22 @@ if [ -n "$FISH_VERSION" ]; then
     # Fish shell detected - redirect to dedicated fish script
     echo "Fish shell detected!"
     echo "Please use the dedicated fish script instead:"
-    echo "  source $CODE/activate.fish"
+    echo "  source $INFRA/activate.fish"
     echo ""
     echo "This script (activate.sh) is designed for bash/zsh compatibility."
     return 1
     
 else
     # Bash/Zsh setup (original behavior)
-    source $CODE/scripts/util.sh
+    source $INFRA/scripts/util.sh
     set_branch
-    add_to_path $CODE/scripts
-    add_to_path $CODE/local/bin
-    add_to_path $CODE/bin
+    add_to_path $INFRA/scripts
+    add_to_path $INFRA/local/bin
+    add_to_path $INFRA/bin
     export PATH
     add_to_library_path $CODE/libneo/build
-    add_to_library_path $CODE/local/lib
-    add_to_library_path $CODE/lib
+    add_to_library_path $INFRA/local/lib
+    add_to_library_path $INFRA/lib
     if [ -n "$GSL_ROOT_DIR" ]; then
         add_to_library_path $GSL_ROOT_DIR/lib
         add_to_path $GSL_ROOT_DIR/bin
@@ -115,6 +139,9 @@ else
     if [ -n "$HDF5_ROOT" ]; then
         add_to_library_path $HDF5_ROOT/lib
     fi
+    if [ -n "${ENZYME_PLUGIN_DIR:-}" ]; then
+        add_to_library_path $ENZYME_PLUGIN_DIR
+    fi
     if [ -n "$NVHPC_ROOT" ] && [ -d "$NVHPC_ROOT/compilers/lib" ]; then
         add_to_library_path $NVHPC_ROOT/compilers/lib
         add_to_library_path $NVHPC_ROOT/cuda/lib64
@@ -126,7 +153,7 @@ else
     fi
     export LD_LIBRARY_PATH
 
-    source $CODE/.venv/bin/activate
+    source $INFRA/.venv/bin/activate
 
     if [ -f /etc/profile.d/modules.sh ]; then
         unalias ml 2>/dev/null
@@ -134,6 +161,6 @@ else
     fi
 
     if command -v module >/dev/null 2>&1; then
-        module use -a $CODE/modules
+        module use -a $INFRA/modules
     fi
 fi
