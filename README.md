@@ -60,6 +60,11 @@ script into bashrc with
 
     echo "source $PWD/activate.sh" >> ~/.bashrc
 
+A `v*` tag produces a source-only Release: GitHub attaches a source archive
+and there is no prebuilt-dependency download. Fresh setups run
+`scripts/setup.sh`; the fastest path is the devcontainer image in
+`.devcontainer/`.
+
 ## External codes
 
 ### Intel compiler for codes GPEC and MARS
