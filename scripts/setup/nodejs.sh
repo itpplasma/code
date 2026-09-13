@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
+# Install/update an unprivileged Node LTS toolchain with nvm.
+set -euo pipefail
 
-# installs nvm (Node Version Manager)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+NVM_VERSION="${NVM_VERSION:-v0.40.3}"
+NODE_VERSION="${NODE_VERSION:-22}"
+export NVM_DIR="${NVM_DIR:-${HOME}/.nvm}"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# download and install Node.js (you may need to restart the terminal)
-nvm install 20
-
-# verifies the right Node.js version is in the environment
-node -v # should print `v20.15.0`
-
-# verifies the right NPM version is in the environment
-npm -v # should print `10.7.0`
+if [[ ! -s "${NVM_DIR}/nvm.sh" ]]; then
+    curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
+fi
+# shellcheck disable=SC1091
+. "${NVM_DIR}/nvm.sh"
+nvm install "${NODE_VERSION}"
+nvm alias default "${NODE_VERSION}"
+nvm use default
+node --version
+npm --version

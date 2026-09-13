@@ -5,7 +5,8 @@ to setup development and use of internal and external codes. Our development
 environment is Visual Studio Code, and we strongly recommend GitHub Copilot
 there and in the [CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli/setting-up-github-copilot-in-the-cli).
 
-CODE is based around our standard Debian bookworm system at ITPcp and provides
+CODE supports the standard Debian system at ITPcp and Ubuntu LTS development
+VMs, and provides
 
 - Setup scripts `scripts/setup/...`
 - Quality-of-life shell commands via `scripts/util.sh`
@@ -16,14 +17,19 @@ CODE is based around our standard Debian bookworm system at ITPcp and provides
 
 ## Getting Started
 
-If you haven't done so earlier, set up your SSH keys in `~/.ssh` via `ssh-keygen`
-with a **blank passphrase** and add the content of `id_rsa.pub` to Gitlab and GitHub
-for authentication.
+Authenticate GitHub and GitLab with their normal CLIs, or create a protected SSH
+key and add its public key to the service. Do not put credentials into this
+repository or a cloud-init file.
 
 ### Perparing your machine
 
 On Linux: At ITPcp computers all packages should be installed to get going.
-On your own Debian system, run [scripts/setup/debian.sh](scripts/setup/debian.sh).
+On your own Debian or Ubuntu system, install the complete scientific workstation
+with:
+
+    sudo scripts/setup/apt.sh full
+
+The old `scripts/setup/debian.sh` command remains a compatibility wrapper.
 
 On Mac: The recommended way via **orbstack**
 and **devpod** as described in [scripts/setup/mac.sh](scripts/setup/mac.sh).
@@ -103,3 +109,34 @@ Integration tests are run by
     pytest tests/
 
 This will perform all the tests in `tests/` and its subfolders.
+
+## Multipass AI coding VM
+
+The Multipass profile creates the same headless Ubuntu LTS environment on ARM64
+and x86-64 hosts. It defaults to 8 CPUs, 16 GB RAM, and a 128 GB disk:
+
+    scripts/multipass-ai.sh
+
+Override resources with flags or `MULTIPASS_AI_*` environment variables:
+
+    scripts/multipass-ai.sh --name ai-work --cpus 12 --memory 24G
+
+The launcher deliberately does not use the special instance name `primary` and
+does not mount any host directory. Code starts in `~/workspace`; mount or copy
+only explicitly approved paths later. The small
+[`cloud-init/multipass-ai.yaml`](cloud-init/multipass-ai.yaml) file delegates to
+the same `scripts/setup/apt.sh ai` installer that can be run directly on Debian
+or Ubuntu, avoiding a second package definition.
+
+Codex, Claude Code, OpenCode, Pi, uv, chezmoi, GitHub/GitLab CLIs, compilers,
+scientific libraries, and the common CachyOS-derived CLI tools are installed.
+Normal CLI logins and provider tokens persist inside the VM, but no credential
+is baked into cloud-init or Git. To install/update private Helpy and Sloptools
+after GitHub login:
+
+    gh auth login
+    ai-private-tools
+
+That script installs the two stdio MCP servers and constrains Sloptools' project
+root to `~/workspace`. Re-run `ai-update` for public AI CLIs and
+`ai-private-tools` for the private MCP tools.
