@@ -54,7 +54,7 @@ multipass launch "${IMAGE}" \
 
 multipass exec "${NAME}" -- cloud-init status --wait --long
 multipass exec "${NAME}" -- bash -lc \
-    'cat /etc/ai-infra-release; printf "disk: "; findmnt -no SIZE /; command -v codex claude opencode pi uv gh go'
+    'cat /etc/ai-infra-release; printf "disk: "; findmnt -no SIZE /; command -v codex claude opencode pi uv gh glab go chezmoi'
 
 cat <<EOF
 
