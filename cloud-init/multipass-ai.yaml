@@ -7,7 +7,6 @@ packages:
 write_files:
   - path: /usr/local/sbin/setup-itp-ai
     owner: root:root
-    permissions: '0755'
     content: |
       #!/usr/bin/env bash
       set -euo pipefail
@@ -25,9 +24,10 @@ write_files:
       "${install_root}/scripts/setup/apt.sh" ai --user "${target_user}" --no-upgrade
       ln -sf "${install_root}/scripts/setup/ai-private-tools.sh" /usr/local/bin/ai-private-tools
       ln -sf "${install_root}/scripts/setup/ai-tools.sh" /usr/local/bin/ai-update
+      ln -sf "${install_root}/scripts/setup/ai-user-config.sh" /usr/local/bin/ai-user-config
       printf '%s\n' "Provisioned from $(git -C "${install_root}" rev-parse HEAD)" > /etc/ai-infra-release
 
 runcmd:
-  - [/usr/local/sbin/setup-itp-ai]
+  - [bash, /usr/local/sbin/setup-itp-ai]
 
 final_message: "AI coding VM provisioning completed after $UPTIME seconds"
