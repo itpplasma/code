@@ -8,7 +8,7 @@ required=(
     sqlite3 sshuttle stow tmux tree valgrind vim zsh
 )
 optional=(
-    fuse-overlayfs glab lldb podman-compose slirp4netns uidmap
+    fuse-overlayfs lldb podman-compose slirp4netns uidmap
 )
 
 apt-get install -y -q --no-install-recommends "${required[@]}"

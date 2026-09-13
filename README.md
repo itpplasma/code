@@ -140,3 +140,15 @@ after GitHub login:
 That script installs the two stdio MCP servers and constrains Sloptools' project
 root to `~/workspace`. Re-run `ai-update` for public AI CLIs and
 `ai-private-tools` for the private MCP tools.
+
+Personal settings stay separate from this generic public repository. After Git
+authentication, an optional private chezmoi repository (including age-encrypted
+files) can be applied and later updated with:
+
+    ai-user-config git@github.com:YOUR-ORG/YOUR-DOTFILES.git
+    ai-user-config
+
+API keys that cannot use a CLI login may be kept in
+`~/.config/ai-infra/env` with mode `0600`; an example is created alongside it.
+This file remains local to the VM unless the user deliberately manages an
+encrypted version with chezmoi.

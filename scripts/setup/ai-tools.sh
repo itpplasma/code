@@ -2,7 +2,8 @@
 # Install or update user-scoped AI coding CLIs. Safe to re-run.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${SCRIPT_PATH}")" && pwd)"
 mkdir -p "${HOME}/.local/bin" "${HOME}/.config/ai-infra" "${HOME}/workspace"
 
 ensure_profile_line() {
@@ -11,11 +12,13 @@ ensure_profile_line() {
     grep -Fqx "${line}" "${file}" || printf '%s\n' "${line}" >> "${file}"
 }
 
+# shellcheck disable=SC2016
 ensure_profile_line 'export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$HOME/.local/go/bin:$HOME/go/bin:$PATH"'
 export PATH="${HOME}/.local/bin:${HOME}/.opencode/bin:${HOME}/.local/go/bin:${HOME}/go/bin:${PATH}"
 
 bash "${SCRIPT_DIR}/nodejs.sh"
 bash "${SCRIPT_DIR}/go.sh"
+bash "${SCRIPT_DIR}/glab.sh"
 export NVM_DIR="${HOME}/.nvm"
 # shellcheck disable=SC1091
 . "${NVM_DIR}/nvm.sh"
@@ -23,14 +26,27 @@ nvm use default >/dev/null
 
 # Official installers are intentionally re-run: each is also the supported
 # update path and keeps architecture selection out of this repository.
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
+CODEX_NON_INTERACTIVE=1 sh -c "$(curl -fsSL https://chatgpt.com/codex/install.sh)"
 bash "${SCRIPT_DIR}/claude.sh"
 curl -fsSL https://opencode.ai/v2/install | bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "${HOME}/.local/bin"
 
-npm install --global @mariozechner/pi-coding-agent
-go install gitlab.com/gitlab-org/cli/cmd/glab@latest
+npm uninstall --global @mariozechner/pi-coding-agent >/dev/null 2>&1 || true
+npm install --global --ignore-scripts @earendil-works/pi-coding-agent
+
+# NVM's bin directory is initialized late in interactive .bashrc files. Keep a
+# stable entry point so Pi also works through Multipass exec and automation.
+cat > "${HOME}/.local/bin/pi" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+export NVM_DIR="${HOME}/.nvm"
+# shellcheck disable=SC1091
+. "${NVM_DIR}/nvm.sh"
+nvm use default >/dev/null
+exec "${NVM_BIN}/pi" "$@"
+EOF
+chmod 0755 "${HOME}/.local/bin/pi"
 
 # Codex keeps normal daily OAuth sessions persistently. On a desktop with a
 # keyring, "auto" uses it; on a headless VM it falls back to auth.json.
