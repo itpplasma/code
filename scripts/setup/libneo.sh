@@ -2,7 +2,7 @@
 
 set -e
 
-source $CODE/scripts/util.sh
+source $INFRA/scripts/util.sh
 set_branch
 
 echo "Building and installing 'libneo'..."
@@ -11,6 +11,6 @@ if [ ! -d "libneo" ] ; then
     clone_github libneo
 fi
 pushd libneo
-$CODE/scripts/checkout_branch.sh $CODE_BRANCH
+$INFRA/scripts/checkout_branch.sh $CODE_BRANCH
 pip install --verbose --no-build-isolation -e .
 popd

@@ -1,0 +1,29 @@
+# Snippet: make a downstream's existing CI dispatchable by an upstream release.
+#
+# There is no separate integration workflow. Add these three pieces to the
+# downstream's existing CI workflow (the one that already builds and tests it).
+# An upstream libneo release then dispatches that workflow by name with a
+# candidate ref; the run builds the downstream's own main against it, with no
+# commit and no pin change, and the upstream polls the conclusion to gate.
+#
+# Prerequisite: this code's find_or_fetch honors LIBNEO_REF (see the <DEP>_REF
+# convention in docs/development-model.md).
+
+# 1. Accept a ref from the dispatcher (add to `on:`).
+on:
+  workflow_dispatch:
+    inputs:
+      libneo_ref:
+        description: libneo branch, tag or commit to build against
+        required: false
+        default: ''
+
+# 2. Map it to the resolver override. Empty on push/PR, so normal builds keep the
+#    committed LIBNEO_RELEASE. Set it at job/workflow level, except where the job
+#    also builds a reference version against a different libneo (then scope it to
+#    the single build step under test).
+env:
+  LIBNEO_REF: ${{ inputs.libneo_ref }}
+
+# 3. Run the full job (golden records included) on dispatch. If a job `if:` guard
+#    only admits push/pull_request, add `|| github.event_name == 'workflow_dispatch'`.

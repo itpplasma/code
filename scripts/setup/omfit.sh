@@ -11,4 +11,4 @@ cd OMFIT-source
 git submodule update --init omas
 install/install.sh
 mkdir -p $HOME/.LICENSES
-cp $CODE/scripts/setup/omfit/LICENSES/* $HOME/.LICENSES/
+cp $INFRA/scripts/setup/omfit/LICENSES/* $HOME/.LICENSES/

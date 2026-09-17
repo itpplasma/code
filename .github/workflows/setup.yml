@@ -76,17 +76,27 @@ jobs:
             libmetis-dev \
             libboost-all-dev
 
+      # TODO(infra-relocation): this workflow runs on version tags only and is
+      # NOT exercised by PR CI. After the infra relocation, setup.sh builds the
+      # shared deps into $CODE/external (the workspace, parent of this checkout),
+      # so the steps below must build there and bundle external/ into the release
+      # tarball alongside the infra content. Validate on a real tag before
+      # cutting the next release; main.yml still consumes the pinned old release.
       - name: Setup
         run: |
           set -e
           source scripts/setup.sh
-          pushd external
-            ../scripts/setup/mfem.sh
+          CODE="$(cd .. && pwd)"
+          pushd "$CODE/external"
+            "$GITHUB_WORKSPACE/scripts/setup/mfem.sh"
           popd
 
       - name: Build tarball
         run: |
           set -e
+          CODE="$(cd .. && pwd)"
+          # flat release archive: infra content + the shared external/ at root
+          cp -r "$CODE/external" ./external
           tar -czf /tmp/code.tar.gz .
 
       - name: Create GitHub Release
