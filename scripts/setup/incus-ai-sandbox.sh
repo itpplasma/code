@@ -98,7 +98,7 @@ if ! exists incus info "${INSTANCE}"; then
     incus exec "${INSTANCE}" -- cloud-init status --wait >/dev/null 2>&1 || true
 fi
 
-if ! incus config device show "${INSTANCE}" | grep -q '^  home:'; then
+if ! exists incus config device get "${INSTANCE}" home path; then
     log "Attaching ${VOLUME} at ${GUEST_HOME}..."
     incus config device add "${INSTANCE}" home disk \
         pool="${POOL}" source="${VOLUME}" path="${GUEST_HOME}"
