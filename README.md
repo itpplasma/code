@@ -129,6 +129,22 @@ Integration tests are run by
 
 This will perform all the tests in `tests/` and its subfolders.
 
+## Incus AI sandbox
+
+A single long-lived, unprivileged Debian trixie container for running coding
+agents against your real working directories:
+
+    scripts/setup/incus-ai-sandbox.sh      # provision once
+    cd ~/code/some-project
+    scripts/ai-sandbox.sh                  # shell, in this directory
+
+The directory you launch from is attached at the same absolute path inside, as
+your own user, and detached again when the last session in it exits. Several
+directories can be attached concurrently. The container reaches the internet but
+not the LAN, the host, or any unattached host path, and starts with no software
+installed beyond the stock image. Details, network policy, and the boundary this
+does and does not provide: [`docs/ai-sandbox.md`](docs/ai-sandbox.md).
+
 ## Multipass AI coding VM
 
 The Multipass profile creates the same headless Ubuntu LTS environment on ARM64
