@@ -39,21 +39,21 @@ Three properties make this usable:
 
 ## Use
 
+Put the launcher on your PATH as `ai`, which is also the container's name:
+
 ```bash
-cd ~/code/some-project
-scripts/ai-sandbox.sh                 # interactive shell, in this directory
-scripts/ai-sandbox.sh claude          # run a command here (once installed)
-scripts/ai-sandbox.sh --root apt-get install -y ripgrep
-scripts/ai-sandbox.sh status          # attached directories and session counts
-scripts/ai-sandbox.sh detach [DIR]    # force-detach
-scripts/ai-sandbox.sh prune           # drop mounts whose sessions are gone
-scripts/ai-sandbox.sh stop
+ln -s ~/code/infra/scripts/ai-sandbox.sh ~/bin/ai
 ```
 
-Put it on your PATH:
-
 ```bash
-ln -s ~/code/infra/scripts/ai-sandbox.sh ~/bin/ai-sandbox
+cd ~/code/some-project
+ai                        # interactive shell, in this directory
+ai claude                 # run a command here (once installed)
+ai --root apt-get install -y ripgrep
+ai status                 # attached directories and session counts
+ai detach [DIR]           # force-detach
+ai prune                  # drop mounts whose sessions are gone
+ai stop
 ```
 
 The container ships with **no software installed** beyond the stock Debian
