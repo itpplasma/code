@@ -38,6 +38,19 @@ device_name() {
 }
 
 require_instance() {
+    # A permission error looks identical to a missing instance unless the
+    # daemon is probed separately. Being added to incus-admin does not affect
+    # shells that were already open.
+    incus info >/dev/null 2>&1 || {
+        err "cannot reach the incus daemon as $(id -un)"
+        if id -nG | tr ' ' '\n' | grep -qx incus-admin; then
+            err "is incus running? try: systemctl status incus"
+        else
+            err "your session is not in the incus-admin group; start a new login"
+            err "session, or for this shell: newgrp incus-admin"
+        fi
+        exit 1
+    }
     incus info "${INSTANCE}" >/dev/null 2>&1 || {
         err "sandbox '${INSTANCE}' does not exist; run scripts/setup/incus-ai-sandbox.sh"
         exit 1
