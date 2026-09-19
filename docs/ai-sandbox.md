@@ -7,8 +7,8 @@ attached.
 
 It is the local, lightweight sibling of the Multipass AI VM
 (`scripts/multipass-ai.sh`). Multipass gives a full VM with its own kernel and
-mounts nothing; this gives a container that starts in under a second and
-attaches exactly the directory you are standing in.
+mounts nothing; this gives a container that starts in under a second and keeps
+the whole `~/code` and `~/proj` workspace visible in every session.
 
 ## Model
 
@@ -18,9 +18,9 @@ there. Concurrency is handled by attaching each working directory as its own
 hotplugged disk device:
 
 ```
-host  ~/code/foo  ──┐
-host  ~/code/bar  ──┼──>  container ai  ──>  internet (NAT)
-host  ~/proj/baz  ──┘                    ✗   LAN / host / WireGuard
+host  ~/code      ──┐
+host  ~/proj      ──┼──>  container ai  ──>  internet (NAT)
+host  ~/Downloads ──┘                    ✗   LAN / host / WireGuard
 ```
 
 Three properties make this usable:
@@ -32,10 +32,10 @@ Three properties make this usable:
 - **The guest user is you.** Same name, same uid. Combined with idmapped mounts
   the container writes files that are already owned by your host user; no
   `chown` dance, no root-owned build artifacts.
-- **Mounts are reference-counted.** A directory is attached when a session
-  enters it and detached when the last session in it exits. A new agent session
-  sees only what someone is actively working on, not every project you have ever
-  opened.
+- **The workspace roots are always mounted.** Every session sees all checkouts
+  below `~/code` and `~/proj`, including when it starts in an individual code
+  directory. An additional directory outside those roots is attached only for
+  that session and detached when the last session in it exits.
 
 ## Use
 
@@ -49,6 +49,7 @@ ln -s ~/code/infra/scripts/ai-sandbox.sh ~/bin/ai
 cd ~/code/some-project
 ai                        # interactive shell, in this directory
 ai claude                 # run a command here (once installed)
+cd ~/proj/another-project && ai  # same sandbox, all code and projects visible
 ai --root apt-get install -y ripgrep
 ai status                 # attached directories and session counts
 ai detach [DIR]           # force-detach

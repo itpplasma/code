@@ -2,14 +2,20 @@
 # Run a shell or a command inside the Incus AI sandbox, with the current
 # working directory attached at the same absolute path it has on the host.
 #
-# Directories are attached per session and reference-counted: the bind mount
-# disappears when the last session using it exits, so a later session only ever
-# sees the directories someone is actively working in.
+# The shared workspace roots are attached for every session, so all code and
+# project checkouts remain visible regardless of the directory the launcher is
+# started from. Other directories are attached per session and reference-
+# counted: their bind mount disappears when the last session using it exits.
 set -euo pipefail
 
 INSTANCE="${AI_SANDBOX_INSTANCE:-ai}"
 GUEST_USER="${AI_SANDBOX_USER:-${USER}}"
 GUEST_HOME="/home/${GUEST_USER}"
+HOST_HOME="${HOME:?HOME is not set}"
+ALWAYS_MOUNT=(
+    "${HOST_HOME}/code"
+    "${HOST_HOME}/proj"
+)
 STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
 
 log() { echo "[sandbox] $*" >&2; }
@@ -22,7 +28,9 @@ Usage: $(basename "$0") [command ...]
        $(basename "$0") status | detach [DIR] | prune | stop
 
 With no command, opens an interactive login shell in the current directory.
-Any command is run in the current directory as ${GUEST_USER}.
+Any command is run in the current directory as ${GUEST_USER}. ${HOST_HOME}/code
+and ${HOST_HOME}/proj are always visible in the sandbox; the current directory
+is also attached when it is outside those trees.
 
   --root      run as root in the sandbox instead of ${GUEST_USER}
   status      list attached directories and live sessions
@@ -55,14 +63,30 @@ require_instance() {
         err "sandbox '${INSTANCE}' does not exist; run scripts/setup/incus-ai-sandbox.sh"
         exit 1
     }
-    [[ "$(incus info "${INSTANCE}" | awk '/^Status:/ {print tolower($2)}')" == running ]] || {
+    if [[ "$(incus info "${INSTANCE}" | awk '/^Status:/ {print tolower($2)}')" != running ]]; then
         log "starting ${INSTANCE}..."
-        incus start "${INSTANCE}"
+        # Another caller can start the instance after the status check but
+        # before this start call. Treat that expected race as success.
+        local start_error
+        if ! start_error="$(incus start "${INSTANCE}" 2>&1)"; then
+            if [[ "$(incus info "${INSTANCE}" | awk '/^Status:/ {print tolower($2)}')" != running ]]; then
+                err "failed to start ${INSTANCE}: ${start_error}"
+                exit 1
+            fi
+        fi
+        local ready=0
         for _ in $(seq 30); do
-            incus exec "${INSTANCE}" -- true >/dev/null 2>&1 && break
+            if incus exec "${INSTANCE}" -- true >/dev/null 2>&1; then
+                ready=1
+                break
+            fi
             sleep 0.2
         done
-    }
+        if (( ! ready )); then
+            err "${INSTANCE} did not become ready after starting"
+            exit 1
+        fi
+    fi
 }
 
 # A directory that would shadow the sandbox's own home breaks the persistent
@@ -107,6 +131,11 @@ _attach() {
 }
 
 attach() { with_lock _attach "$1"; }
+
+is_within() {
+    local path="$1" root="$2"
+    [[ "${path}" == "${root}" || "${path}" == "${root}"/* ]]
+}
 
 _detach_if_idle() {
     local dir="$1" dev
@@ -195,8 +224,31 @@ esac
 WORKDIR="$(pwd -P)"
 reject_unsafe "${WORKDIR}"
 require_instance
-attach "${WORKDIR}"
-trap 'detach_if_idle "${WORKDIR}"' EXIT
+
+ATTACHED_DIRS=()
+cleanup() {
+    local i
+    for ((i=${#ATTACHED_DIRS[@]} - 1; i >= 0; i--)); do
+        detach_if_idle "${ATTACHED_DIRS[i]}"
+    done
+}
+trap cleanup EXIT
+
+for dir in "${ALWAYS_MOUNT[@]}"; do
+    [[ -d "${dir}" ]] || {
+        err "required workspace directory does not exist: ${dir}"
+        exit 1
+    }
+    reject_unsafe "${dir}"
+    attach "${dir}"
+    ATTACHED_DIRS+=("${dir}")
+done
+
+if ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[0]}" &&
+   ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[1]}"; then
+    attach "${WORKDIR}"
+    ATTACHED_DIRS+=("${WORKDIR}")
+fi
 
 exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" --env "HOME=${GUEST_HOME}")
 if [[ ${AS_ROOT} -eq 0 ]]; then

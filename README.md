@@ -139,12 +139,14 @@ agents against your real working directories:
     cd ~/code/some-project
     ai                                     # shell, in this directory
 
-The directory you launch from is attached at the same absolute path inside, as
-your own user, and detached again when the last session in it exits. Several
-directories can be attached concurrently. The container reaches the internet but
-not the LAN, the host, or any unattached host path, and starts with no software
-installed beyond the stock image. Details, network policy, and the boundary this
-does and does not provide: [`docs/ai-sandbox.md`](docs/ai-sandbox.md).
+`~/code` and `~/proj` are always attached at their real absolute paths, so all
+code and project checkouts remain visible even when you start `ai` from inside
+one of them. A directory outside those roots is attached at the same absolute
+path for that session and detached again when the last session in it exits.
+Several directories can be attached concurrently. The container reaches the
+internet but not the LAN, the host, or any unattached host path, and starts with
+no software installed beyond the stock image. Details, network policy, and the
+boundary this does and does not provide: [`docs/ai-sandbox.md`](docs/ai-sandbox.md).
 
 ## Multipass AI coding VM
 
