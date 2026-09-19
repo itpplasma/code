@@ -25,12 +25,12 @@ STATE_ROOT="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
 STATE_DIR="${STATE_ROOT}"
 AS_ROOT=0
 EXPLICIT_DOMAIN=0
-# OpenCode normally talks to a persistent background service.  That service
-# may still be starting MCP after the CLI exits, so keep a transient CWD mount
-# alive briefly after an OpenCode command.  The grace period is configurable
-# for slower hosts and is otherwise unused by the launcher.
+# OpenCode's background service is stopped by the command wrapper below before
+# the EXIT trap removes a transient CWD mount. This keeps MCP available during
+# the session while cleanup remains immediate after the command exits.
 DETACH_GRACE_SECONDS=0
 CWD_ATTACHED=0
+OPENCODE_SERVICE_CLEANUP=0
 
 log() { echo "[sandbox] $*" >&2; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
@@ -384,7 +384,7 @@ if [[ $# -gt 0 ]]; then
         claude) set -- claude --dangerously-skip-permissions "${@:2}" ;;
         codex)  set -- codex --yolo --search "${@:2}" ;;
         opencode|opencode2)
-            DETACH_GRACE_SECONDS="${AI_SANDBOX_DETACH_GRACE_SECONDS:-5}"
+            OPENCODE_SERVICE_CLEANUP=1
             ;;
         pi)
             # Pi has built-in provider defaults.  When a configured cloud
@@ -411,6 +411,19 @@ fi
 
 if [[ $# -eq 0 ]]; then
     incus "${exec_args[@]}" -- bash -l
+elif (( OPENCODE_SERVICE_CLEANUP )); then
+    # OpenCode may start or reuse its persistent service. Stop that service
+    # before the EXIT trap removes the transient CWD mount; this is immediate
+    # and avoids a post-command grace sleep. The command's own exit status
+    # remains authoritative.
+    command_status=0
+    if incus "${exec_args[@]}" -- "$@"; then
+        :
+    else
+        command_status=$?
+    fi
+    incus "${exec_args[@]}" -- opencode service stop >/dev/null 2>&1 || true
+    exit "${command_status}"
 else
     incus "${exec_args[@]}" -- "$@"
 fi
