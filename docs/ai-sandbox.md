@@ -49,6 +49,9 @@ Three properties make this usable:
   directory. An additional directory outside those roots is attached only for
   that session and detached when the last session in it exits.
 
+The cloud selector refuses current directories under `~/Nextcloud`,
+`~/Dropbox`, and the local brain trees; use `ai local` for those paths.
+
 ## Use
 
 Put the launcher on your PATH as `ai`, which is also the container's name:
