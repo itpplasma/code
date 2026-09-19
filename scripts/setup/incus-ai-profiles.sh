@@ -4,8 +4,9 @@
 # The existing `ai` instance is the source and is never modified or stopped.
 # Each target gets its own persistent home volume and a read-only prompts
 # checkout.  Workspace directories remain session mounts managed by
-# scripts/ai-sandbox.sh.  This script intentionally does not install, remove,
-# or register MCP services.
+# scripts/ai-sandbox.sh.  It maps the already-running host MCP broker through
+# a profile-specific Unix socket; it does not install or register host MCP
+# services.
 set -euo pipefail
 
 BASE="${AI_SANDBOX_BASE_INSTANCE:-ai}"
@@ -24,6 +25,9 @@ EGRESS_PROXY_PORT="${AI_EGRESS_PROXY_PORT:-3128}"
 LOCAL_EGRESS_PROXY_PORT="${AI_EGRESS_LOCAL_PROXY_PORT:-3129}"
 LOCAL_IP="${AI_EGRESS_LOCAL_IP:-10.254.77.110}"
 CLOUD_IP="${AI_EGRESS_CLOUD_IP:-10.254.77.12}"
+MCP_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+LOCAL_MCP_SOCKET="${AI_MCP_LOCAL_SOCKET:-${MCP_RUNTIME_DIR}/sloppy/mcp-local.sock}"
+CLOUD_MCP_SOCKET="${AI_MCP_CLOUD_SOCKET:-${MCP_RUNTIME_DIR}/sloppy/mcp-cloud.sock}"
 
 log() { echo "[sandbox] $*"; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
@@ -55,7 +59,7 @@ ensure_volume() {
 }
 
 ensure_target() {
-    local instance="$1" volume="$2" address="$3" proxy_port="$4"
+    local instance="$1" volume="$2" address="$3" proxy_port="$4" mcp_socket="$5"
 
     if ! exists incus info "${instance}"; then
         log "copying ${BASE} to ${instance}"
@@ -111,6 +115,8 @@ ensure_target() {
     incus exec "${instance}" -- install -d \
         -o "${GUEST_USER}" -g "${GUEST_USER}" -m 0755 "${GUEST_HOME}"
     incus exec "${instance}" -- mkdir -p "${PROMPTS_PATH}"
+    guest_uid="$(incus exec "${instance}" -- id -u "${GUEST_USER}")"
+    guest_gid="$(incus exec "${instance}" -- id -g "${GUEST_USER}")"
 
     if exists incus config device show "${instance}"; then
         incus config device remove "${instance}" prompts >/dev/null 2>&1 || true
@@ -140,8 +146,18 @@ ensure_target() {
         log "egress proxy unavailable for ${instance}; leaving host services unchanged"
     fi
 
+    # Map only the profile-specific host broker into the guest. The socket is
+    # owned by the guest user, so OpenCode/Claude/Codex can connect without
+    # making the broker world-writable.
+    incus config device remove "${instance}" mcp-broker >/dev/null 2>&1 || true
+    if ! incus config device add "${instance}" mcp-broker proxy \
+        bind=container listen="unix:/run/sloppy.sock" \
+        connect="unix:${mcp_socket}" uid="${guest_uid}" gid="${guest_gid}" mode=0600 >/dev/null 2>&1; then
+        log "MCP broker unavailable for ${instance}: ${mcp_socket}"
+    fi
+
 }
 
-ensure_target "${LOCAL}" "ai-local-home" "${LOCAL_IP}" "${LOCAL_EGRESS_PROXY_PORT}"
-ensure_target "${CLOUD}" "ai-cloud-home" "${CLOUD_IP}" "${EGRESS_PROXY_PORT}"
+ensure_target "${LOCAL}" "ai-local-home" "${LOCAL_IP}" "${LOCAL_EGRESS_PROXY_PORT}" "${LOCAL_MCP_SOCKET}"
+ensure_target "${CLOUD}" "ai-cloud-home" "${CLOUD_IP}" "${EGRESS_PROXY_PORT}" "${CLOUD_MCP_SOCKET}"
 log "ready: ${LOCAL} and ${CLOUD} (source ${BASE} was not modified)"
