@@ -46,9 +46,11 @@ sudo systemctl enable --now ai-egress-proxy.service
 ```
 
 The generated Squid listener binds only to `10.234.0.1:3128`, allows only the
-AI subnet, denies the domain/network/IP lists before the client allow, and
+AI subnet, denies the domain/network lists before the client allow, and
 rejects numeric IPv4 destinations so a `CONNECT` request cannot bypass domain
-policy by using a literal address. Public hostname-based HTTPS remains allowed.
+policy by using a literal address. It deliberately does not deny resolved
+service IPs in Squid: institutional and public TU Graz hostnames share CDN
+addresses, so doing that would also block allowed public pages.
 It does not touch the legacy host service. Pair it with the nftables policy in
 `AI_EGRESS_MODE=proxy`; that policy drops every AI-subnet packet except DNS and
 the configured proxy endpoint. `--apply` installs and validates configuration

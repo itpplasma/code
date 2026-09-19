@@ -94,6 +94,12 @@ table inet ${TABLE} {
         flags interval
         elements = { $(join_csv "${DENIED_IPS[@]}") }
     }
+    chain input {
+        type filter hook input priority filter; policy accept;
+        # The proxy terminates on the host bridge address (input path, not
+        # forward path). Keep this allow narrowly scoped to AI clients.
+        iifname "${BRIDGE}" ip saddr ${SUBNET} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} accept
+    }
     chain forward {
         type filter hook forward priority filter; policy accept;
         # DNS/DHCP to the Incus gateway is allowed before RFC1918 rejection.

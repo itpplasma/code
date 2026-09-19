@@ -24,6 +24,7 @@ STATE_ROOT="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
 # file even though they are different Incus instances.
 STATE_DIR="${STATE_ROOT}"
 AS_ROOT=0
+EXPLICIT_DOMAIN=0
 
 log() { echo "[sandbox] $*" >&2; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
@@ -39,8 +40,8 @@ Any command is run in the current directory as ${GUEST_USER}. ${HOST_HOME}/code
 and ${HOST_HOME}/proj are always visible in the sandbox; the current directory
 is also attached when it is outside those trees.
 
-  local,--local  use ai-local when provisioned (the default)
-  cloud,--cloud  use ai-cloud
+  local,--local  use ai-local when provisioned (the default for local tools)
+  cloud,--cloud  use ai-cloud (also the default for claude/codex)
   --root      run as root in the selected sandbox instead of ${GUEST_USER}
   status      list attached directories and live sessions
   detach DIR  force-detach DIR (default: the current directory)
@@ -60,10 +61,12 @@ while [[ $# -gt 0 ]]; do
             ;;
         local|--local)
             INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+            EXPLICIT_DOMAIN=1
             shift
             ;;
         cloud|--cloud)
             INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
+            EXPLICIT_DOMAIN=1
             shift
             ;;
         *)
@@ -76,6 +79,15 @@ if [[ "${INSTANCE}" == "ai" && -z "${AI_SANDBOX_INSTANCE+x}" ]] &&
    command -v incus >/dev/null 2>&1 &&
    incus info "${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}" >/dev/null 2>&1; then
     INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+fi
+
+# Claude Code and Codex are installed only in the cloud trust domain. Keep
+# their short forms useful while preserving explicit domain overrides and the
+# local default for dsh/opencode/pi.
+if (( EXPLICIT_DOMAIN == 0 )) && [[ -z "${AI_SANDBOX_INSTANCE+x}" ]] &&
+   [[ "${INSTANCE}" == "${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}" ]] &&
+   [[ "${1:-}" == claude || "${1:-}" == codex ]]; then
+    INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
 fi
 
 if [[ "${INSTANCE}" != ai && "${INSTANCE}" != ai-local && "${INSTANCE}" != ai-cloud ]]; then
@@ -293,7 +305,24 @@ if ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[0]}" &&
     ATTACHED_DIRS+=("${WORKDIR}")
 fi
 
-exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" --env "HOME=${GUEST_HOME}")
+exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" \
+    --env "HOME=${GUEST_HOME}" \
+    --env "PATH=${GUEST_HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin")
+# The Incus egress policy is applied outside the guest.  Pass the proxy into
+# direct tool invocations as well as login shells; otherwise `ai claude` and
+# `ai codex` would bypass the profile.d setting used by interactive shells.
+if [[ ${AI_EGRESS_PROXY_ENABLE:-1} == 1 ]]; then
+    proxy_url="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:3128}"
+    no_proxy="${NO_PROXY:-127.0.0.1,localhost,::1}"
+    exec_args+=(
+        --env "HTTP_PROXY=${proxy_url}"
+        --env "HTTPS_PROXY=${proxy_url}"
+        --env "http_proxy=${proxy_url}"
+        --env "https_proxy=${proxy_url}"
+        --env "NO_PROXY=${no_proxy}"
+        --env "no_proxy=${no_proxy}"
+    )
+fi
 if [[ ${AS_ROOT} -eq 0 ]]; then
     uid="$(incus exec "${INSTANCE}" -- id -u "${GUEST_USER}")"
     gid="$(incus exec "${INSTANCE}" -- id -g "${GUEST_USER}")"

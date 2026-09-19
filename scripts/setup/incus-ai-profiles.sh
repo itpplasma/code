@@ -17,6 +17,8 @@ GUEST_HOME="/home/${GUEST_USER}"
 PROMPTS_SOURCE="${AI_PROMPTS_SOURCE:-${HOME:?HOME is not set}/code/prompts}"
 PROMPTS_PATH="${AI_PROMPTS_PATH:-${GUEST_HOME}/prompts}"
 LLAMA_PORT="${AI_LLAMA_PORT:-8080}"
+EGRESS_PROXY_IP="${AI_EGRESS_PROXY_IP:-10.234.0.1}"
+EGRESS_PROXY_PORT="${AI_EGRESS_PROXY_PORT:-3128}"
 
 log() { echo "[sandbox] $*"; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
@@ -73,6 +75,14 @@ ensure_target() {
             pool="${POOL}" source="${volume}" path="${GUEST_HOME}" >/dev/null
     fi
 
+    # `incus exec` below needs a running instance.  Copies made with
+    # --stateless are stopped, so start before preparing the guest home and
+    # prompts mount.  Starting here is safe for an already-running target.
+    if [[ "$(incus info "${instance}" | awk '/^Status:/ {print tolower($2)}')" != running ]]; then
+        log "starting ${instance} for guest setup"
+        incus start "${instance}"
+    fi
+
     if ! incus exec "${instance}" -- id -u "${GUEST_USER}" >/dev/null 2>&1; then
         local uid
         uid="${AI_SANDBOX_UID:-$(id -u)}"
@@ -100,10 +110,17 @@ ensure_target() {
         log "llama proxy unavailable for ${instance}; leaving host services unchanged"
     fi
 
-    if [[ "$(incus info "${instance}" | awk '/^Status:/ {print tolower($2)}')" != running ]]; then
-        log "starting ${instance}"
-        incus start "${instance}"
+    # Terminate the guest-side proxy on loopback. This avoids exposing the
+    # host bridge address to the guest and also survives Incus' bridge-level
+    # RFC1918 filtering; the host-side Squid listener remains scoped to the
+    # Incus bridge and the nft policy permits only that path.
+    incus config device remove "${instance}" egress-proxy >/dev/null 2>&1 || true
+    if ! incus config device add "${instance}" egress-proxy proxy \
+        bind=container listen="tcp:127.0.0.1:${EGRESS_PROXY_PORT}" \
+        connect="tcp:${EGRESS_PROXY_IP}:${EGRESS_PROXY_PORT}" >/dev/null 2>&1; then
+        log "egress proxy unavailable for ${instance}; leaving host services unchanged"
     fi
+
 }
 
 ensure_target "${LOCAL}" "ai-local-home"

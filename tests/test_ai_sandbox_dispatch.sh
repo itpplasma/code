@@ -43,7 +43,7 @@ run() {
 }
 
 default_call="$(run claude --help)"
-grep -Fq 'exec ai-local' <<<"${default_call}"
+grep -Fq 'exec ai-cloud' <<<"${default_call}"
 grep -Fq -- 'claude --dangerously-skip-permissions --help' <<<"${default_call}"
 
 cloud_call="$(run cloud codex inspect)"

@@ -97,7 +97,6 @@ via off
 acl ai_clients src ${SUBNET}
 acl ai_denied_domains dstdomain "${INSTALL_DIR}/deny-domains.txt"
 acl ai_denied_networks dst "${INSTALL_DIR}/deny-networks.txt"
-acl ai_denied_service_ips dst "${INSTALL_DIR}/deny-service-ips.txt"
 acl ai_numeric_ip dstdom_regex -i ^[0-9]+(\.[0-9]+){3}$
 acl SSL_ports port 443
 acl Safe_ports port 80
@@ -109,7 +108,6 @@ http_access deny !ai_clients
 http_access deny !Safe_ports
 http_access deny ai_denied_domains
 http_access deny ai_numeric_ip
-http_access deny ai_denied_service_ips
 http_access deny ai_denied_networks
 http_access deny CONNECT !SSL_ports
 http_access allow ai_clients
@@ -138,7 +136,6 @@ PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict
 RuntimeDirectory=squid
-LogsDirectory=squid
 ReadWritePaths=/run/squid /var/log/squid
 
 [Install]
@@ -168,6 +165,10 @@ case ${ACTION} in
         trap 'rm -f "${tmp}"' EXIT
         render_config > "${tmp}"
         install -d -m 0755 "${INSTALL_DIR}"
+        # Squid drops privileges before opening its access/cache logs.  The
+        # official package may create this directory as root, so make the
+        # explicitly scoped log directory writable by the proxy account.
+        install -d -o proxy -g proxy -m 0750 /var/log/squid
         install -m 0644 "${DOMAIN_FILE}" "${INSTALL_DIR}/deny-domains.txt"
         install -m 0644 "${NETWORK_FILE}" "${INSTALL_DIR}/deny-networks.txt"
         printf '%s\n' "${DENIED_IPS[@]}" > "${tmp}.ips"
