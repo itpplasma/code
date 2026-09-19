@@ -216,6 +216,12 @@ fi
 install -d -o "$guest_user" -g "$guest_user" -m 0755 "$guest_home/.local/bin"
 ln -sfn /usr/local/bin/slopshell "$guest_home/.local/bin/slopshell"
 chown -h "$guest_user:$guest_user" "$guest_home/.local/bin/slopshell"
+cat > /usr/local/bin/slopshell-mcp-client <<'EOF'
+#!/bin/sh
+export SLOPSHELL_MCP_NO_HALF_CLOSE=1
+exec /usr/local/bin/slopshell mcp-client "$@"
+EOF
+chmod 0755 /usr/local/bin/slopshell-mcp-client
 
 if [[ "$profile" == cloud ]]; then
     as_user bash -c 'cd "$HOME"; CODEX_NON_INTERACTIVE=1 sh -c "$(curl -fsSL https://chatgpt.com/codex/install.sh)"'
@@ -233,6 +239,6 @@ as_user bash -c '
 # The prompts checkout is an Incus read-only disk device. The installer links
 # skills/rules/configuration into the guest home and preserves guest-local
 # credentials; it receives none from the host.
-as_user bash -c "PATH=\"$user_path\" SLOPSHELL_CAPABILITY_PROFILE=\"$profile\" SLOPSHELL_MCP_COMMAND=\"/usr/local/bin/slopshell mcp-client --socket $mcp_socket\" '$prompts_path/scripts/install.sh'"
+as_user bash -c "PATH=\"$user_path\" SLOPSHELL_CAPABILITY_PROFILE=\"$profile\" SLOPSHELL_MCP_COMMAND=\"/usr/local/bin/slopshell-mcp-client --socket $mcp_socket\" '$prompts_path/scripts/install.sh'"
 echo "AI container tools installed ($profile)"
 GUEST
