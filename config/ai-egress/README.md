@@ -31,3 +31,23 @@ The systemd unit/timer are templates for refreshing resolved deny addresses;
 they are not enabled by this repository. A future deployment should run the
 refresh in the same network namespace as the policy gateway and audit the
 resulting nftables set.
+
+## Strict proxy deployment
+
+For a real direct-IP/alternate-DNS boundary, install the distribution's
+official `squid` package and use the dedicated gateway renderer:
+
+```bash
+sudo apt install squid                 # explicit prerequisite, not automated
+scripts/setup/ai-egress-proxy.sh --check
+scripts/setup/ai-egress-proxy.sh --dry-run
+sudo scripts/setup/ai-egress-proxy.sh --apply
+sudo systemctl enable --now ai-egress-proxy.service
+```
+
+The generated Squid listener binds only to `10.234.0.1:3128`, allows only the
+AI subnet, denies the domain/network/IP lists before the client allow, and
+does not touch the legacy host service. Pair it with the nftables policy in
+`AI_EGRESS_MODE=proxy`; that policy drops every AI-subnet packet except DNS and
+the configured proxy endpoint. `--apply` installs and validates configuration
+but deliberately does not start or enable the service.
