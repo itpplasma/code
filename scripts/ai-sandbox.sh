@@ -25,6 +25,12 @@ STATE_ROOT="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
 STATE_DIR="${STATE_ROOT}"
 AS_ROOT=0
 EXPLICIT_DOMAIN=0
+# OpenCode normally talks to a persistent background service.  That service
+# may still be starting MCP after the CLI exits, so keep a transient CWD mount
+# alive briefly after an OpenCode command.  The grace period is configurable
+# for slower hosts and is otherwise unused by the launcher.
+DETACH_GRACE_SECONDS=0
+CWD_ATTACHED=0
 
 log() { echo "[sandbox] $*" >&2; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
@@ -196,6 +202,21 @@ _attach() {
         incus config device add "${INSTANCE}" "${dev}" disk \
             source="${dir}" path="${dir}" shift=true >/dev/null
     fi
+    # Incus accepts the device configuration before the mount is visible to
+    # a newly started exec session.  Wait for the guest-side path so --cwd
+    # cannot race the mount (especially for the cloud profile).
+    local ready=0
+    for _ in $(seq 1 30); do
+        if incus exec "${INSTANCE}" -- test -d "${dir}" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 0.1
+    done
+    if (( ! ready )); then
+        err "sandbox mount did not become ready: ${dir}"
+        return 1
+    fi
     printf '%s\n' "${dir}" > "${STATE_DIR}/${dev}.path"
     : > "${STATE_DIR}/${dev}.sessions/$$"
 }
@@ -299,6 +320,9 @@ require_instance
 ATTACHED_DIRS=()
 cleanup() {
     local i
+    if (( CWD_ATTACHED && DETACH_GRACE_SECONDS > 0 )); then
+        sleep "${DETACH_GRACE_SECONDS}"
+    fi
     for ((i=${#ATTACHED_DIRS[@]} - 1; i >= 0; i--)); do
         detach_if_idle "${ATTACHED_DIRS[i]}"
     done
@@ -319,6 +343,7 @@ if ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[0]}" &&
    ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[1]}"; then
     attach "${WORKDIR}"
     ATTACHED_DIRS+=("${WORKDIR}")
+    CWD_ATTACHED=1
 fi
 
 exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" \
@@ -358,6 +383,9 @@ if [[ $# -gt 0 ]]; then
     case "$1" in
         claude) set -- claude --dangerously-skip-permissions "${@:2}" ;;
         codex)  set -- codex --yolo --search "${@:2}" ;;
+        opencode|opencode2)
+            DETACH_GRACE_SECONDS="${AI_SANDBOX_DETACH_GRACE_SECONDS:-5}"
+            ;;
         pi)
             # Pi has built-in provider defaults.  When a configured cloud
             # provider is present, its resolver can otherwise choose that
