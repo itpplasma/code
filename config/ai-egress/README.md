@@ -45,7 +45,7 @@ sudo scripts/setup/ai-egress-proxy.sh --apply
 sudo systemctl enable --now ai-egress-proxy.service
 ```
 
-The generated Squid listener binds only to `10.234.0.1:3128`, allows only the
+The generated Squid listener binds only to `10.77.0.1:3128`, allows only the
 AI subnet, denies the domain/network lists before the client allow, and
 rejects numeric IPv4 destinations so a `CONNECT` request cannot bypass domain
 policy by using a literal address. It deliberately does not deny resolved

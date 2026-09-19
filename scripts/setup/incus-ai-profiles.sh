@@ -17,7 +17,9 @@ GUEST_HOME="/home/${GUEST_USER}"
 PROMPTS_SOURCE="${AI_PROMPTS_SOURCE:-${HOME:?HOME is not set}/code/prompts}"
 PROMPTS_PATH="${AI_PROMPTS_PATH:-${GUEST_HOME}/prompts}"
 LLAMA_PORT="${AI_LLAMA_PORT:-8080}"
-EGRESS_PROXY_IP="${AI_EGRESS_PROXY_IP:-10.234.0.1}"
+AI_BRIDGE="${AI_SANDBOX_PROFILES_BRIDGE:-ai0}"
+AI_BRIDGE_CIDR="${AI_SANDBOX_PROFILES_BRIDGE_CIDR:-10.77.0.1/24}"
+EGRESS_PROXY_IP="${AI_EGRESS_PROXY_IP:-10.77.0.1}"
 EGRESS_PROXY_PORT="${AI_EGRESS_PROXY_PORT:-3128}"
 
 log() { echo "[sandbox] $*"; }
@@ -34,6 +36,12 @@ exists incus info "${BASE}" || {
     err "prompts checkout does not exist: ${PROMPTS_SOURCE}"
     exit 1
 }
+
+if ! exists incus network show "${AI_BRIDGE}"; then
+    log "creating profile bridge ${AI_BRIDGE}"
+    incus network create "${AI_BRIDGE}" \
+        ipv4.address="${AI_BRIDGE_CIDR}" ipv4.nat=true ipv6.address=none
+fi
 
 ensure_volume() {
     local volume="$1"
@@ -74,6 +82,10 @@ ensure_target() {
         incus config device add "${instance}" home disk \
             pool="${POOL}" source="${volume}" path="${GUEST_HOME}" >/dev/null
     fi
+
+    # Keep profile instances off the legacy ai/incusbr0 bridge. The dedicated
+    # bridge lets the strict policy apply only to the new trust domains.
+    incus config device override "${instance}" eth0 network="${AI_BRIDGE}" >/dev/null
 
     # `incus exec` below needs a running instance.  Copies made with
     # --stateless are stopped, so start before preparing the guest home and

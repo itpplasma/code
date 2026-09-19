@@ -5,8 +5,8 @@ ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 SCRIPT=${ROOT}/scripts/setup/ai-egress-proxy.sh
 
 output=$(AI_EGRESS_RESOLVE=0 "${SCRIPT}" --dry-run)
-grep -Fq 'http_port 10.234.0.1:3128' <<<"${output}"
-grep -Fq 'acl ai_clients src 10.234.0.0/24' <<<"${output}"
+grep -Fq 'http_port 10.77.0.1:3128' <<<"${output}"
+grep -Fq 'acl ai_clients src 10.77.0.0/24' <<<"${output}"
 grep -Fq 'http_access deny !ai_clients' <<<"${output}"
 grep -Fq 'http_access deny !Safe_ports' <<<"${output}"
 grep -Fq 'acl ai_numeric_ip dstdom_regex -i' <<<"${output}"

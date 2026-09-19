@@ -25,7 +25,7 @@ EOF
 instance=
 cloud=0
 prompts_path=
-mcp_socket=${AI_MCP_SOCKET:-/run/sloppy/mcp.sock}
+mcp_socket=${AI_MCP_SOCKET:-/run/sloppy.sock}
 dry_run=0
 check_only=0
 while [[ $# -gt 0 ]]; do
