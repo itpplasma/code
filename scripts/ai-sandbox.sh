@@ -353,6 +353,26 @@ if [[ $# -gt 0 ]]; then
     case "$1" in
         claude) set -- claude --dangerously-skip-permissions "${@:2}" ;;
         codex)  set -- codex --yolo --search "${@:2}" ;;
+        pi)
+            # Pi has built-in provider defaults.  When a configured cloud
+            # provider is present, its resolver can otherwise choose that
+            # provider (currently NVIDIA NIM/Nemotron) for a bare `pi`.
+            # Keep the launcher default on the host-local Qwen route while
+            # allowing an explicit --model/--provider to opt into another
+            # configured provider.
+            pi_model_selected=0
+            for pi_arg in "${@:2}"; do
+                case "$pi_arg" in
+                    --model|--model=*|--provider|--provider=*)
+                        pi_model_selected=1
+                        break
+                        ;;
+                esac
+            done
+            if (( pi_model_selected == 0 )); then
+                set -- pi --model local-qwen/qwen "${@:2}"
+            fi
+            ;;
     esac
 fi
 

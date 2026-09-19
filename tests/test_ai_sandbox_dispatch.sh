@@ -50,6 +50,17 @@ cloud_call="$(run cloud codex inspect)"
 grep -Fq 'exec ai-cloud' <<<"${cloud_call}"
 grep -Fq -- 'codex --yolo --search inspect' <<<"${cloud_call}"
 
+local_pi_call="$(run pi --help)"
+grep -Fq 'exec ai-local' <<<"${local_pi_call}"
+grep -Fq -- 'pi --model local-qwen/qwen --help' <<<"${local_pi_call}"
+
+explicit_pi_call="$(run pi --model nvidia/nemotron-3-super-120b-a12b --help)"
+grep -Fq -- 'pi --model nvidia/nemotron-3-super-120b-a12b --help' <<<"${explicit_pi_call}"
+if grep -Fq -- 'local-qwen/qwen' <<<"${explicit_pi_call}"; then
+  echo "launcher overwrote an explicit Pi model" >&2
+  exit 1
+fi
+
 root_cloud_call="$(run --root cloud true)"
 grep -Fq 'exec ai-cloud' <<<"${root_cloud_call}"
 grep -Fq -- '-- true' <<<"${root_cloud_call}"
@@ -71,7 +82,11 @@ done
 for tool in dsh opencode pi; do
   call="$(run cloud "${tool}" --version)"
   grep -Fq "exec ai-cloud" <<<"${call}"
-  grep -Fq -- "${tool} --version" <<<"${call}"
+  if [[ "${tool}" == pi ]]; then
+    grep -Fq -- 'pi --model local-qwen/qwen --version' <<<"${call}"
+  else
+    grep -Fq -- "${tool} --version" <<<"${call}"
+  fi
 done
 
 mkdir -p "${tmp}/home/Nextcloud/private"
