@@ -202,6 +202,6 @@ case ${ACTION} in
             install -m 0644 /dev/stdin /etc/systemd/system/ai-egress-local-proxy.service
         systemctl daemon-reload
         echo "installed cloud/local Squid configs and proxy services"
-        echo "not started; review, then: sudo systemctl enable --now ai-egress-proxy.service"
+        echo "not started; review, then: sudo systemctl enable --now ai-egress-proxy.service ai-egress-local-proxy.service"
         ;;
 esac

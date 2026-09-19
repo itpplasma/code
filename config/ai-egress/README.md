@@ -44,7 +44,7 @@ sudo apt install squid                 # explicit prerequisite, not automated
 scripts/setup/ai-egress-proxy.sh --check
 scripts/setup/ai-egress-proxy.sh --dry-run
 sudo scripts/setup/ai-egress-proxy.sh --apply
-sudo systemctl enable --now ai-egress-proxy.service
+sudo systemctl enable --now ai-egress-proxy.service ai-egress-local-proxy.service
 ```
 
 The generated cloud Squid listener binds to `10.77.0.1:3128`; the local-only
