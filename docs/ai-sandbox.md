@@ -23,6 +23,18 @@ host  ~/proj      ──┼──>  container ai  ──>  internet (NAT)
 host  ~/Downloads ──┘                    ✗   LAN / host / WireGuard
 ```
 
+The optional trust-domain setup adds `ai-local` and `ai-cloud`, each with a
+separate persistent home. The existing `ai` instance remains the fallback and
+is not modified by that setup. Both profile instances receive the read-only
+prompts checkout and use the same session mount rules:
+
+```bash
+scripts/setup/incus-ai-profiles.sh
+ai                  # ai-local when it exists, otherwise legacy ai
+ai local pi         # local profile explicitly
+ai cloud claude     # cloud profile explicitly
+```
+
 Three properties make this usable:
 
 - **Directories appear at their real absolute path.** `/home/ert/code/foo` on
@@ -56,6 +68,14 @@ ai detach [DIR]           # force-detach
 ai prune                  # drop mounts whose sessions are gone
 ai stop
 ```
+
+The launcher prepends `--dangerously-skip-permissions` to `claude` and
+`--yolo --search` to `codex`; `dsh`, `opencode`, and `pi` receive supplied
+arguments unchanged. The profile setup may add an Incus proxy device for the
+host llama.cpp endpoint (`AI_LLAMA_PORT`, default `8080`). The proxy listens
+only on the container loopback (`bind=container`); it is not a host/LAN port.
+Unsupported proxy devices are reported without changing host services or MCP
+registrations.
 
 The container ships with **no software installed** beyond the stock Debian
 trixie image — deliberately. Install what a task needs with

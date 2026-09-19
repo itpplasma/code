@@ -16,15 +16,22 @@ ALWAYS_MOUNT=(
     "${HOST_HOME}/code"
     "${HOST_HOME}/proj"
 )
-STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
+STATE_ROOT="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
+
+# Keep the historical state directory for the legacy instance, while giving
+# the two profile instances independent device/refcount state.  Otherwise a
+# local and cloud session attaching the same path would race on one state
+# file even though they are different Incus instances.
+STATE_DIR="${STATE_ROOT}"
+AS_ROOT=0
 
 log() { echo "[sandbox] $*" >&2; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") [command ...]
-       $(basename "$0") --root [command ...]
+Usage: $(basename "$0") [local|cloud] [command ...]
+       $(basename "$0") --root [local|cloud] [command ...]
        $(basename "$0") status | detach [DIR] | prune | stop
 
 With no command, opens an interactive login shell in the current directory.
@@ -32,13 +39,47 @@ Any command is run in the current directory as ${GUEST_USER}. ${HOST_HOME}/code
 and ${HOST_HOME}/proj are always visible in the sandbox; the current directory
 is also attached when it is outside those trees.
 
-  --root      run as root in the sandbox instead of ${GUEST_USER}
+  local       use ai-local when provisioned (the default)
+  cloud       use ai-cloud
+  --root      run as root in the selected sandbox instead of ${GUEST_USER}
   status      list attached directories and live sessions
   detach DIR  force-detach DIR (default: the current directory)
   prune       detach every directory with no live session
   stop        stop the sandbox container
 EOF
 }
+
+# Select a trust domain before command handling.  The default remains the
+# original `ai` instance until ai-local has been provisioned, so upgrading the
+# launcher never strands an existing installation.
+if [[ "${1:-}" == --root ]]; then
+    AS_ROOT=1
+    shift
+fi
+
+case "${1:-}" in
+    local)
+        INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+        shift
+        ;;
+    cloud)
+        INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
+        shift
+        ;;
+esac
+
+if [[ "${INSTANCE}" == "ai" && -z "${AI_SANDBOX_INSTANCE+x}" ]] &&
+   command -v incus >/dev/null 2>&1 &&
+   incus info "${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}" >/dev/null 2>&1; then
+    INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+fi
+
+if [[ "${INSTANCE}" != ai && "${INSTANCE}" != ai-local && "${INSTANCE}" != ai-cloud ]]; then
+    # Explicit AI_SANDBOX_INSTANCE remains useful for development/test copies.
+    STATE_DIR="${STATE_ROOT}/${INSTANCE}"
+elif [[ "${INSTANCE}" != ai ]]; then
+    STATE_DIR="${STATE_ROOT}/${INSTANCE}"
+fi
 
 # Incus device names allow no slashes, so derive a stable one from the path.
 device_name() {
@@ -203,7 +244,6 @@ cmd_prune() {
     done
 }
 
-AS_ROOT=0
 case "${1:-}" in
     -h|--help) usage; exit 0 ;;
     status) cmd_status; exit 0 ;;
@@ -255,6 +295,17 @@ if [[ ${AS_ROOT} -eq 0 ]]; then
     uid="$(incus exec "${INSTANCE}" -- id -u "${GUEST_USER}")"
     gid="$(incus exec "${INSTANCE}" -- id -g "${GUEST_USER}")"
     exec_args+=(--user "${uid}" --group "${gid}" --env "USER=${GUEST_USER}")
+fi
+
+if [[ $# -gt 0 ]]; then
+    # These aliases make the safety posture of the cloud coding entry point
+    # explicit without changing how the underlying tools are installed or
+    # configured.  Other tools receive exactly the arguments supplied by the
+    # caller.
+    case "$1" in
+        claude) set -- claude --dangerously-skip-permissions "${@:2}" ;;
+        codex)  set -- codex --yolo --search "${@:2}" ;;
+    esac
 fi
 
 if [[ $# -eq 0 ]]; then

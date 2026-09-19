@@ -135,9 +135,10 @@ A single long-lived, unprivileged Debian trixie container for running coding
 agents against your real working directories:
 
     scripts/setup/incus-ai-sandbox.sh      # provision once
+    scripts/setup/incus-ai-profiles.sh     # optional local/cloud instances
     ln -s $PWD/scripts/ai-sandbox.sh ~/bin/ai
     cd ~/code/some-project
-    ai                                     # shell, in this directory
+    ai                                     # ai-local when provisioned
 
 `~/code` and `~/proj` are always attached at their real absolute paths, so all
 code and project checkouts remain visible even when you start `ai` from inside
