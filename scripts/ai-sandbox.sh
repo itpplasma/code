@@ -159,6 +159,19 @@ reject_unsafe() {
     esac
 }
 
+reject_cloud_sensitive() {
+    local dir="$1"
+    case "$dir" in
+        "${HOST_HOME}/Nextcloud"|"${HOST_HOME}/Nextcloud"/*|\
+        "${HOST_HOME}/Dropbox"|"${HOST_HOME}/Dropbox"/*|\
+        "${HOST_HOME}/brain"|"${HOST_HOME}/brain"/*|\
+        "${HOST_HOME}/.brain"|"${HOST_HOME}/.brain"/*)
+            err "refusing to expose sensitive host path to ai-cloud: ${dir}"
+            exit 1
+            ;;
+    esac
+}
+
 # Adding a device rewrites the whole instance config, so two concurrent adds
 # collide on the API ETag and one of them loses. The lock is therefore
 # instance-wide, not per directory; it is held only for the config call, never
@@ -278,6 +291,9 @@ esac
 
 WORKDIR="$(pwd -P)"
 reject_unsafe "${WORKDIR}"
+if [[ "${INSTANCE}" == ai-cloud ]]; then
+    reject_cloud_sensitive "${WORKDIR}"
+fi
 require_instance
 
 ATTACHED_DIRS=()

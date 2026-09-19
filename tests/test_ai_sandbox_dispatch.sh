@@ -74,6 +74,15 @@ for tool in dsh opencode pi; do
   grep -Fq -- "${tool} --version" <<<"${call}"
 done
 
+mkdir -p "${tmp}/home/Nextcloud/private"
+if (cd "${tmp}/home/Nextcloud/private" && \
+    HOME="${tmp}/home" USER=ert XDG_RUNTIME_DIR="${tmp}/runtime" \
+    PATH="${tmp}/bin:${PATH}" AI_TEST_LOG="${tmp}/calls" \
+    "${repo_root}/scripts/ai-sandbox.sh" --cloud true >/dev/null 2>&1); then
+  echo "cloud sandbox accepted a sensitive path" >&2
+  exit 1
+fi
+
 echo "PASS: ai dispatches trust domain and tool aliases at the exec boundary"
 
 : >"${tmp}/calls"
