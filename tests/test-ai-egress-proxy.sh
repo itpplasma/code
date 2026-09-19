@@ -9,6 +9,8 @@ grep -Fq 'http_port 10.234.0.1:3128' <<<"${output}"
 grep -Fq 'acl ai_clients src 10.234.0.0/24' <<<"${output}"
 grep -Fq 'http_access deny !ai_clients' <<<"${output}"
 grep -Fq 'http_access deny !Safe_ports' <<<"${output}"
+grep -Fq 'acl ai_numeric_ip dstdom_regex -i' <<<"${output}"
+grep -Fq 'http_access deny ai_numeric_ip' <<<"${output}"
 grep -Fq 'http_access deny all' <<<"${output}"
 if grep -Fq 'http_port 0.0.0.0' <<<"${output}"; then
     exit 1

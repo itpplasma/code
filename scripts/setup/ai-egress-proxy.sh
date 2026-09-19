@@ -98,6 +98,7 @@ acl ai_clients src ${SUBNET}
 acl ai_denied_domains dstdomain "${INSTALL_DIR}/deny-domains.txt"
 acl ai_denied_networks dst "${INSTALL_DIR}/deny-networks.txt"
 acl ai_denied_service_ips dst "${INSTALL_DIR}/deny-service-ips.txt"
+acl ai_numeric_ip dstdom_regex -i ^[0-9]+(\.[0-9]+){3}$
 acl SSL_ports port 443
 acl Safe_ports port 80
 acl Safe_ports port 443
@@ -108,6 +109,7 @@ acl CONNECT method CONNECT
 http_access deny !ai_clients
 http_access deny !Safe_ports
 http_access deny ai_denied_domains
+http_access deny ai_numeric_ip
 http_access deny ai_denied_service_ips
 http_access deny ai_denied_networks
 http_access deny CONNECT !SSL_ports
