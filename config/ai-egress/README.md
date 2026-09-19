@@ -47,14 +47,15 @@ sudo scripts/setup/ai-egress-proxy.sh --apply
 sudo systemctl enable --now ai-egress-proxy.service ai-egress-local-proxy.service
 ```
 
-The generated cloud Squid listener binds to `10.77.0.1:3128`; the local-only
-listener binds to `10.77.0.1:3129`. Both allow only the AI subnet, deny their
+The generated cloud Squid listener binds to `10.254.77.1:3128`; the local-only
+listener binds to `10.254.77.1:3129`. Both allow only the AI subnet, deny their
 respective domain/network lists before the client allow, and reject numeric
 IPv4 destinations so a `CONNECT` request cannot bypass domain policy by using
 a literal address. The local list in `local-deny-domains.txt` includes the
 configured cloud-model providers. The host nftables policy statically binds
-`ai-local` to `10.77.0.110` (3129 only) and `ai-cloud` to `10.77.0.12` (3128
-only), so the local container cannot select the cloud proxy.
+`ai-local` to `10.254.77.110` (3129 only) and `ai-cloud` to `10.254.77.12`
+(3128 only), so the local container cannot select the cloud proxy. This subnet
+is deliberately separate from the existing WireGuard mesh on `10.77.0.0/24`.
 
 It deliberately does not deny resolved service IPs in Squid: institutional and
 public TU Graz hostnames share CDN addresses, so doing that would also block

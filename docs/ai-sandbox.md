@@ -97,7 +97,7 @@ Idempotent; it creates only what is missing. It builds:
 |---|---|---|
 | Storage pool | `storage` | btrfs, on the `/mnt/storage/incus` subvolume |
 | Bridge | `incusbr0` | `10.234.0.1/24`, IPv4 NAT, IPv6 off |
-| Profile bridge | `ai0` | `10.77.0.1/24`, IPv4 NAT, IPv6 off; local/cloud only |
+| Profile bridge | `ai0` | `10.254.77.1/24`, IPv4 NAT, IPv6 off; local/cloud only |
 | Network ACL | `ai-sandbox-egress` | drops RFC1918, allows the rest |
 | Profile | `ai-sandbox` | bridge NIC with the ACL, root disk on the pool |
 | Volume | `ai-home` | persistent `/home/<user>` |
@@ -146,8 +146,8 @@ LAN, not Nextcloud, not the Macs over WireGuard at `10.77.0.0/24`, not a service
 listening on the host.
 
 **Rule order matters.** The profile bridge gateway that serves DNS and DHCP is
-`10.77.0.1`, which sits inside the `10.0.0.0/8` drop. The allow rules for port
-53 and 67 to `10.77.0.1/32` must come first, or the container has no name
+`10.254.77.1`, which sits inside the `10.0.0.0/8` drop. The allow rules for port
+53 and 67 to `10.254.77.1/32` must come first, or the container has no name
 resolution. `incus network acl show ai-sandbox-egress` prints them in
 evaluation order.
 
@@ -157,7 +157,7 @@ Verify from inside:
 scripts/ai-sandbox.sh bash -c '
   timeout 5 bash -c "exec 3<>/dev/tcp/1.1.1.1/443"    && echo "internet OK"
   timeout 5 bash -c "exec 3<>/dev/tcp/192.168.1.1/80" || echo "LAN blocked"
-  timeout 5 bash -c "exec 3<>/dev/tcp/10.77.0.1/22"  || echo "host blocked"'
+  timeout 5 bash -c "exec 3<>/dev/tcp/10.254.77.1/22"  || echo "host blocked"'
 ```
 
 A blocked destination hangs until the timeout rather than refusing, because the
