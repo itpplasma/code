@@ -21,6 +21,9 @@ AI_BRIDGE="${AI_SANDBOX_PROFILES_BRIDGE:-ai0}"
 AI_BRIDGE_CIDR="${AI_SANDBOX_PROFILES_BRIDGE_CIDR:-10.77.0.1/24}"
 EGRESS_PROXY_IP="${AI_EGRESS_PROXY_IP:-10.77.0.1}"
 EGRESS_PROXY_PORT="${AI_EGRESS_PROXY_PORT:-3128}"
+LOCAL_EGRESS_PROXY_PORT="${AI_EGRESS_LOCAL_PROXY_PORT:-3129}"
+LOCAL_IP="${AI_EGRESS_LOCAL_IP:-10.77.0.110}"
+CLOUD_IP="${AI_EGRESS_CLOUD_IP:-10.77.0.12}"
 
 log() { echo "[sandbox] $*"; }
 err() { echo "[sandbox] ERROR: $*" >&2; }
@@ -52,7 +55,7 @@ ensure_volume() {
 }
 
 ensure_target() {
-    local instance="$1" volume="$2"
+    local instance="$1" volume="$2" address="$3" proxy_port="$4"
 
     if ! exists incus info "${instance}"; then
         log "copying ${BASE} to ${instance}"
@@ -89,6 +92,7 @@ ensure_target() {
     if [[ "${current_network}" != "${AI_BRIDGE}" ]]; then
         incus config device override "${instance}" eth0 network="${AI_BRIDGE}" >/dev/null
     fi
+    incus config device set "${instance}" eth0 ipv4.address="${address}"
 
     # `incus exec` below needs a running instance.  Copies made with
     # --stateless are stopped, so start before preparing the guest home and
@@ -131,13 +135,13 @@ ensure_target() {
     # Incus bridge and the nft policy permits only that path.
     incus config device remove "${instance}" egress-proxy >/dev/null 2>&1 || true
     if ! incus config device add "${instance}" egress-proxy proxy \
-        bind=container listen="tcp:127.0.0.1:${EGRESS_PROXY_PORT}" \
-        connect="tcp:${EGRESS_PROXY_IP}:${EGRESS_PROXY_PORT}" >/dev/null 2>&1; then
+        bind=container listen="tcp:127.0.0.1:${proxy_port}" \
+        connect="tcp:${EGRESS_PROXY_IP}:${proxy_port}" >/dev/null 2>&1; then
         log "egress proxy unavailable for ${instance}; leaving host services unchanged"
     fi
 
 }
 
-ensure_target "${LOCAL}" "ai-local-home"
-ensure_target "${CLOUD}" "ai-cloud-home"
+ensure_target "${LOCAL}" "ai-local-home" "${LOCAL_IP}" "${LOCAL_EGRESS_PROXY_PORT}"
+ensure_target "${CLOUD}" "ai-cloud-home" "${CLOUD_IP}" "${EGRESS_PROXY_PORT}"
 log "ready: ${LOCAL} and ${CLOUD} (source ${BASE} was not modified)"

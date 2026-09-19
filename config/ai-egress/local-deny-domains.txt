@@ -1,0 +1,32 @@
+# Cloud model APIs are not reachable from ai-local. The local profile has no
+# credentials or provider catalog for these services; this list is the
+# host-enforced network backstop for direct tools and arbitrary guest code.
+api.anthropic.com
+claude.ai
+console.anthropic.com
+auth.anthropic.com
+api.openai.com
+auth.openai.com
+chatgpt.com
+platform.openai.com
+api.githubcopilot.com
+api.deepseek.com
+api.mistral.ai
+api.groq.com
+api.x.ai
+api.cohere.com
+api.together.xyz
+api.fireworks.ai
+api.cerebras.ai
+api.deepinfra.com
+api.replicate.com
+api.perplexity.ai
+generativelanguage.googleapis.com
+api.gemini.google.com
+aiplatform.googleapis.com
+us-central1-aiplatform.googleapis.com
+integrate.api.nvidia.com
+openrouter.ai
+api.openrouter.ai
+api.opencode.ai
+models.opencode.ai

@@ -14,6 +14,9 @@ DNS_IP=${AI_EGRESS_DNS_IP:-10.77.0.1}
 MODE=${AI_EGRESS_MODE:-baseline}
 PROXY_IP=${AI_EGRESS_PROXY_IP:-10.77.0.1}
 PROXY_PORT=${AI_EGRESS_PROXY_PORT:-3128}
+LOCAL_PROXY_PORT=${AI_EGRESS_LOCAL_PROXY_PORT:-3129}
+LOCAL_IP=${AI_EGRESS_LOCAL_IP:-10.77.0.110}
+CLOUD_IP=${AI_EGRESS_CLOUD_IP:-10.77.0.12}
 TABLE=${AI_EGRESS_TABLE:-ai_egress}
 ACTION=check
 
@@ -48,6 +51,10 @@ if [[ ${MODE} == proxy ]]; then
     [[ ${PROXY_IP} != */* ]] || die "invalid proxy address"
     [[ ${PROXY_PORT} =~ ^[0-9]+$ && ${PROXY_PORT} -ge 1 && ${PROXY_PORT} -le 65535 ]] ||
         die "invalid proxy port"
+    [[ ${LOCAL_PROXY_PORT} =~ ^[0-9]+$ && ${LOCAL_PROXY_PORT} -ge 1 && ${LOCAL_PROXY_PORT} -le 65535 ]] ||
+        die "invalid local proxy port"
+    [[ ${LOCAL_PROXY_PORT} != "${PROXY_PORT}" ]] || die "local and cloud proxy ports must differ"
+    [[ ${LOCAL_IP} != */* && ${CLOUD_IP} != */* ]] || die "invalid static container address"
 fi
 
 read_values() {
@@ -97,8 +104,17 @@ table inet ${TABLE} {
     chain input {
         type filter hook input priority filter; policy accept;
         # The proxy terminates on the host bridge address (input path, not
-        # forward path). Keep this allow narrowly scoped to AI clients.
-        iifname "${BRIDGE}" ip saddr ${SUBNET} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} accept
+        # forward path). Strict mode adds trust-domain-specific rules below.
+EOF
+    if [[ ${MODE} == proxy ]]; then
+        cat <<EOF
+        iifname "${BRIDGE}" ip saddr ${LOCAL_IP} ip daddr ${PROXY_IP} tcp dport ${LOCAL_PROXY_PORT} accept
+        iifname "${BRIDGE}" ip saddr ${LOCAL_IP} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} drop
+        iifname "${BRIDGE}" ip saddr ${CLOUD_IP} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} accept
+        iifname "${BRIDGE}" ip saddr ${CLOUD_IP} ip daddr ${PROXY_IP} tcp dport ${LOCAL_PROXY_PORT} drop
+EOF
+    fi
+    cat <<EOF
     }
     chain forward {
         type filter hook forward priority filter; policy accept;
@@ -113,9 +129,14 @@ table inet ${TABLE} {
 EOF
     if [[ ${MODE} == proxy ]]; then
         cat <<EOF
+        # ai-local is statically bound to LOCAL_IP and may use only the
+        # local-only proxy. ai-cloud may use only the cloud proxy.
+        iifname "${BRIDGE}" ip saddr ${LOCAL_IP} ip daddr ${PROXY_IP} tcp dport ${LOCAL_PROXY_PORT} accept
+        iifname "${BRIDGE}" ip saddr ${LOCAL_IP} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} drop
+        iifname "${BRIDGE}" ip saddr ${CLOUD_IP} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} accept
+        iifname "${BRIDGE}" ip saddr ${CLOUD_IP} ip daddr ${PROXY_IP} tcp dport ${LOCAL_PROXY_PORT} drop
         # High-assurance mode: only the configured policy proxy may carry
         # traffic. The final rule drops every other forwarded packet.
-        iifname "${BRIDGE}" ip saddr ${SUBNET} ip daddr ${PROXY_IP} tcp dport ${PROXY_PORT} accept
         iifname "${BRIDGE}" ip saddr ${SUBNET} drop
 EOF
     else

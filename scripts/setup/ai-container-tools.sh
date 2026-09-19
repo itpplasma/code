@@ -103,11 +103,15 @@ if [[ -n "${slopshell_host_bin}" ]]; then
     incus file push --mode 0644 "${slopshell_host_bin}" "${instance}${slopshell_guest_path}"
 fi
 
+guest_proxy_port=3128
+[[ "${profile}" == local ]] && guest_proxy_port=3129
+guest_proxy_url="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:${guest_proxy_port}}"
+
 # Everything below is sent over Incus stdin. Network downloads, package
 # installs, and config writes therefore happen in the guest namespace.
 incus exec "${instance}" -- bash -s -- \
     "${guest_user}" "${guest_home}" "${prompts_path}" "${profile}" "${mcp_socket}" "${slopshell_guest_path}" \
-    "$([[ ${check_only} -eq 1 ]] && echo check || echo install)" <<'GUEST'
+    "$([[ ${check_only} -eq 1 ]] && echo check || echo install)" "${guest_proxy_url}" <<'GUEST'
 set -euo pipefail
 guest_user="$1"
 guest_home="$2"
@@ -116,11 +120,12 @@ profile="$4"
 mcp_socket="$5"
 slopshell_guest_path="$6"
 mode="$7"
+proxy_url="$8"
 
 # Package and official-tool installers run as root or as a non-login shell;
 # make their public downloads use the loopback Incus proxy explicitly.
-export HTTP_PROXY="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:3128}"
-export HTTPS_PROXY="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:3128}"
+export HTTP_PROXY="$proxy_url"
+export HTTPS_PROXY="$proxy_url"
 export http_proxy="$HTTP_PROXY"
 export https_proxy="$HTTPS_PROXY"
 export NO_PROXY="${NO_PROXY:-127.0.0.1,localhost,::1}"
@@ -167,8 +172,8 @@ apt-get install -y --no-install-recommends ca-certificates curl git jq python3 u
 # commands.  The nft policy still drops all non-proxy forwarding.
 install -d -m 0755 /etc/profile.d
 printf '%s\n' \
-    'export HTTP_PROXY="http://127.0.0.1:3128"' \
-    'export HTTPS_PROXY="http://127.0.0.1:3128"' \
+    "export HTTP_PROXY=\"$proxy_url\"" \
+    "export HTTPS_PROXY=\"$proxy_url\"" \
     'export http_proxy="$HTTP_PROXY"' \
     'export https_proxy="$HTTPS_PROXY"' \
     'export NO_PROXY="127.0.0.1,localhost,::1"' \
@@ -230,7 +235,7 @@ fi
 
 # Install/update DSH through the prompts repository so its provider settings
 # and script permissions stay in sync with the pinned prompts revision.
-as_user bash -c "PATH=\"$user_path\" '$prompts_path/scripts/dsh-install.sh' --update --force-settings"
+as_user bash -c "PATH=\"$user_path\" SLOPSHELL_CAPABILITY_PROFILE=\"$profile\" '$prompts_path/scripts/dsh-install.sh' --update --force-settings"
 as_user bash -c '
     dsh_path="$(find "$HOME/.nvm/versions/node" -path "*/bin/dsh" -print -quit 2>/dev/null || true)"
     if [[ -n "$dsh_path" ]]; then ln -sfn "$dsh_path" "$HOME/.local/bin/dsh"; fi

@@ -331,7 +331,9 @@ exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" \
 # direct tool invocations as well as login shells; otherwise `ai claude` and
 # `ai codex` would bypass the profile.d setting used by interactive shells.
 if [[ ${AI_EGRESS_PROXY_ENABLE:-1} == 1 ]]; then
-    proxy_url="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:3128}"
+    default_proxy_port=3128
+    [[ "${INSTANCE}" == ai-local ]] && default_proxy_port=3129
+    proxy_url="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:${default_proxy_port}}"
     no_proxy="${NO_PROXY:-127.0.0.1,localhost,::1}"
     exec_args+=(
         --env "HTTP_PROXY=${proxy_url}"
