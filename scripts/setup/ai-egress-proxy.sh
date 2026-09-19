@@ -137,6 +137,8 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict
+RuntimeDirectory=squid
+LogsDirectory=squid
 ReadWritePaths=/run/squid /var/log/squid
 
 [Install]
