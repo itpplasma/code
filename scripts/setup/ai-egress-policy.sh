@@ -83,7 +83,6 @@ join_csv() {
 
 render() {
     cat <<EOF
-flush table inet ${TABLE}
 table inet ${TABLE} {
     set denied_networks {
         type ipv4_addr
@@ -146,18 +145,14 @@ case ${ACTION} in
         tmp=$(mktemp)
         trap 'rm -f "${tmp}"' EXIT
         render > "${tmp}"
+        # A table declaration creates the table, so remove only our own old
+        # table before installing the generated replacement. No other nft
+        # table, chain, or host traffic is touched.
         if nft list table inet "${TABLE}" >/dev/null 2>&1; then
-            nft -c -f "${tmp}"
-            nft -f "${tmp}"
-        else
-            # A flush of a table that does not exist is an error. Remove only
-            # the generated flush line for first installation.
-            first_install=$(mktemp)
-            trap 'rm -f "${tmp}" "${first_install}"' EXIT
-            tail -n +2 "${tmp}" > "${first_install}"
-            nft -c -f "${first_install}"
-            nft -f "${first_install}"
+            nft delete table inet "${TABLE}"
         fi
+        nft -c -f "${tmp}"
+        nft -f "${tmp}"
         echo "applied table inet ${TABLE} for ${BRIDGE}/${SUBNET} (${MODE} mode)"
         ;;
 esac
