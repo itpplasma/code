@@ -53,3 +53,9 @@ It does not touch the legacy host service. Pair it with the nftables policy in
 `AI_EGRESS_MODE=proxy`; that policy drops every AI-subnet packet except DNS and
 the configured proxy endpoint. `--apply` installs and validates configuration
 but deliberately does not start or enable the service.
+
+This is an explicit CONNECT proxy: its hostname ACL applies to the CONNECT
+destination. It does not inspect an arbitrary inner TLS SNI while tunnelling.
+If shared-CDN/SNI mismatch is part of the threat model, use a TLS-aware
+policy gateway (or a dedicated public fetcher) instead of treating Squid alone
+as a complete hostname boundary.
