@@ -85,7 +85,10 @@ ensure_target() {
 
     # Keep profile instances off the legacy ai/incusbr0 bridge. The dedicated
     # bridge lets the strict policy apply only to the new trust domains.
-    incus config device override "${instance}" eth0 network="${AI_BRIDGE}" >/dev/null
+    current_network="$(incus config device get "${instance}" eth0 network 2>/dev/null || true)"
+    if [[ "${current_network}" != "${AI_BRIDGE}" ]]; then
+        incus config device override "${instance}" eth0 network="${AI_BRIDGE}" >/dev/null
+    fi
 
     # `incus exec` below needs a running instance.  Copies made with
     # --stateless are stopped, so start before preparing the guest home and
