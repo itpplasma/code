@@ -53,6 +53,8 @@ grep -Fq -- 'codex --yolo --search inspect' <<<"${cloud_call}"
 local_pi_call="$(run pi --help)"
 grep -Fq 'exec ai-local' <<<"${local_pi_call}"
 grep -Fq -- 'pi --model local-qwen/qwen --help' <<<"${local_pi_call}"
+grep -Fq -- '--env LOCAL_QWEN_BASE_URL=http://127.0.0.1:8080/v1' <<<"${local_pi_call}"
+grep -Fq -- '--env LOCAL_QWEN_API_KEY=local-qwen' <<<"${local_pi_call}"
 
 explicit_pi_call="$(run pi --model nvidia/nemotron-3-super-120b-a12b --help)"
 grep -Fq -- 'pi --model nvidia/nemotron-3-super-120b-a12b --help' <<<"${explicit_pi_call}"

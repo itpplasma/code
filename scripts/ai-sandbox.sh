@@ -323,7 +323,10 @@ fi
 
 exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" \
     --env "HOME=${GUEST_HOME}" \
-    --env "PATH=${GUEST_HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin")
+    --env "PATH=${GUEST_HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin" \
+    --env "LOCAL_QWEN_BASE_URL=${AI_LOCAL_QWEN_BASE_URL:-http://127.0.0.1:8080/v1}" \
+    --env "LOCAL_QWEN_MODEL=${AI_LOCAL_QWEN_MODEL:-qwen}" \
+    --env "LOCAL_QWEN_API_KEY=${AI_LOCAL_QWEN_API_KEY:-local-qwen}")
 # The Incus egress policy is applied outside the guest.  Pass the proxy into
 # direct tool invocations as well as login shells; otherwise `ai claude` and
 # `ai codex` would bypass the profile.d setting used by interactive shells.
