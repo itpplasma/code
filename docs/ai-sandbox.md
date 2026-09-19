@@ -103,6 +103,34 @@ Prerequisites on the host: `incus`, your user in `incus-admin`, and a `root`
 range in `/etc/subuid` and `/etc/subgid`. The script checks all three and tells
 you what to run.
 
+### Install tools inside a profile
+
+After creating the two trust-domain instances, install or update their tools
+from the host with the container installer. It performs all downloads and
+writes inside Incus; it never copies host credentials or changes host MCP
+registrations.
+
+```bash
+scripts/setup/incus-ai-profiles.sh
+scripts/setup/ai-container-tools.sh --container ai-local
+scripts/setup/ai-container-tools.sh --container ai-cloud --cloud
+scripts/setup/ai-container-tools.sh --container ai-local --check
+```
+
+Both profiles receive local `opencode2`, `pi`, `dsh`, and `slopshell`. The
+cloud profile additionally receives the official Codex and Claude Code
+installers. The prompts checkout is mounted read-only at
+`/home/<user>/prompts`; its installer wires skills and provider templates into
+the private guest home. Authentication must be performed separately in the
+selected container: this installer deliberately does not import host
+`~/.codex`, `~/.claude`, browser state, SSH keys, or API-key files.
+
+Use `--dry-run` first to inspect the trust-domain-specific operation:
+
+```bash
+scripts/setup/ai-container-tools.sh --container ai-cloud --cloud --dry-run
+```
+
 ## Network policy
 
 Egress default is allow, with explicit drops for `10.0.0.0/8`,
