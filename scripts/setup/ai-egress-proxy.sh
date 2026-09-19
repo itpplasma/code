@@ -102,7 +102,6 @@ acl ai_numeric_ip dstdom_regex -i ^[0-9]+(\.[0-9]+){3}$
 acl SSL_ports port 443
 acl Safe_ports port 80
 acl Safe_ports port 443
-acl Safe_ports port 3128
 acl CONNECT method CONNECT
 
 # Deny is evaluated before the sole client allow. There is no open proxy.
