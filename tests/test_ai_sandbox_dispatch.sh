@@ -54,6 +54,20 @@ root_cloud_call="$(run --root cloud true)"
 grep -Fq 'exec ai-cloud' <<<"${root_cloud_call}"
 grep -Fq -- '-- true' <<<"${root_cloud_call}"
 
+for selector in --cloud --local; do
+  call="$(run "${selector}" true)"
+  expected=ai-cloud
+  [[ "${selector}" == --local ]] && expected=ai-local
+  grep -Fq "exec ${expected}" <<<"${call}"
+done
+
+for args in "--root --cloud" "--cloud --root"; do
+  # shellcheck disable=SC2086
+  call="$(run ${args} true)"
+  grep -Fq 'exec ai-cloud' <<<"${call}"
+  grep -Fq -- '-- true' <<<"${call}"
+done
+
 for tool in dsh opencode pi; do
   call="$(run cloud "${tool}" --version)"
   grep -Fq "exec ai-cloud" <<<"${call}"

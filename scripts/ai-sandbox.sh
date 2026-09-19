@@ -30,8 +30,8 @@ err() { echo "[sandbox] ERROR: $*" >&2; }
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") [local|cloud] [command ...]
-       $(basename "$0") --root [local|cloud] [command ...]
+Usage: $(basename "$0") [local|--local|cloud|--cloud] [command ...]
+       $(basename "$0") --root [local|--local|cloud|--cloud] [command ...]
        $(basename "$0") status | detach [DIR] | prune | stop
 
 With no command, opens an interactive login shell in the current directory.
@@ -39,8 +39,8 @@ Any command is run in the current directory as ${GUEST_USER}. ${HOST_HOME}/code
 and ${HOST_HOME}/proj are always visible in the sandbox; the current directory
 is also attached when it is outside those trees.
 
-  local       use ai-local when provisioned (the default)
-  cloud       use ai-cloud
+  local,--local  use ai-local when provisioned (the default)
+  cloud,--cloud  use ai-cloud
   --root      run as root in the selected sandbox instead of ${GUEST_USER}
   status      list attached directories and live sessions
   detach DIR  force-detach DIR (default: the current directory)
@@ -52,21 +52,25 @@ EOF
 # Select a trust domain before command handling.  The default remains the
 # original `ai` instance until ai-local has been provisioned, so upgrading the
 # launcher never strands an existing installation.
-if [[ "${1:-}" == --root ]]; then
-    AS_ROOT=1
-    shift
-fi
-
-case "${1:-}" in
-    local)
-        INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
-        shift
-        ;;
-    cloud)
-        INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
-        shift
-        ;;
-esac
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --root)
+            AS_ROOT=1
+            shift
+            ;;
+        local|--local)
+            INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+            shift
+            ;;
+        cloud|--cloud)
+            INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 if [[ "${INSTANCE}" == "ai" && -z "${AI_SANDBOX_INSTANCE+x}" ]] &&
    command -v incus >/dev/null 2>&1 &&
@@ -258,7 +262,6 @@ case "${1:-}" in
         log "detached ${target}"
         exit 0
         ;;
-    --root) AS_ROOT=1; shift ;;
 esac
 
 WORKDIR="$(pwd -P)"
