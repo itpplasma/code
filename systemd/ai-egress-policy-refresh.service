@@ -1,8 +1,9 @@
 [Unit]
 Description=Refresh AI container egress deny addresses
 After=incus.service network-online.target
+ConditionPathExists=/usr/local/libexec/ai-egress-policy
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/libexec/ai-egress-policy --apply
+ExecStart=/bin/sh -c 'exec /usr/local/libexec/ai-egress-policy --apply'
 # Template only; installation and enablement are deliberate.
