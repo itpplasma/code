@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodically refresh AI egress deny addresses
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

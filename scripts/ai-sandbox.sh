@@ -1,0 +1,429 @@
+#!/usr/bin/env bash
+# Run a shell or a command inside the Incus AI sandbox, with the current
+# working directory attached at the same absolute path it has on the host.
+#
+# The shared workspace roots are attached for every session, so all code and
+# project checkouts remain visible regardless of the directory the launcher is
+# started from. Other directories are attached per session and reference-
+# counted: their bind mount disappears when the last session using it exits.
+set -euo pipefail
+
+INSTANCE="${AI_SANDBOX_INSTANCE:-ai}"
+GUEST_USER="${AI_SANDBOX_USER:-${USER}}"
+GUEST_HOME="/home/${GUEST_USER}"
+HOST_HOME="${HOME:?HOME is not set}"
+ALWAYS_MOUNT=(
+    "${HOST_HOME}/code"
+    "${HOST_HOME}/proj"
+)
+STATE_ROOT="${XDG_RUNTIME_DIR:-/tmp}/ai-sandbox"
+
+# Keep the historical state directory for the legacy instance, while giving
+# the two profile instances independent device/refcount state.  Otherwise a
+# local and cloud session attaching the same path would race on one state
+# file even though they are different Incus instances.
+STATE_DIR="${STATE_ROOT}"
+AS_ROOT=0
+EXPLICIT_DOMAIN=0
+# OpenCode's background service is stopped by the command wrapper below before
+# the EXIT trap removes a transient CWD mount. This keeps MCP available during
+# the session while cleanup remains immediate after the command exits.
+DETACH_GRACE_SECONDS=0
+CWD_ATTACHED=0
+OPENCODE_SERVICE_CLEANUP=0
+
+log() { echo "[sandbox] $*" >&2; }
+err() { echo "[sandbox] ERROR: $*" >&2; }
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [local|--local|cloud|--cloud] [command ...]
+       $(basename "$0") --root [local|--local|cloud|--cloud] [command ...]
+       $(basename "$0") status | detach [DIR] | prune | stop
+
+With no command, opens an interactive login shell in the current directory.
+Any command is run in the current directory as ${GUEST_USER}. ${HOST_HOME}/code
+and ${HOST_HOME}/proj are always visible in the sandbox; the current directory
+is also attached when it is outside those trees.
+
+  local,--local  use ai-local when provisioned (the default for local tools)
+  cloud,--cloud  use ai-cloud (also the default for claude/codex)
+  --root      run as root in the selected sandbox instead of ${GUEST_USER}
+  status      list attached directories and live sessions
+  detach DIR  force-detach DIR (default: the current directory)
+  prune       detach every directory with no live session
+  stop        stop the sandbox container
+EOF
+}
+
+# Select a trust domain before command handling.  The default remains the
+# original `ai` instance until ai-local has been provisioned, so upgrading the
+# launcher never strands an existing installation.
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --root)
+            AS_ROOT=1
+            shift
+            ;;
+        local|--local)
+            INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+            EXPLICIT_DOMAIN=1
+            shift
+            ;;
+        cloud|--cloud)
+            INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
+            EXPLICIT_DOMAIN=1
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [[ "${INSTANCE}" == "ai" && -z "${AI_SANDBOX_INSTANCE+x}" ]] &&
+   command -v incus >/dev/null 2>&1 &&
+   incus info "${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}" >/dev/null 2>&1; then
+    INSTANCE="${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}"
+fi
+
+# Claude Code and Codex are installed only in the cloud trust domain. Keep
+# their short forms useful while preserving explicit domain overrides and the
+# local default for dsh/opencode/pi.
+if (( EXPLICIT_DOMAIN == 0 )) && [[ -z "${AI_SANDBOX_INSTANCE+x}" ]] &&
+   [[ "${INSTANCE}" == "${AI_SANDBOX_LOCAL_INSTANCE:-ai-local}" ]] &&
+   [[ "${1:-}" == claude || "${1:-}" == codex ]]; then
+    INSTANCE="${AI_SANDBOX_CLOUD_INSTANCE:-ai-cloud}"
+fi
+
+if [[ "${INSTANCE}" != ai && "${INSTANCE}" != ai-local && "${INSTANCE}" != ai-cloud ]]; then
+    # Explicit AI_SANDBOX_INSTANCE remains useful for development/test copies.
+    STATE_DIR="${STATE_ROOT}/${INSTANCE}"
+elif [[ "${INSTANCE}" != ai ]]; then
+    STATE_DIR="${STATE_ROOT}/${INSTANCE}"
+fi
+
+# Incus device names allow no slashes, so derive a stable one from the path.
+device_name() {
+    printf 'work-%s' "$(printf '%s' "$1" | sha256sum | cut -c1-12)"
+}
+
+require_instance() {
+    # A permission error looks identical to a missing instance unless the
+    # daemon is probed separately. Being added to incus-admin does not affect
+    # shells that were already open.
+    incus info >/dev/null 2>&1 || {
+        err "cannot reach the incus daemon as $(id -un)"
+        if id -nG | tr ' ' '\n' | grep -qx incus-admin; then
+            err "is incus running? try: systemctl status incus"
+        else
+            err "your session is not in the incus-admin group; start a new login"
+            err "session, or for this shell: newgrp incus-admin"
+        fi
+        exit 1
+    }
+    incus info "${INSTANCE}" >/dev/null 2>&1 || {
+        err "sandbox '${INSTANCE}' does not exist; run scripts/setup/incus-ai-sandbox.sh"
+        exit 1
+    }
+    if [[ "$(incus info "${INSTANCE}" | awk '/^Status:/ {print tolower($2)}')" != running ]]; then
+        log "starting ${INSTANCE}..."
+        # Another caller can start the instance after the status check but
+        # before this start call. Treat that expected race as success.
+        local start_error
+        if ! start_error="$(incus start "${INSTANCE}" 2>&1)"; then
+            if [[ "$(incus info "${INSTANCE}" | awk '/^Status:/ {print tolower($2)}')" != running ]]; then
+                err "failed to start ${INSTANCE}: ${start_error}"
+                exit 1
+            fi
+        fi
+        local ready=0
+        for _ in $(seq 30); do
+            if incus exec "${INSTANCE}" -- true >/dev/null 2>&1; then
+                ready=1
+                break
+            fi
+            sleep 0.2
+        done
+        if (( ! ready )); then
+            err "${INSTANCE} did not become ready after starting"
+            exit 1
+        fi
+    fi
+}
+
+# A directory that would shadow the sandbox's own home breaks the persistent
+# home volume, and attaching a whole tree defeats the point of per-directory
+# access.
+reject_unsafe() {
+    local dir="$1"
+    case "$dir" in
+        / | /home | "${GUEST_HOME}" | /mnt | /mnt/storage)
+            err "refusing to attach ${dir}: it would shadow the sandbox home or expose a whole tree"
+            exit 1
+            ;;
+    esac
+}
+
+reject_cloud_sensitive() {
+    local dir="$1"
+    case "$dir" in
+        "${HOST_HOME}/Nextcloud"|"${HOST_HOME}/Nextcloud"/*|\
+        "${HOST_HOME}/Dropbox"|"${HOST_HOME}/Dropbox"/*|\
+        "${HOST_HOME}/brain"|"${HOST_HOME}/brain"/*|\
+        "${HOST_HOME}/.brain"|"${HOST_HOME}/.brain"/*)
+            err "refusing to expose sensitive host path to ai-cloud: ${dir}"
+            exit 1
+            ;;
+    esac
+}
+
+# Adding a device rewrites the whole instance config, so two concurrent adds
+# collide on the API ETag and one of them loses. The lock is therefore
+# instance-wide, not per directory; it is held only for the config call, never
+# for the session itself.
+with_lock() {
+    mkdir -p "${STATE_DIR}"
+    exec 9>"${STATE_DIR}/instance.lock"
+    flock 9
+    "$@"
+    local rc=$?
+    flock -u 9
+    exec 9>&-
+    return ${rc}
+}
+
+_attach() {
+    local dir="$1" dev
+    dev="$(device_name "${dir}")"
+    mkdir -p "${STATE_DIR}/${dev}.sessions"
+    if ! incus config device get "${INSTANCE}" "${dev}" source >/dev/null 2>&1; then
+        incus exec "${INSTANCE}" -- mkdir -p "${dir}"
+        incus config device add "${INSTANCE}" "${dev}" disk \
+            source="${dir}" path="${dir}" shift=true >/dev/null
+    fi
+    # Incus accepts the device configuration before the mount is visible to
+    # a newly started exec session.  Wait for the guest-side path so --cwd
+    # cannot race the mount (especially for the cloud profile).
+    local ready=0
+    for _ in $(seq 1 30); do
+        if incus exec "${INSTANCE}" -- test -d "${dir}" >/dev/null 2>&1; then
+            ready=1
+            break
+        fi
+        sleep 0.1
+    done
+    if (( ! ready )); then
+        err "sandbox mount did not become ready: ${dir}"
+        return 1
+    fi
+    printf '%s\n' "${dir}" > "${STATE_DIR}/${dev}.path"
+    : > "${STATE_DIR}/${dev}.sessions/$$"
+}
+
+attach() { with_lock _attach "$1"; }
+
+is_within() {
+    local path="$1" root="$2"
+    [[ "${path}" == "${root}" || "${path}" == "${root}"/* ]]
+}
+
+_detach_if_idle() {
+    local dir="$1" dev
+    dev="$(device_name "${dir}")"
+    rm -f "${STATE_DIR}/${dev}.sessions/$$"
+    # Sessions killed without running their trap leave a stale marker behind.
+    for pid in "${STATE_DIR}/${dev}.sessions"/*; do
+        [[ -e "${pid}" ]] || continue
+        kill -0 "$(basename "${pid}")" 2>/dev/null || rm -f "${pid}"
+    done
+    if [[ -z "$(ls -A "${STATE_DIR}/${dev}.sessions" 2>/dev/null)" ]]; then
+        incus config device remove "${INSTANCE}" "${dev}" >/dev/null 2>&1 || true
+        remove_mountpoint "${dir}"
+        rm -rf "${STATE_DIR}/${dev}.sessions" "${STATE_DIR}/${dev}.path"
+    fi
+}
+
+# Without this the sandbox keeps an empty directory skeleton of every path ever
+# attached. rmdir only ever removes empty directories, so a path that holds
+# real container content stops the walk.
+remove_mountpoint() {
+    incus exec "${INSTANCE}" -- bash -c '
+        d="$1"; home="$2"
+        while [ "$d" != "/" ] && [ "$d" != "$home" ]; do
+            rmdir "$d" 2>/dev/null || break
+            d="$(dirname "$d")"
+        done' _ "$1" "${GUEST_HOME}" >/dev/null 2>&1 || true
+}
+
+detach_if_idle() { with_lock _detach_if_idle "$1"; }
+
+cmd_status() {
+    require_instance
+    echo "sandbox: ${INSTANCE} ($(incus info "${INSTANCE}" | awk '/^Status:/ {print $2}'))"
+    echo
+    printf '%-12s %-8s %s\n' DEVICE SESSIONS DIRECTORY
+    local any=0
+    for pathfile in "${STATE_DIR}"/*.path; do
+        [[ -e "${pathfile}" ]] || continue
+        local dev n
+        dev="$(basename "${pathfile}" .path)"
+        n="$(ls -A "${STATE_DIR}/${dev}.sessions" 2>/dev/null | wc -l)"
+        printf '%-12s %-8s %s\n' "${dev#work-}" "${n}" "$(cat "${pathfile}")"
+        any=1
+    done
+    [[ ${any} -eq 1 ]] || echo "(no directories attached)"
+}
+
+cmd_prune() {
+    require_instance
+    for pathfile in "${STATE_DIR}"/*.path; do
+        [[ -e "${pathfile}" ]] || continue
+        local dev
+        dev="$(basename "${pathfile}" .path)"
+        for pid in "${STATE_DIR}/${dev}.sessions"/*; do
+            [[ -e "${pid}" ]] || continue
+            kill -0 "$(basename "${pid}")" 2>/dev/null || rm -f "${pid}"
+        done
+        if [[ -z "$(ls -A "${STATE_DIR}/${dev}.sessions" 2>/dev/null)" ]]; then
+            log "detaching $(cat "${pathfile}")"
+            incus config device remove "${INSTANCE}" "${dev}" >/dev/null 2>&1 || true
+            remove_mountpoint "$(cat "${pathfile}")"
+            rm -rf "${STATE_DIR}/${dev}.sessions" "${STATE_DIR}/${dev}.path"
+        fi
+    done
+}
+
+case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+    status) cmd_status; exit 0 ;;
+    prune) cmd_prune; exit 0 ;;
+    stop) incus stop "${INSTANCE}"; exit 0 ;;
+    detach)
+        require_instance
+        target="${2:-$PWD}"
+        dev="$(device_name "${target}")"
+        incus config device remove "${INSTANCE}" "${dev}" >/dev/null 2>&1 || true
+        rm -rf "${STATE_DIR}/${dev}.sessions" "${STATE_DIR}/${dev}.path"
+        log "detached ${target}"
+        exit 0
+        ;;
+esac
+
+WORKDIR="$(pwd -P)"
+reject_unsafe "${WORKDIR}"
+if [[ "${INSTANCE}" == ai-cloud ]]; then
+    reject_cloud_sensitive "${WORKDIR}"
+fi
+require_instance
+
+ATTACHED_DIRS=()
+cleanup() {
+    local i
+    if (( CWD_ATTACHED && DETACH_GRACE_SECONDS > 0 )); then
+        sleep "${DETACH_GRACE_SECONDS}"
+    fi
+    for ((i=${#ATTACHED_DIRS[@]} - 1; i >= 0; i--)); do
+        detach_if_idle "${ATTACHED_DIRS[i]}"
+    done
+}
+trap cleanup EXIT
+
+for dir in "${ALWAYS_MOUNT[@]}"; do
+    [[ -d "${dir}" ]] || {
+        err "required workspace directory does not exist: ${dir}"
+        exit 1
+    }
+    reject_unsafe "${dir}"
+    attach "${dir}"
+    ATTACHED_DIRS+=("${dir}")
+done
+
+if ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[0]}" &&
+   ! is_within "${WORKDIR}" "${ALWAYS_MOUNT[1]}"; then
+    attach "${WORKDIR}"
+    ATTACHED_DIRS+=("${WORKDIR}")
+    CWD_ATTACHED=1
+fi
+
+exec_args=(exec "${INSTANCE}" --cwd "${WORKDIR}" \
+    --env "HOME=${GUEST_HOME}" \
+    --env "PATH=${GUEST_HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin" \
+    --env "LOCAL_QWEN_BASE_URL=${AI_LOCAL_QWEN_BASE_URL:-http://127.0.0.1:8080/v1}" \
+    --env "LOCAL_QWEN_MODEL=${AI_LOCAL_QWEN_MODEL:-qwen}" \
+    --env "LOCAL_QWEN_API_KEY=${AI_LOCAL_QWEN_API_KEY:-local-qwen}")
+# The Incus egress policy is applied outside the guest.  Pass the proxy into
+# direct tool invocations as well as login shells; otherwise `ai claude` and
+# `ai codex` would bypass the profile.d setting used by interactive shells.
+if [[ ${AI_EGRESS_PROXY_ENABLE:-1} == 1 ]]; then
+    default_proxy_port=3128
+    [[ "${INSTANCE}" == ai-local ]] && default_proxy_port=3129
+    proxy_url="${AI_EGRESS_PROXY_URL:-http://127.0.0.1:${default_proxy_port}}"
+    no_proxy="${NO_PROXY:-127.0.0.1,localhost,::1}"
+    exec_args+=(
+        --env "HTTP_PROXY=${proxy_url}"
+        --env "HTTPS_PROXY=${proxy_url}"
+        --env "http_proxy=${proxy_url}"
+        --env "https_proxy=${proxy_url}"
+        --env "NO_PROXY=${no_proxy}"
+        --env "no_proxy=${no_proxy}"
+    )
+fi
+if [[ ${AS_ROOT} -eq 0 ]]; then
+    uid="$(incus exec "${INSTANCE}" -- id -u "${GUEST_USER}")"
+    gid="$(incus exec "${INSTANCE}" -- id -g "${GUEST_USER}")"
+    exec_args+=(--user "${uid}" --group "${gid}" --env "USER=${GUEST_USER}")
+fi
+
+if [[ $# -gt 0 ]]; then
+    # These aliases make the safety posture of the cloud coding entry point
+    # explicit without changing how the underlying tools are installed or
+    # configured.  Other tools receive exactly the arguments supplied by the
+    # caller.
+    case "$1" in
+        claude) set -- claude --dangerously-skip-permissions "${@:2}" ;;
+        codex)  set -- codex --yolo --search "${@:2}" ;;
+        opencode|opencode2)
+            OPENCODE_SERVICE_CLEANUP=1
+            ;;
+        pi)
+            # Pi has built-in provider defaults.  When a configured cloud
+            # provider is present, its resolver can otherwise choose that
+            # provider (currently NVIDIA NIM/Nemotron) for a bare `pi`.
+            # Keep the launcher default on the host-local Qwen route while
+            # allowing an explicit --model/--provider to opt into another
+            # configured provider.
+            pi_model_selected=0
+            for pi_arg in "${@:2}"; do
+                case "$pi_arg" in
+                    --model|--model=*|--provider|--provider=*)
+                        pi_model_selected=1
+                        break
+                        ;;
+                esac
+            done
+            if (( pi_model_selected == 0 )); then
+                set -- pi --model local-qwen/qwen "${@:2}"
+            fi
+            ;;
+    esac
+fi
+
+if [[ $# -eq 0 ]]; then
+    incus "${exec_args[@]}" -- bash -l
+elif (( OPENCODE_SERVICE_CLEANUP )); then
+    # OpenCode may start or reuse its persistent service. Stop that service
+    # before the EXIT trap removes the transient CWD mount; this is immediate
+    # and avoids a post-command grace sleep. The command's own exit status
+    # remains authoritative.
+    command_status=0
+    if incus "${exec_args[@]}" -- "$@"; then
+        :
+    else
+        command_status=$?
+    fi
+    incus "${exec_args[@]}" -- opencode service stop >/dev/null 2>&1 || true
+    exit "${command_status}"
+else
+    incus "${exec_args[@]}" -- "$@"
+fi

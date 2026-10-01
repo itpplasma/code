@@ -1,0 +1,33 @@
+# Exact host names used by authenticated institutional services.
+#
+# This list is input to the defence-in-depth nftables set. It is not, by
+# itself, a security boundary: strict mode must use a real egress proxy.
+online.tugraz.at
+sap.tugraz.at
+exchange.tugraz.at
+cloud.tugraz.at
+mailrelay.tugraz.at
+auth.tugraz.at
+sso.tugraz.at
+2fa.tugraz.at
+tu4u.tugraz.at
+tube.tugraz.at
+tc.tugraz.at
+api.tugraz.at
+ibib.tugraz.at
+gitlab.tugraz.at
+tugraz.academic-ai.at
+eduid.academic-ai.at
+ims.euro-fusion.org
+pinboard.euro-fusion.org
+users.euro-fusion.org
+elane.fwf.ac.at
+login.microsoftonline.com
+graph.microsoft.com
+outlook.office365.com
+autodiscover-s.outlook.com
+overleaf.com
+www.overleaf.com
+
+# Public TU Graz pages are intentionally not listed. Denying a whole TU Graz
+# address range would also deny those pages and is not the policy goal.
