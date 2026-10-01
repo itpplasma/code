@@ -85,6 +85,10 @@ script into bashrc with
 
     echo "source /proj/plasma/CODE/<username>/infra/activate.sh" >> ~/.bashrc
 
+A `v*` tag records a source snapshot with GitHub's automatic source archives.
+Releases are created separately. Fresh setups run `infra/scripts/setup.sh`;
+the devcontainer image in `.devcontainer/` provides a prepared environment.
+
 ## External codes
 
 ### Intel compiler for codes GPEC and MARS
