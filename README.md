@@ -39,6 +39,10 @@ Authenticate GitHub and GitLab with their normal CLIs, or create a protected SSH
 key and add its public key to the service. Do not put credentials into this
 repository or a cloud-init file.
 
+For EUROfusion/IMAS work, your account is requested by the group lead
+(not self-service); see [docs/eurofusion-access.md](docs/eurofusion-access.md)
+for the request route, SSH setup, and access verification.
+
 ### Perparing your machine
 
 On Linux: At ITPcp computers all packages should be installed to get going.
