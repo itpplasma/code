@@ -7,5 +7,3 @@ def test_replace_template():
     }
     text = fill_template(template, vars)
     assert(text == 'bla 1 blu bli')
-
-test_replace_template()
