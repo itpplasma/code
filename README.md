@@ -127,6 +127,32 @@ based on the standard Python venv in the same shell.
 
 ## Testing
 
+Use `heavy-run` for workstation builds or tests with substantial memory use:
+
+    heavy-run ctest -j 1 --output-on-failure
+    HEAVY_RUN_MEM_HIGH=8G HEAVY_RUN_MEM_MAX=10G HEAVY_RUN_CPU=200% heavy-run make -j 2
+
+Activation adds `scripts/` to `PATH`. The wrapper serializes jobs using
+`/run/user/$UID/heavy-tests.lock` (override with `HEAVY_RUN_LOCK`) and runs them
+in a user systemd scope with `MemoryHigh=12G`, `MemoryMax=16G`, and
+`MemorySwapMax=2G`. CPU quota is optional. OpenMP/OpenBLAS thread counts default
+to 1 only when unset. `heavy-run --help` lists overrides and the portable lock
+path fallback. Without user systemd it warns and uses flock alone; without
+flock it warns and omits serialization. Memory/CPU limits require user systemd
+and delegated controllers. Before executing the payload in its named scope,
+the wrapper checks cgroup membership, memory controller availability, and that
+the kernel's finite `memory.max` matches the unit's configured `MemoryMax`.
+A failed check refuses the payload (exit 125); `HEAVY_RUN_MEM_MAX` must be finite.
+
+Run the wrapper checks with `bash tests/test_heavy_run.sh`. On a Linux host
+with user systemd, `bash tests/test_heavy_run.sh --memory` also checks that a
+1 GiB Python allocation hits `MemoryMax=512M`. It writes a nonzero byte to every
+page: zero-filled allocations can survive through kernel zero-page reclamation.
+The test verifies the payload's cgroup and limits, reports RSS, `memory.current`,
+swap usage and `memory.events`, and always repeats with swap disabled. That run
+must produce an OOM kill and a `max` event or the test fails. Disposable test
+scopes use `OOMPolicy=continue` to retain an observer for final event readings.
+
 Integration tests are run by
 
     pytest tests/
