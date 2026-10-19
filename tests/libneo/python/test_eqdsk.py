@@ -9,6 +9,16 @@ import gzip
 
 from libneo import eqdsk
 
+# The set of standard reference files each test is run against.
+STANDARD_TEST_FILES = [
+    "local",
+    "PROCESS",
+    "standardized",
+    "AUG",
+    # TODO: "MASTU",
+    # TODO: "CHEASE",
+]
+
 
 @pytest.fixture
 def test_files(code_path, data_path):
@@ -22,24 +32,26 @@ def test_files(code_path, data_path):
     }
 
 
-def test_eqdsk_read(test_files):
-    for key, test_file in test_files.items():
-        print(f"Testing {key} EQDSK file: {test_file}")
-        _ = eqdsk.eqdsk_file(test_file)
+@pytest.mark.parametrize("key", STANDARD_TEST_FILES)
+def test_eqdsk_read(key, test_files):
+    test_file = test_files[key]
+    print(f"Testing {key} EQDSK file: {test_file}")
+    _ = eqdsk.eqdsk_file(test_file)
 
 
 @pytest.mark.slow
-def test_eqdsk_golden_records(data_path, test_files):
+@pytest.mark.parametrize("key", STANDARD_TEST_FILES)
+def test_eqdsk_golden_records(key, data_path, test_files):
     golden_record_path = data_path / "TESTS/libneo/eqdsk"
-    store_golden_records(test_files.values(), golden_record_path)
+    test_file = test_files[key]
+    store_golden_records([test_file], golden_record_path)
 
-    for test_file in test_files.values():
-        eqdsk_object = eqdsk.eqdsk_file(test_file)
+    eqdsk_object = eqdsk.eqdsk_file(test_file)
 
-        data = eqdsk_object.__dict__
-        replace_array_members_by_lists(data)
+    data = eqdsk_object.__dict__
+    replace_array_members_by_lists(data)
 
-        assert are_dicts_equal(data, get_golden_record(test_file, golden_record_path))
+    assert are_dicts_equal(data, get_golden_record(test_file, golden_record_path))
 
 
 def get_golden_record(file_path, storage_path):
