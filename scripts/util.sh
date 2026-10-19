@@ -17,12 +17,12 @@ set_branch() {
     elif [ -n "$CI_COMMIT_REF_NAME" ]; then
         export CODE_BRANCH=$CI_COMMIT_REF_NAME
     else
-        pushd $CODE
+        pushd $INFRA
         export CODE_BRANCH=$(git branch --show-current)
         popd
     fi
 
-    echo "Activating $CODE on branch $CODE_BRANCH"
+    echo "Activating $INFRA on branch $CODE_BRANCH"
 }
 
 add_to_path() {

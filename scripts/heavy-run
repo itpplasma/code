@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Serialize memory-heavy commands and contain them in a user systemd scope.
+set -euo pipefail
+
+usage() {
+    cat <<'HELP'
+Usage: heavy-run [--] COMMAND [ARG...]
+
+Run one heavy job at a time under flock and a user systemd scope.
+Environment overrides:
+  HEAVY_RUN_LOCK      Lock file (default: /run/user/$UID/heavy-tests.lock;
+                      if that directory is absent, $TMPDIR/heavy-tests-$UID.lock
+                      or /tmp/heavy-tests-$UID.lock)
+  HEAVY_RUN_MEM_HIGH  Memory pressure threshold (default: 12G)
+  HEAVY_RUN_MEM_MAX   Hard memory limit (default: 16G)
+  HEAVY_RUN_CPU       Optional systemd CPUQuota, e.g. 200% (default: no quota)
+
+MemorySwapMax is 2G. OMP_NUM_THREADS and OPENBLAS_NUM_THREADS default to 1
+only when unset. The command's exit status is returned.
+If the user systemd manager is unavailable (including on macOS), warn and
+use flock alone; if flock is missing, warn and run without serialization.
+Memory/CPU limits require a working user systemd manager and delegated
+controllers. With systemd available, refuse to run without a finite kernel
+memory.max; HEAVY_RUN_MEM_MAX must be finite.
+HELP
+}
+
+case "${1:-}" in
+    -h|--help) usage; exit 0 ;;
+    --) shift ;;
+esac
+if [[ $# -eq 0 ]]; then
+    usage >&2
+    exit 2
+fi
+
+export OMP_NUM_THREADS="${OMP_NUM_THREADS-1}"
+export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS-1}"
+
+lock="${HEAVY_RUN_LOCK:-/run/user/$UID/heavy-tests.lock}"
+if [[ -z "${HEAVY_RUN_LOCK:-}" && ! -d "/run/user/$UID" ]]; then
+    lock="${TMPDIR:-/tmp}/heavy-tests-$UID.lock"
+fi
+
+run=("$@")
+# Probe with a harmless command. Never retry the payload after a scope failure:
+# it may already have run, or have been killed by its resource limit.
+if command -v systemd-run >/dev/null 2>&1 &&
+    systemd-run --user --scope --quiet --expand-environment=no true >/dev/null 2>&1; then
+    unit="heavy-run-$$-$RANDOM.scope"
+    scope=(systemd-run --user --scope --quiet --expand-environment=no --unit="$unit"
+        -p "MemoryHigh=${HEAVY_RUN_MEM_HIGH:-12G}"
+        -p "MemoryMax=${HEAVY_RUN_MEM_MAX:-16G}"
+        -p MemorySwapMax=2G)
+    if [[ -n "${HEAVY_RUN_CPU:-}" ]]; then
+        scope+=(-p "CPUQuota=$HEAVY_RUN_CPU")
+    fi
+    # Check from inside the scope, before executing the payload. A successful
+    # D-Bus property assignment alone does not prove controller delegation.
+    # Keep flock outside: its waiting process must not join the job's cgroup.
+    # shellcheck disable=SC2016 # The scope shell expands these variables.
+    run=("${scope[@]}" -- "$BASH" -c '
+        fail() {
+            printf "%s\n" "heavy-run: error: no effective cgroup v2 memory cap; refusing payload." >&2
+            exit 125
+        }
+        relative=
+        while IFS= read -r line; do
+            [[ $line == 0::* ]] && relative=${line#0::}
+        done < /proc/self/cgroup
+        expected=$1
+        shift
+        [[ $relative == /* && $relative == */"$expected" ]] || fail
+        group=/sys/fs/cgroup$relative
+        IFS= read -r controllers < "$group/cgroup.controllers" || fail
+        [[ " $controllers " == *" memory "* ]] || fail
+        IFS= read -r maximum < "$group/memory.max" || fail
+        [[ $maximum =~ ^[0-9]+$ ]] || fail
+        configured=$(systemctl --user show "$expected" -p MemoryMax --value) || fail
+        [[ $maximum == "$configured" ]] || fail
+        exec "$@"
+    ' heavy-run "$unit" "$@")
+else
+    printf '%s\n' 'heavy-run: warning: systemd-run --user unavailable; running without memory/CPU limits.' >&2
+fi
+
+if command -v flock >/dev/null 2>&1; then
+    exec flock "$lock" "${run[@]}"
+fi
+printf '%s\n' 'heavy-run: warning: flock unavailable; running without serialization.' >&2
+exec "${run[@]}"
