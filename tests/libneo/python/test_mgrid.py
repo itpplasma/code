@@ -5,8 +5,9 @@ import numpy as np
 from libneo.mgrid import MgridFile
 
 @pytest.fixture
-def testfile_path(data_path):
-    return data_path / "LHD/VMEC/makegrid_alternative/mgrid_lhd_nfp10.nc"
+def testfile_path(require_data):
+    (testfile,) = require_data("LHD/VMEC/makegrid_alternative/mgrid_lhd_nfp10.nc")
+    return testfile
 
 
 @pytest.fixture

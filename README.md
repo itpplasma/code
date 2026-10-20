@@ -159,6 +159,34 @@ Integration tests are run by
 
 This will perform all the tests in `tests/` and its subfolders.
 
+The Python tests require the separate `libneo` Python package; the native
+`_efit_to_boozer` extension is optional and its tests skip when it is unavailable.
+Use `--code-path /path/to/workspace` (or `$CODE`) for the workspace containing
+`libneo`. The default is the parent of this infra checkout.
+
+Several tests use private reference equilibria from
+`gitlab.tugraz.at/plasma/data`. To fetch selected subtrees with a read-only token:
+
+    export GITLAB_ACCESS_TOKEN=<read-only-token>
+    export DATA=$PWD/.testdata
+    scripts/fetch_data.sh AUG/EQDSK AUG/BOOZER/30835 DEMO/EQDSK MASTU/EQDSK \
+        LHD/VMEC/makegrid_alternative TESTS/libneo/eqdsk
+    pytest tests/
+
+`--data-path` overrides `$DATA`, then the checkout's `.testdata` is used.
+Without data, or when a required file is missing, the affected test skips.
+Golden records are read-only by default; missing records also skip. Use
+`--regenerate-golden` only after independently checking new reference results.
+
+Without a token, the fetch script exits successfully without fetching. With a
+token, clone, checkout and LFS errors fail the fetch; install `git-lfs` for LFS
+data. The script tries the current GitHub branch, falling back to `main` if it
+is absent; `DATA_BRANCH` selects a branch explicitly. Only requested subtrees
+are copied, and repeated fetches update them without nesting directories.
+The Python integration suite and DATA fetch are run manually; the current
+GitHub workflow mirrors the repository and does not run these tests.
+
+
 ## Incus AI sandbox
 
 A single long-lived, unprivileged Debian trixie container for running coding
