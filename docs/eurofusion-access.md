@@ -16,9 +16,9 @@ At ITPcp, ask the group lead (Christopher Albert) to sponsor the
 request and to have you added to the ITPcp group/project on the
 EUROfusion DevOps GitLab.
 
-Current ITPcp members with access are tracked in the issue
-"Add users to EUROfusion devops" (itpplasma/code#18):
-Chris, Winny, Sergei, Max.
+Access for Chris, Winny, Sergei and Max is tracked in
+[issue #18](https://github.com/itpplasma/code/issues/18). Each person verifies
+their own access; inclusion in the tracker does not confirm access.
 
 ## What you need
 
@@ -35,8 +35,9 @@ Chris, Winny, Sergei, Max.
 - **DevOps GitLab membership**: group/project membership on the
   EUROfusion DevOps GitLab, via the web SSO login at
   <https://gitlab.hpc.cineca.it/> (the same CINECA-hosted GitLab as
-  the `gitlab-ssh.hpc.cineca.it` endpoint, reached through the ITPcp
-  group [eurofusion](https://gitlab.hpc.cineca.it/groups/eurofusion)).
+  the `gitlab-ssh.hpc.cineca.it` endpoint). Obtain the exact required
+  group/project URL from the account-grant message or Christopher Albert;
+  do not infer it from the EUROfusion group name.
   *Having an account is not the same as having access to the relevant
   project*; confirm the group membership, not just the account.
 
@@ -46,10 +47,9 @@ Two different kinds of SSH credentials are involved, and they must not
 be confused:
 
 - **GitLab SSH key**: for Git access to the EUROfusion DevOps GitLab,
-  reuse the SSH key you already set up for GitHub/GitLab (see
-  [README.md](../README.md#getting-started), `~/.ssh` with a blank
-  passphrase). There is no need to generate a new key; add `id_rsa.pub`
-  to your DevOps GitLab profile
+  use a passphrase-protected SSH key (see
+  [README.md](../README.md#getting-started)). An existing protected key
+  can be reused; add its public key to your DevOps GitLab profile
   (<https://gitlab.hpc.cineca.it/-/user_settings/ssh_keys>).
 - **Gateway (EFGW) authentication**: contrary to the GitLab SSH key,
   the Gateway does **not** accept a bare `id_rsa` key. Logging in
@@ -57,15 +57,17 @@ be confused:
   `efgw` smallstep (step-CA) provisioner, which additionally enforces
   2FA. Install the
   [smallstep CLI](https://smallstep.com/docs/step-cli/installation/)
-  and log in once per certificate lifetime (by default repeatedly
-  re-running the login when prompted) with:
+  and complete CINECA’s
+  [client bootstrap and ssh-agent setup](https://docs.hpc.cineca.it/general/access.html#how-to-configure-smallstep-client).
+  Use the EFGW activation link from the Gateway guide when configuring 2FA.
+  With the agent running, obtain a certificate using:
 
   ```bash
   step ssh login <user> --provisioner efgw
   ```
 
-  This prompts for the 2FA code and writes a short-lived SSH
-  certificate into `~/.ssh` that the Gateway accepts; the Gateway is
+  This authenticates through the browser with 2FA and loads the short-lived
+  SSH certificate into your agent. Repeat when it expires. The Gateway is
   reached through the `login.eufus.eu` host (see
   <https://docs.hpc.cineca.it/specific_users/gateway.html>).
 
@@ -85,8 +87,8 @@ ssh -T git@gitlab-ssh.hpc.cineca.it
 
 # 3. Web SSO
 #    log in at https://gitlab.hpc.cineca.it/ and, under the
-#    eurofusion group (https://gitlab.hpc.cineca.it/groups/eurofusion),
-#    confirm membership of the ITPcp group/project
+#    exact group/project URL supplied in the grant message or by the
+#    group lead, confirm the required ITPcp project membership
 #    (step 3 is the one that matters operationally)
 ```
 
