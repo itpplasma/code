@@ -187,6 +187,22 @@ The Python integration suite and DATA fetch are run manually; the current
 GitHub workflow mirrors the repository and does not run these tests.
 
 
+
+## Retired repositories
+
+The following repositories are obsolete and intentionally omitted from
+`scripts/clone_all.sh`. [Issue #17](https://github.com/itpplasma/code/issues/17)
+tracks the separate history-preservation and archive work:
+
+- [magdif](https://github.com/itpplasma/magdif) and
+  [NEO-EQ](https://github.com/itpplasma/NEO-EQ): superseded by
+  [MEPHIT](https://github.com/itpplasma/MEPHIT); neither was archived when
+  checked on 2026-10-20.
+- `magfie`: omitted from the maintained clone list. The GitHub repository API
+  returned 404 on 2026-10-20; this does not distinguish deletion from lack of
+  visibility.
+
+
 ## Incus AI sandbox
 
 A single long-lived, unprivileged Debian trixie container for running coding
