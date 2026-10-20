@@ -3,21 +3,23 @@
 # Fish shell activation script
 # Usage: source activate.fish
 
-# Get the directory containing this script (absolute, without changing PWD)
+# INFRA is this repository; CODE is the workspace one level up that holds it
+# next to the code checkouts. The codes resolve dependencies as $CODE/<name>.
 set SCRIPT_DIR (dirname (status --current-filename))
 if type -q path
-    set -gx CODE (path resolve $SCRIPT_DIR)
+    set -gx INFRA (path resolve $SCRIPT_DIR)
 else if type -q realpath
-    set -gx CODE (realpath $SCRIPT_DIR)
+    set -gx INFRA (realpath $SCRIPT_DIR)
 else
     # Fallback: temporarily cd and restore
     set -l __oldpwd $PWD
     cd $SCRIPT_DIR
-    set -gx CODE $PWD
+    set -gx INFRA $PWD
     cd $__oldpwd
 end
+set -gx CODE (path resolve $INFRA/..)
 
-echo "Setting CODE environment to: $CODE"
+echo "Setting CODE workspace to: $CODE (infra: $INFRA)"
 
 # Check if the OS is macOS
 if test (uname) = "Darwin"
@@ -76,31 +78,52 @@ function set_branch_fish
     else if test -n "$CI_COMMIT_REF_NAME"
         set -gx CODE_BRANCH $CI_COMMIT_REF_NAME
     else
-        # Avoid directory changes; query git directly in $CODE
-        set -gx CODE_BRANCH (git -C $CODE branch --show-current)
+        # Avoid directory changes; query git directly in $INFRA
+        set -gx CODE_BRANCH (git -C $INFRA branch --show-current)
         if test -z "$CODE_BRANCH"
-            set -gx CODE_BRANCH (git -C $CODE rev-parse --short HEAD)
+            set -gx CODE_BRANCH (git -C $INFRA rev-parse --short HEAD)
         end
     end
-    echo "Activating $CODE on branch $CODE_BRANCH"
+    echo "Activating $INFRA on branch $CODE_BRANCH"
+end
+
+set -l ENZYME_PREFIX "$CODE/enzyme/current"
+if test -d "$ENZYME_PREFIX/lib"
+    set -gx ENZYME_HOME "$ENZYME_PREFIX"
+    set -gx ENZYME_ROOT "$ENZYME_PREFIX"
+    set -gx ENZYME_PLUGIN_DIR "$ENZYME_PREFIX/lib"
+    set -gx ENZYME_CMAKE_DIR "$ENZYME_PREFIX/lib/cmake/Enzyme"
+    set -gx Enzyme_ROOT "$ENZYME_PREFIX"
+    set -gx Enzyme_DIR "$ENZYME_CMAKE_DIR"
+    if test -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so"
+        set -gx ENZYME_PLUGIN "$ENZYME_PLUGIN_DIR/LLVMEnzyme-22.so"
+    else if test -f "$ENZYME_PLUGIN_DIR/LLVMEnzyme.so"
+        set -gx ENZYME_PLUGIN "$ENZYME_PLUGIN_DIR/LLVMEnzyme.so"
+    end
+    if not contains "$ENZYME_PREFIX" $CMAKE_PREFIX_PATH
+        set -gx CMAKE_PREFIX_PATH "$ENZYME_PREFIX" $CMAKE_PREFIX_PATH
+    end
 end
 
 # Set up paths
 set_branch_fish
-add_to_path_fish $CODE/scripts
-add_to_path_fish $CODE/local/bin
-add_to_path_fish $CODE/bin
+add_to_path_fish $INFRA/scripts
+add_to_path_fish $INFRA/local/bin
+add_to_path_fish $INFRA/bin
 
 add_to_library_path_fish $CODE/libneo/build
-add_to_library_path_fish $CODE/local/lib
-add_to_library_path_fish $CODE/lib
+add_to_library_path_fish $INFRA/local/lib
+add_to_library_path_fish $INFRA/lib
+if set -q ENZYME_PLUGIN_DIR
+    add_to_library_path_fish $ENZYME_PLUGIN_DIR
+end
 
 # Activate Python virtual environment
-if test -f $CODE/.venv/bin/activate.fish
-    source $CODE/.venv/bin/activate.fish
+if test -f $INFRA/.venv/bin/activate.fish
+    source $INFRA/.venv/bin/activate.fish
 else
     echo "Warning: Python virtual environment fish activation script not found"
-    echo "Run: python -m venv $CODE/.venv to create it"
+    echo "Run: python -m venv $INFRA/.venv to create it"
 end
 
 # Load modules if available
@@ -115,6 +138,8 @@ if command -v code > /dev/null
     alias vscode="code $CODE"
 end
 
-module use -a $CODE/modules
+if type -q module
+    module use -a $INFRA/modules
+end
 
 echo "Fish shell activation complete!"

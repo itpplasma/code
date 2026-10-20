@@ -9,37 +9,59 @@ import gzip
 
 from libneo import eqdsk
 
+# The set of standard reference files each test is run against.
+STANDARD_TEST_FILES = [
+    "local",
+    "PROCESS",
+    "standardized",
+    "AUG",
+    # TODO: "MASTU",
+    # TODO: "CHEASE",
+]
+
+
+DATA_EQDSK_FILES = {
+    "PROCESS": "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
+    "standardized": "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
+    "AUG": "AUG/EQDSK/g30835.3200_ed6",
+}
+
 
 @pytest.fixture
-def test_files(code_path, data_path):
-    return {
-        "local": code_path / "libneo/test/resources/input_efit_file.dat",
-        "PROCESS": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF.eqdsk",
-        "standardized": data_path / "DEMO/EQDSK/Equil_2021_PMI_QH_mode_betap_1d04_li_1d02_Ip_18d27MA_SOF_std.eqdsk",
-        "AUG": data_path / "AUG/EQDSK/g30835.3200_ed6",
-        # TODO: "MASTU": data_path / "MASTU/EQDSK/MAST_47051_450ms.geqdsk",
-        # TODO: "CHEASE": data_path / "DEMO/teams/Equilibrium_DEMO2019_CHEASE/MOD_Qprof_Test/EQDSK_DEMO2019_q1_COCOS_02.OUT",
-    }
+def test_files(key, code_path, request):
+    if key == "local":
+        test_file = code_path / "libneo/test/resources/input_efit_file.dat"
+        if not test_file.is_file():
+            pytest.skip("libneo reference file unavailable: set --code-path or $CODE")
+    else:
+        (test_file,) = request.getfixturevalue("require_data")(DATA_EQDSK_FILES[key])
+    return {key: test_file}
 
 
-def test_eqdsk_read(test_files):
-    for key, test_file in test_files.items():
-        print(f"Testing {key} EQDSK file: {test_file}")
-        _ = eqdsk.eqdsk_file(test_file)
+@pytest.mark.parametrize("key", STANDARD_TEST_FILES)
+def test_eqdsk_read(key, test_files):
+    test_file = test_files[key]
+    print(f"Testing {key} EQDSK file: {test_file}")
+    _ = eqdsk.eqdsk_file(test_file)
 
 
 @pytest.mark.slow
-def test_eqdsk_golden_records(data_path, test_files):
+@pytest.mark.parametrize("key", STANDARD_TEST_FILES)
+def test_eqdsk_golden_records(key, request, data_path, test_files, require_data):
     golden_record_path = data_path / "TESTS/libneo/eqdsk"
-    store_golden_records(test_files.values(), golden_record_path)
+    test_file = test_files[key]
+    if request.config.getoption("--regenerate-golden"):
+        golden_record_path.mkdir(parents=True, exist_ok=True)
+        store_golden_records([test_file], golden_record_path, force_overwrite=True)
+    else:
+        require_data(f"TESTS/libneo/eqdsk/{test_file.stem}.json.gz")
 
-    for test_file in test_files.values():
-        eqdsk_object = eqdsk.eqdsk_file(test_file)
+    eqdsk_object = eqdsk.eqdsk_file(test_file)
 
-        data = eqdsk_object.__dict__
-        replace_array_members_by_lists(data)
+    data = eqdsk_object.__dict__
+    replace_array_members_by_lists(data)
 
-        assert are_dicts_equal(data, get_golden_record(test_file, golden_record_path))
+    assert are_dicts_equal(data, get_golden_record(test_file, golden_record_path))
 
 
 def get_golden_record(file_path, storage_path):
