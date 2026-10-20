@@ -2,17 +2,21 @@
 
 export GIT_HTTPS=1
 export CODE_TEMPLATE=/usr/local/src/code_template
-export CODE=/workspaces/code
 
 mkdir -p /workspaces
 mkdir -p /usr/local/src
 
+# infra repo at /workspaces/code, code checkouts as siblings under /workspaces
 cd /workspaces
 git clone https://github.com/itpplasma/code.git code
 
-cd $CODE
+cd /workspaces/code
 source scripts/setup.sh
 
-mv $CODE $CODE_TEMPLATE
+# setup.sh puts libneo and external in the workspace ($CODE = /workspaces);
+# stash them inside the infra template so postCreateCommand.sh can restore them.
+mv /workspaces/libneo /workspaces/code/libneo
+mv /workspaces/external /workspaces/code/external
+mv /workspaces/code $CODE_TEMPLATE
 
 rm -rf /workspaces
