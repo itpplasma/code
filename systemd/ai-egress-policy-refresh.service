@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh AI container egress deny addresses
+After=incus.service network-online.target
+ConditionPathExists=/usr/local/libexec/ai-egress-policy
+
+[Service]
+Type=oneshot
+Environment=AI_EGRESS_MODE=proxy
+Environment=AI_EGRESS_CONFIG_DIR=/etc/ai-egress
+ExecStart=/bin/sh -c 'exec /usr/local/libexec/ai-egress-policy --apply'
+# Template only; installation and enablement are deliberate.
