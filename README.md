@@ -269,3 +269,20 @@ API keys that cannot use a CLI login may be kept in
 `~/.config/ai-infra/env` with mode `0600`; an example is created alongside it.
 This file remains local to the VM unless the user deliberately manages an
 encrypted version with chezmoi.
+
+## Optional repository hygiene hook
+
+Run `bash scripts/setup/git-hooks.sh` to opt in to the group's global Git
+pre-commit hook (or add `--dry-run` to preview). Install Git, Python 3, curl
+and [Gitleaks](https://github.com/gitleaks/gitleaks) first. Missing tools,
+including Gitleaks, produce a warning and skip installation without changing
+your Git configuration.
+
+The installer verifies the pinned checker and hook from
+[itpplasma/.github](https://github.com/itpplasma/.github). Commits are checked
+offline for secrets, accidental data/archive additions and size limits, then
+the repository's own hook or pre-commit configuration runs. The hook applies
+to all your repositories, including private ones. Private validation runs on
+clusters; record job IDs, revisions, commands and results in PRs. See the
+[group contribution guidance](https://github.com/itpplasma/.github/blob/main/CONTRIBUTING.md)
+for fixture provenance, `.repo-hygiene-allow`, squash merges and stacks.
