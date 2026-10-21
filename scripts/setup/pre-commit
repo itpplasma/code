@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# One shared optional hook, also used by itpplasma/code's colleague installer.
+set -euo pipefail
+hook_dir="$(cd "$(dirname "$0")" && pwd)"
+export PATH="$hook_dir/bin:$HOME/.local/bin:$PATH"
+
+# The pinned checker does size/type checks before invoking gitleaks. Catch only
+# its missing executable; all deterministic hygiene failures still block.
+if command -v python3 >/dev/null && [[ -f "$hook_dir/repo_hygiene.py" ]]; then
+  python3 - "$hook_dir/repo_hygiene.py" <<'PY'
+import importlib.util, os, subprocess, sys
+spec = importlib.util.spec_from_file_location('repo_hygiene', sys.argv[1])
+checker = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(checker)
+try:
+    os.chdir(checker.git('rev-parse', '--show-toplevel').decode().strip())
+    status = checker.check(True, None, 'HEAD', None)
+except FileNotFoundError as exc:
+    if exc.filename != 'gitleaks':
+        raise
+    print('gitleaks not found: secret checks skipped; install: https://github.com/gitleaks/gitleaks', file=sys.stderr)
+    status = 0
+except (OSError, ValueError, subprocess.CalledProcessError) as exc:
+    print('repo-hygiene: ' + str(exc), file=sys.stderr)
+    status = 2
+sys.exit(status)
+PY
+else
+  echo 'hygiene checker not found: checks skipped; rerun install-git-hooks.sh' >&2
+fi
+
+# Detect the project from the index, so an unstaged manifest cannot enable or
+# suppress checks. Filename filters include fixed/free form and uppercase forms.
+fortran=false
+if git cat-file -e :fpm.toml 2>/dev/null; then
+  fortran=true
+elif git cat-file -e :CMakeLists.txt 2>/dev/null; then
+  if [[ -n "$(git ls-files --cached -- '*.f' '*.F' '*.for' '*.FOR' '*.f90' '*.F90' '*.f95' '*.F95' '*.f03' '*.F03' '*.f08' '*.F08')" ]]; then
+    fortran=true
+  fi
+fi
+if $fortran; then
+  if ! command -v fo >/dev/null; then
+    echo 'fo not found: build/test pre-commit checks skipped; install: https://github.com/lazy-fortran/fo' >&2
+  elif ! fo hook --help 2>/dev/null | grep -q 'fo hook pre-commit'; then
+    echo 'fo hook unavailable: build/test pre-commit checks skipped; update: https://github.com/lazy-fortran/fo' >&2
+  else
+    # Release metadata is refreshed by the direct installer, never by a hook.
+    # Expired/missing/offline metadata produces no hint and never vetoes Git.
+    if command -v python3 >/dev/null; then
+      fo --version | python3 -c '
+import json, pathlib, re, sys, time
+try:
+    cache = pathlib.Path(sys.argv[1])
+    if time.time() - cache.stat().st_mtime <= 86400:
+        latest = json.loads(cache.read_text())["tag_name"]
+        current = sys.stdin.read()
+        version = lambda text: tuple(map(int, re.search(r"(\d+)\.(\d+)\.(\d+)", text).groups()))
+        if version(current) < version(latest):
+            print("fo update available (" + latest + "): https://github.com/lazy-fortran/fo", file=sys.stderr)
+except (OSError, ValueError, KeyError, AttributeError):
+    pass
+' "$hook_dir/fo-latest.json" || true
+    fi
+    fo hook pre-commit
+  fi
+fi
+
+common_dir="$(git rev-parse --git-common-dir)"
+native_hook="$common_dir/hooks/pre-commit"
+if [[ -x "$native_hook" && ! "$native_hook" -ef "$0" ]]; then
+  exec "$native_hook" "$@"
+fi
+if [[ -f .pre-commit-config.yaml ]]; then
+  if command -v prek >/dev/null; then
+    exec prek run --hook-stage pre-commit
+  elif command -v pre-commit >/dev/null; then
+    exec pre-commit run --hook-stage pre-commit
+  fi
+  echo 'pre-commit/prek not found: repository hook checks skipped; install: https://pre-commit.com' >&2
+fi
