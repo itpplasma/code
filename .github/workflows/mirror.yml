@@ -10,20 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # Fetch all history
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history
 
-    - name: Configure Git
-      run: |
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
 
-    - name: Push to remote mirror
-      env:
-        GITLAB_ACCESS_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }}
-      run: |
-        git remote add gitlab https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.tugraz.at/plasma/code.git
-        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        git push gitlab $CURRENT_BRANCH
+      - name: Push to remote mirror
+        env:
+          GITLAB_ACCESS_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }}
+        run: |
+          git remote add gitlab https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.tugraz.at/plasma/code.git
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          git push gitlab $CURRENT_BRANCH
+    if: >-
+      github.event_name == 'merge_group' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.actor != 'github-merge-queue[bot]') || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'full-ci'))
