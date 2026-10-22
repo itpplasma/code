@@ -62,7 +62,7 @@ except (OSError, ValueError, KeyError, AttributeError):
     pass
 ' "$hook_dir/fo-latest.json" || true
     fi
-    fo hook pre-commit
+    fo hook pre-commit --bounded
   fi
 fi
 
