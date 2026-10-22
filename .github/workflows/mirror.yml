@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "*"
+  workflow_dispatch:
 
 jobs:
   push-to-mirror:
@@ -11,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetch all history
 
@@ -24,8 +25,10 @@ jobs:
         env:
           GITLAB_ACCESS_TOKEN: ${{ secrets.GITLAB_ACCESS_TOKEN }}
         run: |
-          git remote add gitlab https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.tugraz.at/plasma/code.git
+          git remote add gitlab "https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.tugraz.at/plasma/code.git"
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          git push gitlab $CURRENT_BRANCH
+          git push gitlab "$CURRENT_BRANCH"
+    # Mirroring publishes the merged default branch, so it must also run for
+    # pushes made by the merge queue (the usual way main advances).
     if: >-
-      github.event_name == 'merge_group' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.actor != 'github-merge-queue[bot]') || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'full-ci'))
+      github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch))
