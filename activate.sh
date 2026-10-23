@@ -25,8 +25,13 @@ if [ "$(uname)" = "Darwin" ]; then
     # Check the processor type
     if [ "$(uname -m)" = "arm64" ]; then
         echo "This is an Apple Silicon Mac."
-        export BLAS_LIBRARIES=/opt/homebrew/opt/openblas/lib/libopenblas.dylib
-        export LAPACK_LIBRARIES=/opt/homebrew/opt/openblas/lib/liblapack.dylib
+        # Accelerate, not Homebrew OpenBLAS: OpenBLAS is built with LLVM libomp
+        # while gfortran uses libgomp, and OpenBLAS 0.3.31-0.3.33 gave wrong
+        # DGEMM results when called from gfortran OpenMP threads
+        # (OpenMathLib/OpenBLAS#5825). One OpenMP runtime per process.
+        export BLAS_LIBRARIES=/System/Library/Frameworks/Accelerate.framework
+        export LAPACK_LIBRARIES=/System/Library/Frameworks/Accelerate.framework
+        export BLA_VENDOR=Apple
     elif [ "$(uname -m)" = "x86_64" ]; then
         echo "This is an Intel Mac."
         export BLAS_LIBRARIES=/usr/local/opt/openblas/lib/libopenblas.dylib
