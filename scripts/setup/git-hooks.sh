@@ -8,8 +8,8 @@ for tool in git python3 curl install mktemp; do
     exit 0
   fi
 done
-revision=04da3fc73d9ead713b93700de7bbf54049b5ac3e
-checker_sha256=849afd7097350fde0af1863c258bad09a6b75d9a378266001798335232046e59
+revision=72d4c323fed94c579d6ace92d024961befe902ce
+checker_sha256=b9a012e818ba726ae3b931a04cd293a7086ca66c13e1453af86c9a2df98a80bf
 hook_sha256=6591b9a9954c878131ecf9fea97bc9e8c431007401dd7cf671d9fa9c72453eeb
 dest="$HOME/.local/share/git-hooks"
 if [[ "${1:-}" == --dry-run ]]; then
