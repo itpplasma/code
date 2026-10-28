@@ -56,6 +56,45 @@ class GeneratorTests(unittest.TestCase):
         self.assertNotIn('(allow file-read* (subpath "/Library/AgentSandbox/conf"))', text)
         self.assertNotIn('(allow file-read* (subpath "/"))', text)
 
+    def test_model_port_none_is_no_tcp_authority(self):
+        """model_port=None means no TCP grant at all, nothing else changes."""
+        full = c.generate_macos_profile(**profile_args())
+        null = c.generate_macos_profile(**profile_args(model_port=None))
+        self.assertIn('(allow network-outbound (remote tcp4 "localhost:8081"))', full)
+        self.assertNotIn("network-outbound (remote", null)
+        self.assertNotIn("tcp4", null)
+        self.assertNotIn("localhost", null)
+        self.assertEqual(null, "\n".join(line for line in full.splitlines()
+                                          if "network-outbound (remote" not in line) + "\n")
+        for port in (1, 22, 443, 8080, 65535):
+            text = c.generate_macos_profile(**profile_args(model_port=port))
+            self.assertIn(f'(allow network-outbound (remote tcp4 "localhost:{port}"))', text)
+
+    def test_null_data_roots_are_no_data_authority(self):
+        """An empty data_roots grants no data path, only the zone's own state."""
+        null = c.generate_macos_profile(**profile_args(model_port=None, data_roots=()))
+        self.assertNotIn("/data", null)
+        self.assertEqual(null.count("file-write*"), 1)
+        self.assertIn('(allow file-read* file-write* (subpath "/zone/state"))', null)
+        self.assertIn('(allow network-bind (literal "/zone/state/b.sock"))', null)
+        self.assertIn('(allow network-outbound (literal "/zone/state/b.sock"))', null)
+        self.assertIn('(allow file-read* (literal "/Library/AgentSandbox/conf/token"))', null)
+        self.assertIn('(allow file-read* (literal "/Library/AgentSandbox/conf/policy.json"))', null)
+        self.assertIn('(allow file-read* (subpath "/Library/AgentSandbox/runtime/Python3.framework/Versions/3.9"))', null)
+        self.assertIn('(allow file-read* (subpath "/Library/AgentSandbox/code"))', null)
+        for over in (dict(data_roots=[("/data/in", "read")]), dict(data_roots=[("/data/out", "readwrite")])):
+            with self.subTest(over=over):
+                self.assertIn("/data", c.generate_macos_profile(**profile_args(**over)))
+
+    def test_model_port_rejects_every_non_port_value(self):
+        for bad in (True, False, 0, -1, 53, 65536, "80", "", "None",
+                    8081.0, [8081], (8081,), {}, object()):
+            with self.subTest(model_port=repr(bad)), self.assertRaises(c.ConfinementError):
+                c.generate_macos_profile(**profile_args(model_port=bad))
+        for good in (None, 1, 443, 8081, 65535):
+            with self.subTest(model_port=repr(good)):
+                c.generate_macos_profile(**profile_args(model_port=good))
+
     def test_invalid_grants(self):
         cases = [dict(state_dir="/"), dict(runtime_root="/"), dict(code_roots=["/"]),
                  dict(read_files=["/"]), dict(data_roots=[("/", "read")]),
@@ -290,6 +329,40 @@ class LiveSeatbeltTests(unittest.TestCase):
                 self.assertTrue(results[name]["allowed"], (name, results[name]))
             self.assertFalse(results["production_policy"]["allowed"])
             self.assertIn("protected check:", results["production_policy"]["detail"])
+
+    def _profile_text(self):
+        with open(self.root + "/profile.sb") as handle:
+            return handle.read()
+
+    def test_live_null_capabilities(self):
+        """A null profile denies the live model port and every data path."""
+        model_port = self.listeners[0].getsockname()[1]
+        other_port = self.listeners[1].getsockname()[1]
+        # Positive controls: both listeners are reachable and both data paths
+        # are readable or writable by this unconfined test process right now.
+        for port in (model_port, other_port):
+            with socket.create_connection(("127.0.0.1", port), timeout=2) as client:
+                self.assertIsNotNone(client)
+        with open(self.root + "/data/in/file") as canary:
+            self.assertEqual(canary.read(), "SYNTHETIC-CANARY")
+        with open(self.root + "/data/out/file", "w") as canary:
+            canary.write("SYNTHETIC-CANARY")
+        out = self.run_profile(self.profile(model_port=None, data_roots=()))
+        self.assertEqual(out.returncode, 0, out.stderr)
+        results = json.loads(out.stdout)
+        self.assertNotIn("tcp4", self._profile_text())
+        for name in ("state", "token", "policy_file", "own_uds"):
+            self.assertTrue(results[name]["allowed"], (name, results[name]))
+        for name in ("model_tcp", "read", "write", "other_tcp", "other_uds", "udp",
+                     "dns_udp", "dns_tcp", "ipv6_model_port", "tcp_bind", "parent_listing",
+                     "sibling", "config_sibling", "symlink", "prefix", "profile"):
+            self.assertFalse(results[name]["allowed"], (name, results[name]))
+            self.assertIn(results[name]["errno"], (errno.EPERM, errno.EACCES), (name, results[name]))
+        self.assertFalse(results["dns_resolver"]["allowed"], results["dns_resolver"])
+        # Neither data path was touched: the denied writes left both canaries.
+        for path in ("data/in/file", "data/out/file"):
+            with open(self.root + "/" + path) as canary:
+                self.assertEqual(canary.read(), "SYNTHETIC-CANARY", path)
 
     def test_corrupt_profile_fails_closed(self):
         out = self.run_profile(self.profile()+"\n(this-operation-does-not-exist)\n")

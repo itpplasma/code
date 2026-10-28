@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 SANDBOX_EXEC = "/usr/bin/sandbox-exec"
 PYTHON_ISOLATED_FLAGS = ("-I", "-S", "-B")
@@ -71,7 +71,7 @@ def _ancestors(path: str) -> Iterable[str]:
 
 
 def generate_macos_profile(
-    *, unix_socket: str, state_dir: str, model_port: int,
+    *, unix_socket: str, state_dir: str, model_port: Optional[int],
     data_roots: Iterable[Tuple[str, str]], python: str, runtime_root: str,
     code_roots: Iterable[str], read_files: Iterable[str] = (),
     runtime_executables: Iterable[str] = (), runtime_uname: bool = False,
@@ -81,9 +81,15 @@ def generate_macos_profile(
     ``runtime_root`` is the entire frozen canonical runtime, including imports.
     ``code_roots`` contains only frozen broker code. ``read_files`` grants exact
     policy/token files, not their directories. Data roots are approved with
-    ``read`` or ``readwrite`` access. Only the zone's state is otherwise writable.
+    ``read`` or ``readwrite`` access; an empty ``data_roots`` grants no data
+    path at all, leaving only the zone's own state writable.
     The broker uses literal 127.0.0.1; Seatbelt permits IPv4 localhost at
     one fixed TCP port. Its parser cannot encode an exact numeric address.
+    ``model_port=None`` is the null-model zone: no remote TCP grant is
+    emitted, so the default deny covers every port, and the broker reaches no
+    model service at all. It still keeps its own state, its private Unix
+    socket, the exact authorities and the unchanged root-name and uname
+    grants; a null profile is not a null process.
     Root configuration must reserve distinct ports for distinct service roles;
     loopback aliases at the same port do not isolate them. runtime_executables
     lists any exact, frozen framework helper executed by the chosen launcher.
@@ -104,9 +110,13 @@ def generate_macos_profile(
     sock = _grant_path(unix_socket, "unix_socket")
     if not _within(sock, state) or sock == state:
         raise ConfinementError("unix_socket: must be inside private state_dir")
-    if (isinstance(model_port, bool) or not isinstance(model_port, int) or
+    if model_port is None:
+        model_tcp = None
+    elif (isinstance(model_port, bool) or not isinstance(model_port, int) or
             not 1 <= model_port <= 65535 or model_port == 53):
         raise ConfinementError("model_port: expected a non-DNS TCP port")
+    else:
+        model_tcp = f'(allow network-outbound (remote tcp4 "localhost:{model_port}"))'
     code = [_grant_path(p, "code root") for p in code_roots]
     if not code:
         raise ConfinementError("code_roots: frozen entry code is required")
@@ -151,9 +161,11 @@ def generate_macos_profile(
     for path, mode in roots:
         access = "file-read*" + (" file-write*" if mode == "readwrite" else "")
         lines.append(f"(allow {access} (subpath {q(path)}))")
-    lines += [f"(allow network-bind (literal {q(sock)}))",
-              f"(allow network-outbound (literal {q(sock)}))",
-              f'(allow network-outbound (remote tcp4 "localhost:{model_port}"))']
+    lines.append(f"(allow network-bind (literal {q(sock)}))")
+    lines.append(f"(allow network-outbound (literal {q(sock)}))")
+    # No grant at all when model_port is None; deny default then covers TCP.
+    if model_tcp is not None:
+        lines.append(model_tcp)
     return "\n".join(lines) + "\n"
 
 
