@@ -17,6 +17,10 @@ always refuses in this generation: the `ai` client cannot yet open a guest sessi
 | [`runtime.py`](ai_zones/runtime.py) | Bounded signed Python runtime manifests and verification, plus a root-only installation interface separate from the tool updater. |
 | [`deploy.py`](ai_zones/deploy.py) | Read-only plans, explicit offline staging, first-runtime bootstrap and guarded host preparation; activation remains disabled. |
 | [`cli.py`](ai_zones/cli.py), [`bin/ai`](bin/ai) | Fixed-zone SSH client and launcher; the required host `start` action currently refuses. |
+| [`model_gateway.py`](ai_zones/model_gateway.py) | Fixed local chat endpoint for Pi, with typed function tools and validated streaming. |
+| [`codex_gateway.py`](ai_zones/codex_gateway.py) | Typed Responses requests, fixed model catalogue and validated streaming for Codex. |
+| [`anthropic_gateway.py`](ai_zones/anthropic_gateway.py) | Typed Messages requests and validated streaming for Claude. |
+| [`cloud_service.py`](ai_zones/cloud_service.py) | Unprivileged internal-only Unix HTTP service with fixed provider roles and protected configuration. |
 
 [`policy.example.json`](policy.example.json) contains synthetic paths and model
 settings. Schema validation alone grants no authority. Protected loading requires
@@ -101,6 +105,34 @@ Seed generation writes staging files. Applying that seed later inside a guest
 installs and starts its SSH and broker relays. It does not prepare missing
 packages or fetch dependencies. No host services are installed or activated by
 generating seeds, profiles, unit fragments or VM arguments.
+
+## Model services
+
+The local adapter forwards to a fixed model service; it starts no inference
+process. Keep the existing oMLX inference server behind the Slopgate model
+gateway: one 125-billion-parameter model per Mac host serves both zones.
+
+Cloud services are internal-only. Trusted launch option `--provider codex` or
+`--provider anthropic` selects distinct configuration, credential and socket
+paths. On macOS these are below `/Library/AgentSandbox`; Linux uses
+`/opt/agent-sandbox`. Each role reads `config/internal/<provider>.json` and
+`config/internal/<provider>-credentials.json`, and serves
+`run/internal/<provider>/cloud.sock`. Configuration must match the launch role.
+The service refuses root and unsafe or missing configuration. Its private
+credential group and broker socket group are distinct.
+
+Guests cannot choose upstream origins, credentials or server configuration.
+Adapters accept the supported typed client operations and reject hosted tools
+and remote connectors. Client tool calls are returned to the guest; gateways
+do not execute them on the host. Cancellation and absolute deadlines cover
+upstream header waits as well as streaming. Malformed or truncated upstream responses cannot produce a successful
+completion marker.
+
+Tests use the installed clients against local mock providers with dummy
+credentials. These results establish the tested protocol paths, not live
+subscription authentication, token refresh, Linux client compatibility or
+operating-system egress confinement. A guest-facing broker and protected host
+service activation are separate deployment work.
 
 ## Verification and deployment gates
 
