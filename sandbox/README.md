@@ -21,6 +21,7 @@ always refuses in this generation: the `ai` client cannot yet open a guest sessi
 | [`codex_gateway.py`](ai_zones/codex_gateway.py) | Typed Responses requests, fixed model catalogue and validated streaming for Codex. |
 | [`anthropic_gateway.py`](ai_zones/anthropic_gateway.py) | Typed Messages requests and validated streaming for Claude. |
 | [`cloud_service.py`](ai_zones/cloud_service.py) | Unprivileged internal-only Unix HTTP service with fixed provider roles and protected configuration. |
+| [`broker.py`](ai_zones/broker.py) | Per-zone Unix HTTP broker for approved local files, Pi inference and fixed internal cloud-service routes. |
 
 [`policy.example.json`](policy.example.json) contains synthetic paths and model
 settings. Schema validation alone grants no authority. Protected loading requires
@@ -125,14 +126,36 @@ Guests cannot choose upstream origins, credentials or server configuration.
 Adapters accept the supported typed client operations and reject hosted tools
 and remote connectors. Client tool calls are returned to the guest; gateways
 do not execute them on the host. Cancellation and absolute deadlines cover
-upstream header waits as well as streaming. Malformed or truncated upstream responses cannot produce a successful
-completion marker.
+upstream header waits as well as streaming. Each adapter withholds model success events until upstream HTTP framing is
+complete. The broker omits its final HTTP chunk when a child response is malformed
+or truncated.
 
 Tests use the installed clients against local mock providers with dummy
 credentials. These results establish the tested protocol paths, not live
 subscription authentication, token refresh, Linux client compatibility or
-operating-system egress confinement. A guest-facing broker and protected host
-service activation are separate deployment work.
+operating-system egress confinement. Protected host service activation remains separate deployment work.
+
+## Guest-facing broker
+
+One broker process serves one fixed zone. Its approved file root and local model
+come from protected policy. File operations use pinned directory descriptors,
+reject links and special files, and do not expose repository administration paths.
+The broker starts no tools or inference processes.
+
+Optional internal cloud routes are `POST /codex/v1/responses`,
+`GET /codex/v1/models` and `POST /claude/v1/messages?beta=true`.
+Only protected `config/internal/services.json` enables them. It has exact
+`codex` and `anthropic` entries, each containing `enabled`, `uid` and `gid`.
+Configured identities must meet the checked role-separation rules. The broker
+connects to the fixed provider socket and verifies its kernel peer identity
+before sending request bytes. Guest headers cannot select child credentials,
+paths or destinations. The confidential broker always denies cloud routes.
+
+Both providers retain bounded, allowlisted retry and rate-limit headers.
+Cancellation, response bounds and strict child framing apply before forwarding
+successful completion. Mail and Helpy are not exposed through this broker.
+Dedicated service identities, socket permissions and OS confinement must still
+be installed and tested; the current host foundation does not activate them.
 
 ## Verification and deployment gates
 
