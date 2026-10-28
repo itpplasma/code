@@ -91,7 +91,9 @@ def main():
         raise SystemExit("A literal itpcp key is required")
     models = json.loads((source / "pi-safe/models.json").read_text())
     models["providers"]["itpcp"]["apiKey"] = key
-    install(zone / "pi-safe/models.json", json.dumps(models, indent=2) + "\n")
+    install(zone / "pi-safe/models.json", json.dumps(models, indent=2) + "\n", 0o600)
+    # Only the operator's wrapper may read the key; other local users may not.
+    os.chown(zone / "pi-safe/models.json", owner.pw_uid, 0)
     state = home / ".local/state/pi-safe"
     state.mkdir(parents=True, exist_ok=True)
     os.chown(state, owner.pw_uid, owner.pw_gid)

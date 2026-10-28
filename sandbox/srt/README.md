@@ -64,14 +64,11 @@ require an explicit proxy denial, and direct socket checks require a permission
 error. Synthetic file contents are checked and deleted. The runtime's own
 temporary directory remains writable, as documented upstream.
 
-After **all** shell and Pi checks pass, finish all other root work. Check
-`sudo visudo -c`, back up `/etc/sudoers` to `/etc/sudoers.bak-20261028` without
-overwriting an existing backup, and use `sudo visudo` to change exactly
-`%admin ALL = (ALL) NOPASSWD:ALL` to `%admin ALL = (ALL) ALL`. Leave every included
-sudoers file unchanged. Validate again from the same privileged editing session
-before closing it, invalidate cached credentials with `sudo -K`, then rerun
-the full test with `--after-sudo`. Both host and sandbox `sudo -n true` must fail.
-The installer intentionally leaves sudo policy unchanged.
+The sandbox itself refuses to execute `sudo` ("Operation not permitted"), so
+`safe` does not depend on the host sudo policy. Host sudo stays as it is for
+now: the qwen native adapter runs as the operator and calls `sudo -n` for its
+admission probe, so removing `NOPASSWD` needs a narrow rule for that probe
+first. The installer leaves sudo policy unchanged.
 
 The login-Keychain deny workaround is described in
 [srt issue 755](https://github.com/anthropics/sandbox-runtime/issues/755).

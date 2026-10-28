@@ -15,13 +15,17 @@ for arg do
 done
 zone='/Library/Application Support/agent-zones'
 agent_home='@HOME@'
+state="$agent_home/.local/state/pi-safe"
+# Pi writes lock files beside its configuration, so it runs from a copy.
+mkdir -p -m 700 "$state/agent"
+cp -f "$zone/pi-safe/settings.json" "$zone/pi-safe/mcp.json" "$zone/pi-safe/models.json" "$state/agent/"
 cd "$agent_home/Nextcloud"
 # Start srt itself without inherited loaders, proxy overrides, or credentials.
 exec /usr/bin/env -i \
     HOME="$agent_home" USER='@USER@' LOGNAME='@USER@' \
     PATH='/opt/agents/srt/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin' \
     SHELL=/bin/bash LANG=en_US.UTF-8 TERM="${TERM:-dumb}" MPLBACKEND=Agg \
-    PI_CODING_AGENT_DIR="$zone/pi-safe" \
+    PI_CODING_AGENT_DIR="$state/agent" \
     PI_CODING_AGENT_SESSION_DIR="$agent_home/.local/state/pi-safe/sessions" \
     XDG_CACHE_HOME="$agent_home/.local/state/pi-safe/cache" \
     /opt/agents/srt/bin/node \
