@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "itpcp": {
+      "baseUrl": "http://127.0.0.1:8090/v1",
+      "api": "openai-completions",
+      "apiKey": "INSTALL_COPIES_LOCAL_KEY",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "local",
+          "name": "Local model",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 262144,
+          "maxTokens": 32768
+        }
+      ]
+    }
+  }
+}

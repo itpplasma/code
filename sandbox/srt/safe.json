@@ -1,0 +1,37 @@
+{
+  "network": {
+    "allowedDomains": ["127.0.0.1:8090"],
+    "deniedDomains": [],
+    "strictAllowlist": true,
+    "allowUnixSockets": [],
+    "allowAllUnixSockets": false,
+    "allowLocalBinding": false
+  },
+  "filesystem": {
+    "denyRead": [
+      "@HOME@",
+      "@HOME@/.ssh",
+      "@HOME@/Library/Keychains",
+      "@HOME@/.pi/agent/auth.json",
+      "@HOME@/.config",
+      "/**/eduid.json"
+    ],
+    "allowRead": [
+      "@HOME@/Nextcloud",
+      "/Library/Application Support/agent-zones/pi-safe",
+      "@HOME@/.local/state/pi-safe"
+    ],
+    "allowWrite": ["@HOME@/Nextcloud", "@HOME@/.local/state/pi-safe"],
+    "denyWrite": [
+      "/Library/Application Support/agent-zones",
+      "/usr/local/bin/safe",
+      "/opt/agents/srt",
+      "@HOME@/Nextcloud/.*",
+      "@HOME@/Nextcloud/**/.pi",
+      "@HOME@/Nextcloud/**/.git",
+      "@HOME@/Nextcloud/**/.claude",
+      "@HOME@/Nextcloud/**/.codex",
+      "/**/eduid.json"
+    ]
+  }
+}
