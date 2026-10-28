@@ -1,9 +1,9 @@
 # Agent-zone foundation
 
 This library in [the infrastructure repository](https://github.com/itpplasma/code)
-provides offline building blocks for the fixed `internal` and `confidential`
-Debian virtual machines (VMs). It does not deploy host services or provide a
-complete `ai` command. Production use requires the acceptance gates below.
+provides offline building blocks and a candidate host-preparation path for the
+fixed `internal` and `confidential` Debian virtual machines (VMs). Activation
+always refuses in this generation: the `ai` client cannot yet open a guest session.
 
 ## Available components
 
@@ -15,6 +15,8 @@ complete `ai` command. Production use requires the acceptance gates below.
 | [`guest.py`](ai_zones/guest.py) | Debian 13 raw-image checksum verification, NoCloud seed generation and fixed guest relay source and units. |
 | [`confinement.py`](ai_zones/confinement.py) | macOS Seatbelt profile and launch-argument generation with a tested-build gate; an explicitly untested Linux systemd namespace fragment. |
 | [`runtime.py`](ai_zones/runtime.py) | Bounded signed Python runtime manifests and verification, plus a root-only installation interface separate from the tool updater. |
+| [`deploy.py`](ai_zones/deploy.py) | Read-only plans, explicit offline staging, first-runtime bootstrap and guarded host preparation; activation remains disabled. |
+| [`cli.py`](ai_zones/cli.py), [`bin/ai`](bin/ai) | Fixed-zone SSH client and launcher; the required host `start` action currently refuses. |
 
 [`policy.example.json`](policy.example.json) contains synthetic paths and model
 settings. Schema validation alone grants no authority. Protected loading requires
@@ -32,18 +34,55 @@ points, with hashes for every payload file. Verification with a caller-selected
 key is a consistency check, not deployment approval.
 
 Production installation requires an independently approved, frozen privileged
-core, its Python dependencies, protected public keys and a root-controlled
+code bundle (`CORE`), its Python dependencies, protected keys and a root-controlled
 destination. Ordinary signed tool releases must neither replace that core nor
 be imported by its privileged installer. Keep signing keys outside agent and
 service-account access. Policy, credentials and revocations remain outside tool
 releases; selecting older code must not restore older authority.
 
-The Python runtime has its own signed complete-tree manifest and trust key.
-Its current schema supports pinned macOS 64-bit Arm Python bundles; a Linux prefix
-in the installer does not establish Linux runtime support. Bundle verification
-does not turn mutable source files into a trusted installed interpreter. Runtime
-installation and launch-time integrity checks need their own approval and tests;
-the runtime command line exposes build and verify operations, not installation.
+The Python runtime has a separate signing authority and complete-tree manifest.
+The approved CORE contract binds its exact signed manifest, version and provenance;
+the retained-byte installer checks that manifest hash before installation writes.
+Installed verification checks the selected protected tree without executing it.
+The runtime command line builds or verifies bundles; first installation is a
+separate root-only frozen CORE action. Current support is macOS on 64-bit Arm;
+Linux deployment and runtime integration remain plan-only.
+
+## Offline host preparation
+
+The CORE source, bootstrap launcher and initial `/usr/bin/python3` interpreter
+require independent human approval: checking a manifest cannot authenticate
+the already executing interpreter.
+
+Prepare the reviewed CORE manifest and its independently obtained hash, signed
+tool bundle and public key, pinned raw image and descriptor, hashed vfkit binary,
+and staging manifest with seeds and distinct per-zone SSH identities. For macOS,
+also supply the separately signed runtime bundle and distinct runtime public key.
+Inputs use explicit absolute paths. Inspect required options from the repository root:
+
+```sh
+sh scripts/setup/debian-agent-zones.sh --help
+```
+
+1. Run that bootstrap with `--plan` and the required inputs as an ordinary user.
+   Review its artifacts, identities, hashes and activation gates.
+2. After approving the CORE and interpreter, invoke `--stage` as root with the
+   same inputs and explicit reviewed `--expect-plan-sha256`. Staging refuses an
+   existing target and writes protected offline material, not accounts or services.
+3. Review and execute the approved plan's exact `runtime.bootstrap_argv` as root.
+   This invokes frozen `bootstrap.py install-runtime ABS_BUNDLE` with system
+   Python only for the first runtime; it refuses an existing runtime selection.
+4. Use the plan's fixed modern Python with `-I -S -B` and frozen `bootstrap.py`
+   for `prepare-host` or `update-tool ABS_BUNDLE`. Normal actions require the
+   verified installed runtime and approved CORE, not the checkout or `current`.
+
+`prepare-host` creates fixed VM and broker accounts, per-zone interprocess
+communication groups and private state after inventory checks. It loads no
+services and installs no sudoers permissions. `--apply`, `--activate` and
+`admin start ZONE` refuse; there is no operational single-command setup yet.
+The oMLX inference server behind the [Slopgate model gateway](https://github.com/sloppy-org/slopgate) is unchanged:
+one 125-billion-parameter model per Mac host serves mixed requests from both zones.
+VM/broker credentials and policy remain per zone. Both zones trust shared inference.
 
 ## Fixed guest channels
 
@@ -79,6 +118,7 @@ Optional staged-runtime probes use `AI_ZONES_TEST_RUNTIME_ROOT`; shared-policy
 integration probes use `AI_ZONES_POLICY_SOURCE`. Inspect skips before claiming
 that a platform or interpreter passed.
 
+The complete bootstrap sequence has not passed a genuine root acceptance test.
 Before admitting real data, verify the entire protected execution chain and
 signed installed runtime, reserve distinct ports for different service roles,
 close inherited descriptors, clear the environment and set a fixed working
