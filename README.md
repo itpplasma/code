@@ -1,9 +1,9 @@
 # CODE
 
 Meta-repository of the ITPcp plasma group at TU Graz with scripts to set up,
-build and use the group's internal and external codes. It targets the Debian
-workstations at ITPcp and Ubuntu LTS development machines; the recommended
-editor is Visual Studio Code.
+build and use the group's internal and external codes. Debian is the standard
+for development machines and agent VMs. Production servers and their Computor
+development containers are exceptions. The recommended editor is Visual Studio Code.
 
 ## Contents
 
@@ -40,9 +40,10 @@ access see [docs/eurofusion-access.md](docs/eurofusion-access.md).
 Preparing the machine:
 
 - ITPcp computers have all required packages installed.
-- On your own Debian or Ubuntu system run `sudo scripts/setup/apt.sh full`.
-- On macOS use OrbStack and DevPod as described in
-  [scripts/setup/mac.sh](scripts/setup/mac.sh).
+- On your own Debian system run `sudo scripts/setup/apt.sh full`.
+- On macOS follow the Debian VM deployment in
+  [docs/agent-zones.md](docs/agent-zones.md); its acceptance gates are still pending.
+  [scripts/setup/mac.sh](scripts/setup/mac.sh) provides optional host development tools.
 - On Windows install Debian via WSL2 with
   [scripts/setup/windows.bat](scripts/setup/windows.bat), then follow the Linux
   instructions.
@@ -75,6 +76,7 @@ reference data. See [docs/testing.md](docs/testing.md).
 
 - [docs/testing.md](docs/testing.md): integration tests, reference data, `heavy-run`
 - [docs/external-codes.md](docs/external-codes.md): GPEC, MARS and OMFIT
+- [docs/agent-zones.md](docs/agent-zones.md): Debian VM zones and deployment gates
 - [docs/ai-sandbox.md](docs/ai-sandbox.md): Incus container for coding agents
 - [docs/multipass-ai.md](docs/multipass-ai.md): Multipass VM for coding agents
 - [docs/eurofusion-access.md](docs/eurofusion-access.md): EUROfusion/IMAS accounts

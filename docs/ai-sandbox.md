@@ -1,5 +1,9 @@
 # Incus AI sandbox
 
+The development standard for agent isolation is the
+[Debian VM zone design](agent-zones.md). This page documents the existing
+Incus container profile.
+
 A single long-lived, unprivileged Debian trixie container for running coding
 agents and shells against your real working directories, with internet access
 but no reach into the LAN, the host, or any host path you have not explicitly

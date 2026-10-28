@@ -1,5 +1,9 @@
 # Multipass AI coding VM
 
+The accepted plan for new agent deployments is
+[Debian agent zones](agent-zones.md). The recipe below documents the existing
+Ubuntu Multipass launcher.
+
 `scripts/multipass-ai.sh` creates a headless Ubuntu LTS virtual machine for
 coding agents on ARM64 and x86-64 hosts. The default size is 8 CPUs, 16 GB RAM
 and a 128 GB disk:
