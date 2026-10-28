@@ -1,0 +1,12 @@
+{
+  "defaultProvider": "itpcp",
+  "defaultModel": "local",
+  "extensions": [],
+  "packages": [],
+  "skills": [],
+  "prompts": [],
+  "themes": [],
+  "enableInstallTelemetry": false,
+  "enableAnalytics": false,
+  "shellPath": "/bin/bash"
+}

@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+if [ "${1-}" != pi ]; then
+    echo 'Usage: safe pi [prompt and session arguments]' >&2
+    exit 64
+fi
+shift
+# Resource and endpoint overrides would defeat the isolated Pi configuration.
+for arg do
+    case "$arg" in
+        -e|-e?*|-m|-m?*|--extension*|--provider*|--model*|--api-key*|--session-dir*|--skill*|--prompt-template*|--theme*|--use-theme*|--system-prompt*|--append-system-prompt*|--package*|--config*|--cwd*)
+            echo 'safe: configuration overrides are refused' >&2
+            exit 64 ;;
+    esac
+done
+zone='/Library/Application Support/agent-zones'
+agent_home='@HOME@'
+state="$agent_home/.local/state/pi-safe"
+# Pi writes lock files beside its configuration, so it runs from a copy.
+mkdir -p -m 700 "$state/agent"
+cp -f "$zone/pi-safe/settings.json" "$zone/pi-safe/mcp.json" "$zone/pi-safe/models.json" "$state/agent/"
+cd "$agent_home/Nextcloud"
+# Start srt itself without inherited loaders, proxy overrides, or credentials.
+exec /usr/bin/env -i \
+    HOME="$agent_home" USER='@USER@' LOGNAME='@USER@' \
+    PATH='/opt/agents/srt/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin' \
+    SHELL=/bin/bash LANG=en_US.UTF-8 TERM="${TERM:-dumb}" MPLBACKEND=Agg \
+    PI_CODING_AGENT_DIR="$state/agent" \
+    PI_CODING_AGENT_SESSION_DIR="$agent_home/.local/state/pi-safe/sessions" \
+    XDG_CACHE_HOME="$agent_home/.local/state/pi-safe/cache" \
+    /opt/agents/srt/bin/node \
+    /opt/agents/srt/node_modules/@anthropic-ai/sandbox-runtime/dist/cli.js \
+    --settings "$zone/safe.json" -- \
+    /usr/bin/env NO_PROXY= no_proxy= NODE_USE_ENV_PROXY=1 \
+    /opt/agents/srt/bin/node \
+    /opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js \
+    --no-extensions --no-mcp --no-skills --no-prompt-templates --no-themes \
+    --no-context-files --provider itpcp --model local \
+    --session-dir "$agent_home/.local/state/pi-safe/sessions" "$@"
