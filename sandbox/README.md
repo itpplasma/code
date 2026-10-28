@@ -107,6 +107,15 @@ installs and starts its SSH and broker relays. It does not prepare missing
 packages or fetch dependencies. No host services are installed or activated by
 generating seeds, profiles, unit fragments or VM arguments.
 
+The seed command optionally accepts `--client-models JSON_FILE`. The JSON object
+maps service keys to approved model identifiers. Confidential requires exactly
+the `local` key; internal requires exactly `local`, `codex` and `anthropic`.
+It writes persistent client
+defaults for the fixed guest broker at `127.0.0.1:5001`, so commands do not depend
+on loading a shell profile. Authentication values in these files are dummy
+values; provider credentials stay outside the guest. Confidential seeds write
+only Pi defaults. Guest settings provide convenience; host policy enforces access.
+
 ## Model services
 
 The local adapter forwards to a fixed model service; it starts no inference

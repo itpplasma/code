@@ -69,6 +69,8 @@ MAX_SEED_BYTES = 64 * 1024
 MAX_DESCRIPTOR_BYTES = 16 * 1024
 HASH_CHUNK_BYTES = 256 * 1024
 MAX_PUBKEY_CHARS = 4096
+MAX_CLIENT_MODELS_BYTES = 4096
+_CLIENT_MODEL_ID = re.compile(r"\A[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}\Z")
 
 ED25519_TYPE = b"ssh-ed25519"
 OPENSSH_PRIVATE_MAGIC = b"openssh-key-v1\0"
@@ -307,7 +309,7 @@ def _check_ed25519_private_text(text, what):
 # seed
 # --------------------------------------------------------------------------- #
 
-def build_seed(zone, operator_public_key, ssh_host_private_key, ssh_host_public_key):
+def build_seed(zone, operator_public_key, ssh_host_private_key, ssh_host_public_key, *, client_models=None):
     """Return the seed as ``{"user-data": ..., "meta-data": ...}`` text.
 
     The seed is JSON, which is valid YAML, so no YAML library is needed.  It
@@ -357,6 +359,11 @@ def build_seed(zone, operator_public_key, ssh_host_private_key, ssh_host_public_
         "package_reboot_if_required": False,
         "final_message": "agent-zone %s seed applied" % zone,
     }
+    if client_models is not None:
+        client_files, directories = _client_files(zone, client_models)
+        cloud_config["write_files"].extend(client_files)
+        cloud_config["runcmd"].insert(0, ["install", "-d", "-m", "0700", "-o", AGENT_USER,
+                                          "-g", AGENT_USER, *directories])
     user_data = "#cloud-config\n" + json.dumps(cloud_config, indent=2, sort_keys=True) + "\n"
     meta_data = json.dumps(
         {
@@ -375,7 +382,7 @@ def build_seed(zone, operator_public_key, ssh_host_private_key, ssh_host_public_
     return {"user-data": user_data, "meta-data": meta_data}
 
 
-def write_seed(zone, output, operator_public_key, ssh_host_private_key, ssh_host_public_key):
+def write_seed(zone, output, operator_public_key, ssh_host_private_key, ssh_host_public_key, *, client_models=None):
     """Read the key inputs, build the seed and write it into a fresh directory."""
     operator_text = _read_regular_file(operator_public_key, "operator-public-key", MAX_KEY_BYTES)
     private_text = _read_regular_file(ssh_host_private_key, "ssh-host-private-key", MAX_KEY_BYTES)
@@ -386,6 +393,7 @@ def write_seed(zone, output, operator_public_key, ssh_host_private_key, ssh_host
             operator_text.decode("utf-8"),
             private_text.decode("utf-8"),
             host_public_text.decode("utf-8"),
+            client_models=client_models,
         )
     except UnicodeDecodeError as exc:
         raise GuestSeedError("key inputs must be UTF-8 text") from exc
@@ -727,6 +735,96 @@ def _seed_files():
              "content": text} for path, (text, mode) in files.items()]
 
 
+def _client_files(zone, models):
+    """Guest defaults express a host-approved mapping; they grant no authority."""
+    keys = {"local"} if zone == "confidential" else {"local", "codex", "anthropic"}
+    if not isinstance(models, dict) or set(models) != keys:
+        raise GuestSeedError("client_models must have exactly %s for %s" % (sorted(keys), zone))
+    if any(not isinstance(value, str) or not _CLIENT_MODEL_ID.fullmatch(value)
+           for value in models.values()):
+        raise GuestSeedError("client model IDs must be 1..256 inert ASCII model-ID characters")
+
+    files = []
+    directories = ["/home/agent/.pi", "/home/agent/.pi/agent", "/etc/agent-zone"]
+
+    def add(path, content):
+        if not isinstance(content, str):
+            content = json.dumps(content, indent=2, sort_keys=True) + "\n"
+        files.append({"path": path, "owner": "agent:agent", "permissions": "0600",
+                      "defer": True, "content": content})
+
+    add("/etc/agent-zone/client-models.json", models)
+    add("/home/agent/.pi/agent/settings.json", {"defaultProvider": "sandbox-broker",
+                                              "defaultModel": models["local"]})
+    add("/home/agent/.pi/agent/models.json", {"providers": {"sandbox-broker": {
+        "baseUrl": "http://127.0.0.1:5001/v1", "api": "openai-completions",
+        "apiKey": "dummy-local-capability", "authHeader": True,
+        "models": [{"id": models["local"], "name": "Approved local model", "input": ["text"],
+                    "reasoning": False, "contextWindow": 16384, "maxTokens": 2048,
+                    "compat": {"supportsStore": True, "supportsUsageInStreaming": True,
+                               "maxTokensField": "max_tokens", "supportsStrictMode": False}}]}}})
+    environment = {"PI_OFFLINE": "1"}
+    if zone == "internal":
+        directories.extend(["/home/agent/.codex", "/home/agent/.claude"])
+        model = models["codex"]
+        catalog = {"models": [{"slug": model, "display_name": "Approved Codex model",
+            "description": "Host broker model", "base_instructions": "You are a coding assistant.",
+            "shell_type": "shell_command", "visibility": "list", "supported_in_api": True,
+            "priority": 0, "supported_reasoning_levels": [], "support_verbosity": False,
+            "supports_reasoning_summaries": True, "supports_parallel_tool_calls": True,
+            "apply_patch_tool_type": "freeform", "context_window": 8192,
+            "truncation_policy": {"mode": "tokens", "limit": 1000},
+            "input_modalities": ["text"], "experimental_supported_tools": []}]}
+        add("/home/agent/.codex/models.json", catalog)
+        # The pinned custom Responses provider already sends store=false.
+        add("/home/agent/.codex/config.toml", 'model = %s\n' % json.dumps(model) + '''model_provider = "sandbox-broker"
+model_catalog_json = "/home/agent/.codex/models.json"
+web_search = "disabled"
+check_for_update_on_startup = false
+[analytics]
+enabled = false
+[features]
+multi_agent = false
+multi_agent_v2 = false
+goals = false
+plugins = false
+apps = false
+hooks = false
+view_image = false
+shell_snapshot = false
+[model_providers.sandbox-broker]
+name = "Guest sandbox broker"
+base_url = "http://127.0.0.1:5001/codex/v1"
+wire_api = "responses"
+experimental_bearer_token = "dummy-local-capability"
+requires_openai_auth = false
+supports_websockets = false
+request_max_retries = 0
+stream_max_retries = 0
+[model_providers.sandbox-broker.capabilities]
+remote_compaction = "unsupported"
+external_web_access = false
+''')
+        anthropic = {"ANTHROPIC_BASE_URL": "http://127.0.0.1:5001/claude",
+            "ANTHROPIC_AUTH_TOKEN": "dummy-local-capability",
+            "ANTHROPIC_MODEL": models["anthropic"],
+            "ANTHROPIC_SMALL_FAST_MODEL": models["anthropic"],
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": models["anthropic"],
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": models["anthropic"],
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": models["anthropic"],
+            "CLAUDE_CODE_SUBAGENT_MODEL": models["anthropic"],
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1"}
+        add("/home/agent/.claude/settings.json", {"model": models["anthropic"], "env": anthropic,
+            "permissions": {"deny": ["WebFetch", "WebSearch"]}, "enableAllProjectMcpServers": False})
+        environment.update(anthropic)
+    # Fixed literals and restricted ASCII IDs are safe as shell single quotes.
+    files.append({"path": "/etc/profile.d/agent-zone-clients.sh", "owner": "root:root",
+                  "permissions": "0644", "content": "".join(
+                      "export %s='%s'\n" % (name, value) for name, value in sorted(environment.items()))})
+    return files, directories
+
+
 def write_relay(output):
     """Write the relay program and its units into a private staging directory."""
     directory = _prepare_output_dir(output)
@@ -877,6 +975,7 @@ def _parser():
     seed.add_argument("--operator-public-key", required=True)
     seed.add_argument("--ssh-host-private-key", required=True)
     seed.add_argument("--ssh-host-public-key", required=True)
+    seed.add_argument("--client-models", help="bounded JSON model-ID mapping for the selected zone")
 
     relay = subcommands.add_parser("relay", help="write the guest relay program and units")
     relay.add_argument("--output", required=True)
@@ -891,12 +990,22 @@ def main(argv=None):
     arguments = _parser().parse_args(argv)
     try:
         if arguments.command == "seed":
+            client_models = None
+            if arguments.client_models is not None:
+                try:
+                    text = _read_regular_file(arguments.client_models, "client-models", MAX_CLIENT_MODELS_BYTES)
+                    client_models = json.loads(text.decode("utf-8"), object_pairs_hook=_no_duplicate_keys)
+                except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                    raise GuestSeedError("client-models must be UTF-8 JSON") from exc
+                if client_models is None:
+                    raise GuestSeedError("client-models file must contain a model-ID mapping")
             directory, written = write_seed(
                 arguments.zone,
                 arguments.output,
                 arguments.operator_public_key,
                 arguments.ssh_host_private_key,
                 arguments.ssh_host_public_key,
+                client_models=client_models,
             )
             print(json.dumps({"seed_dir": directory, "written": written}, sort_keys=True))
             return 0

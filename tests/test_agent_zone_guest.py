@@ -4,6 +4,7 @@ import json
 import hashlib
 import os
 import pathlib
+import shutil
 import socket
 import subprocess
 import sys
@@ -14,8 +15,8 @@ import unittest
 from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT))
-from sandbox.ai_zones import guest
+sys.path.insert(0, str(REPO_ROOT / "sandbox"))
+from ai_zones import guest
 
 
 def receive_all(endpoint):
@@ -106,6 +107,158 @@ class TestSeed(unittest.TestCase):
             with self.assertRaises(guest.GuestSeedError):
                 guest.write_seed("internal", output, str(self.operator.with_suffix(".pub")),
                                  str(self.host), str(self.host.with_suffix(".pub")))
+
+    def client_config(self, zone="internal", models=None):
+        if models is None:
+            models = {"local": "approved-local", "codex": "approved-codex", "anthropic": "approved-anthropic"}
+        seed = guest.build_seed(zone, self.operator_public, self.private, self.public, client_models=models)
+        config = json.loads(seed["user-data"].split("\n", 1)[1])
+        return config, {item["path"]: item for item in config["write_files"]}
+
+    def test_client_defaults_are_optional_and_confidential_has_only_pi(self):
+        self.assertEqual(self.seed(), guest.build_seed("internal", self.operator_public, self.private,
+                                                       self.public, client_models=None))
+        config, files = self.client_config("confidential", {"local": "approved-local"})
+        content = json.dumps(config)
+        for forbidden in (".codex", ".claude", "ANTHROPIC", "/codex/", "/claude", "api.openai.com"):
+            self.assertNotIn(forbidden, content)
+        settings = json.loads(files["/home/agent/.pi/agent/settings.json"]["content"])
+        self.assertEqual(settings, {"defaultProvider": "sandbox-broker", "defaultModel": "approved-local"})
+        self.assertEqual(files["/etc/profile.d/agent-zone-clients.sh"]["content"], "export PI_OFFLINE='1'\n")
+
+    def test_client_files_have_private_ownership_and_complete_model_pins(self):
+        config, files = self.client_config()
+        for path, item in files.items():
+            if path.startswith("/home/agent/") or path == "/etc/agent-zone/client-models.json":
+                self.assertEqual((item["owner"], item["permissions"], item["defer"]),
+                                 ("agent:agent", "0600", True))
+        command = config["runcmd"][0]
+        self.assertEqual(command[:9], ["install", "-d", "-m", "0700", "-o", "agent", "-g", "agent", "/home/agent/.pi"])
+        claude = json.loads(files["/home/agent/.claude/settings.json"]["content"])
+        self.assertEqual(claude["model"], "approved-anthropic")
+        self.assertEqual(claude["env"]["ANTHROPIC_BASE_URL"], "http://127.0.0.1:5001/claude")
+        for key in ("ANTHROPIC_MODEL", "ANTHROPIC_SMALL_FAST_MODEL", "CLAUDE_CODE_SUBAGENT_MODEL",
+                    "ANTHROPIC_DEFAULT_OPUS_MODEL", "ANTHROPIC_DEFAULT_SONNET_MODEL", "ANTHROPIC_DEFAULT_HAIKU_MODEL"):
+            self.assertEqual(claude["env"][key], "approved-anthropic")
+        self.assertFalse(any(item["path"].startswith("/usr/local/bin/") for item in files.values()))
+
+    def test_invalid_client_model_mappings_refused(self):
+        good = {"local": "approved-local", "codex": "approved-codex", "anthropic": "approved-anthropic"}
+        for models in ({}, [], {"local": "x"}, dict(good, extra="x")):
+            with self.assertRaises(guest.GuestSeedError):
+                self.client_config(models=models)
+        for bad in ("", "x" * 257, "a\nheader", "$(echo bad)", "!command", "-option", "with space", "é", None, 4):
+            with self.assertRaises(guest.GuestSeedError):
+                self.client_config(models=dict(good, local=bad))
+        with self.assertRaises(guest.GuestSeedError):
+            self.client_config("confidential", good)
+
+    def test_client_models_cli_reads_bounded_regular_json(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            models = root / "models.json"
+            models.write_text(json.dumps({"local": "approved-local"}))
+            args = ["seed", "--zone", "confidential", "--output", str(root / "seed"),
+                    "--operator-public-key", str(self.operator.with_suffix(".pub")),
+                    "--ssh-host-private-key", str(self.host), "--ssh-host-public-key", str(self.host.with_suffix(".pub")),
+                    "--client-models", str(models)]
+            with mock.patch("sys.stdout"):
+                self.assertEqual(guest.main(args), 0)
+            config = json.loads((root / "seed/user-data").read_text().split("\n", 1)[1])
+            self.assertTrue(any(item["path"].endswith(".pi/agent/models.json") for item in config["write_files"]))
+            for bad in ("null", '{"local":"x","local":"y"}', "{" + "x" * guest.MAX_CLIENT_MODELS_BYTES):
+                models.write_text(bad)
+                with mock.patch("sys.stderr"):
+                    self.assertEqual(guest.main(args), 1)
+            models.unlink()
+            models.symlink_to(self.host.with_suffix(".pub"))
+            with mock.patch("sys.stderr"):
+                self.assertEqual(guest.main(args), 1)
+
+    def stage_clients(self, root):
+        _config, files = self.client_config()
+        home = root / "home"
+        home.mkdir()
+        for path, item in files.items():
+            if path.startswith("/home/agent/"):
+                target = home / path[len("/home/agent/"):]
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(item["content"])
+        return home
+
+    def consumer(self, root, command, extra=None):
+        home = root / "home"
+        env = {"HOME": str(home), "CODEX_HOME": str(home / ".codex"),
+               "CLAUDE_CONFIG_DIR": str(home / ".claude"), "PATH": "/usr/bin:/bin",
+               "TMPDIR": str(root), "RUST_LOG": "off", "MPLBACKEND": "Agg"}
+        env.update(extra or {})
+        if sys.platform == "darwin":
+            profile = ('(version 1)(allow default)(deny network*)(deny mach-lookup)'
+                       '(allow mach-lookup (global-name "com.apple.cfprefsd.agent")'
+                       '(global-name "com.apple.cfprefsd.daemon"))')
+            command = ["/usr/bin/sandbox-exec", "-p", profile] + command
+        return subprocess.run(command, cwd=root, env=env, stdin=subprocess.DEVNULL,
+                              text=True, capture_output=True, timeout=15)
+
+    def test_actual_pi_config_selects_model_endpoint_and_dummy_auth_without_profile(self):
+        package = pathlib.Path("/opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/dist/core")
+        node = shutil.which("node")
+        if not node or not package.is_dir():
+            self.skipTest("installed Pi SDK unavailable")
+        script = r'''
+const {ModelRuntime} = await import(process.argv[2] + '/model-runtime.js');
+const {SettingsManager} = await import(process.argv[2] + '/settings-manager.js');
+const dir = process.argv[3];
+const runtime = await ModelRuntime.create({modelsPath:dir+'/models.json',authPath:dir+'/auth.json',allowModelNetwork:false});
+if (runtime.getError()) throw Error(runtime.getError());
+const settings = SettingsManager.create(process.cwd(),dir);
+const model = runtime.getModel(settings.getDefaultProvider(),settings.getDefaultModel());
+const auth = await runtime.getAuth(model);
+console.log(JSON.stringify({provider:model.provider,id:model.id,baseUrl:model.baseUrl,api:model.api,key:auth.auth.apiKey}));
+'''
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            home = self.stage_clients(root)
+            path = root / "probe.mjs"
+            path.write_text(script)
+            result = self.consumer(root, [node, str(path), package.as_uri(), str(home / ".pi/agent")])
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout), {"provider": "sandbox-broker", "id": "approved-local",
+                "baseUrl": "http://127.0.0.1:5001/v1", "api": "openai-completions", "key": "dummy-local-capability"})
+
+    def test_actual_codex_strict_config_and_catalog_without_profile(self):
+        vendor = pathlib.Path("/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai")
+        binaries = list(vendor.glob("codex-*/vendor/*/bin/codex"))
+        binary = str(binaries[0]) if binaries else shutil.which("codex")
+        if not binary:
+            self.skipTest("installed Codex CLI unavailable")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            home = self.stage_clients(root)
+            config = home / ".codex/config.toml"
+            config.write_text(config.read_text().replace("/home/agent/.codex/models.json", str(home / ".codex/models.json")))
+            result = self.consumer(root, [binary, "app-server", "--strict-config", "--print-startup-config"])
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertNotIn("error", json.loads(result.stdout))
+            result = self.consumer(root, [binary, "debug", "models"])
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual([model["slug"] for model in json.loads(result.stdout)["models"]], ["approved-codex"])
+
+    def test_actual_claude_reads_persisted_dummy_auth_and_traffic_setting_without_profile(self):
+        binary = shutil.which("claude")
+        if not binary:
+            self.skipTest("installed Claude CLI unavailable")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            home = self.stage_clients(root)
+            result = self.consumer(root, [binary, "auth", "status", "--json"])
+            self.assertEqual(result.returncode, 0, result.stderr)
+            status = json.loads(result.stdout)
+            self.assertTrue(status["loggedIn"])
+            self.assertTrue(status["analyticsDisabled"])
+            (home / ".claude/settings.json").write_text("{}\n")
+            result = self.consumer(root, [binary, "auth", "status", "--json"])
+            self.assertFalse(json.loads(result.stdout)["loggedIn"])
 
 
 class TestStagingIO(unittest.TestCase):
