@@ -22,7 +22,7 @@ always refuses in this generation: the `ai` client cannot yet open a guest sessi
 | [`codex_gateway.py`](ai_zones/codex_gateway.py) | Typed Responses requests, fixed model catalogue and validated streaming for Codex. |
 | [`anthropic_gateway.py`](ai_zones/anthropic_gateway.py) | Typed Messages requests and validated streaming for Claude. |
 | [`cloud_service.py`](ai_zones/cloud_service.py) | Unprivileged internal-only Unix HTTP service with fixed provider roles and protected configuration. |
-| [`broker.py`](ai_zones/broker.py) | Per-zone Unix HTTP broker for approved local files, Pi inference and fixed internal cloud-service routes. |
+| [`broker.py`](ai_zones/broker.py) | Per-zone Unix HTTP broker for approved local files, Pi inference, fixed internal cloud-service routes and optional restricted mail. |
 
 [`policy.example.json`](policy.example.json) contains synthetic paths and model
 settings. Schema validation alone grants no authority. Protected loading requires
@@ -189,7 +189,26 @@ paths or destinations. The confidential broker always denies cloud routes.
 
 Both providers retain bounded, allowlisted retry and rate-limit headers.
 Cancellation, response bounds and strict child framing apply before forwarding
-successful completion. Mail and Helpy are not exposed through this broker.
+successful completion.
+
+Optional `POST /mail/mcp` connects each zone to its own fixed restricted owner
+endpoint. Missing `config/<zone>/mail.json` disables it; an enabled configuration
+contains only `enabled`, `uid`, `gid` and `socket_group`. Protected configuration,
+separate role identities, exact socket permissions and connected kernel peer
+credentials are checked before forwarding request bytes. Guests cannot supply
+an owner address, credential or configuration path.
+
+Only bounded Model Context Protocol (MCP) initialization, ping, tool listing and
+calls to the three `agent_mail_*` read tools and optional saved-draft tool are
+accepted. The owner must
+enforce current-read status and confidential-folder/descendant exclusion for
+internal mail, including metadata and attachments. No general tool registry is
+exposed; message status, folder and filtering changes are unavailable.
+Complete JSON replies have matching request
+identifiers and bounded numbers; owner errors lose their diagnostic message
+and data. Strict HTTP framing, deadlines and cancellation also apply to mail.
+Helpy is not exposed through this broker.
+
 Dedicated service identities, socket permissions and OS confinement must still
 be installed and tested; the current host foundation does not activate them.
 
