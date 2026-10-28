@@ -216,6 +216,11 @@ close inherited descriptors, clear the environment and set a fixed working
 directory. Retest Seatbelt after a system or runtime change. Its measured
 exceptions expose top-level root names and, when enabled, public system and
 hostname information.
+Pass `model_port=None` to generate a broker profile with no TCP grant, and
+`data_roots=()` to grant no data roots. Native tests check denial against
+reachable listeners and readable/writable data canaries while the private
+socket, state and exact authority files remain accessible. This profile
+generation does not install or activate a protected service.
 Linux needs real namespace, isolated-root and Unix model-adapter probes.
 
 Boot both guests and test pinned SSH identities, persistence, resource and log
