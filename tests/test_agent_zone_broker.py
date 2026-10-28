@@ -1699,5 +1699,350 @@ class CloudBrokerTest(unittest.TestCase):
         self.assertNotIn("guest-dummy", json.dumps(calls[0][1]))
 
 
+
+class MailBrokerTest(unittest.TestCase):
+    post = BrokerTest.post
+    default_policy = BrokerTest.default_policy
+    assert_denied = BrokerTest.assert_denied
+
+    def setUp(self):
+        BrokerTest.setUp(self)
+        self.prefix = self.tmp / "prefix"
+        self.prefix.mkdir()
+        self.owners = []
+        self.addCleanup(mock.patch.stopall)
+        mock.patch.object(broker, "PREFIX", str(self.prefix)).start()
+        original = broker.assert_protected
+        # Disposable ancestor ownership only; inode, ACL and kernel-peer checks remain real.
+        mock.patch.object(broker, "assert_protected", side_effect=lambda path, directory=False:
+            path if str(path).startswith(str(self.prefix) + "/") else original(path, directory=directory)).start()
+
+    def tearDown(self):
+        BrokerTest.tearDown(self)
+        for owner in self.owners:
+            owner.shutdown(); owner.server_close()
+
+    def owner(self, zone="internal", respond=None):
+        parent = self.prefix / "run" / zone / "mail"
+        parent.mkdir(parents=True, mode=0o710)
+        os.chown(parent, -1, os.getegid()); parent.chmod(0o710)
+        calls = []
+        accepted, cancelled = threading.Event(), threading.Event()
+        class Handler(socketserver.StreamRequestHandler):
+            def handle(self):
+                head = []
+                while True:
+                    line = self.rfile.readline(8193)
+                    if not line or line == b"\r\n": break
+                    head.append(line.rstrip(b"\r\n"))
+                if not head:
+                    return
+                headers = dict(line.split(b": ", 1) for line in head[1:])
+                raw = self.rfile.read(int(headers[b"Content-Length"]))
+                document = json.loads(raw)
+                calls.append((head[0], {k.lower(): v for k, v in headers.items()}, document))
+                accepted.set()
+                if respond is not None:
+                    respond(self.request, document, cancelled)
+                    return
+                if document["method"] == "notifications/initialized":
+                    self.request.sendall(b"HTTP/1.1 202 Accepted\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+                    return
+                result = {"content": [{"type": "text", "text": "synthetic mail result"}]}
+                if document["method"] == "initialize":
+                    version = document["params"]["protocolVersion"]
+                    result = {"protocolVersion": version if version in broker.MAIL_PROTOCOL_VERSIONS else "2025-11-25",
+                              "capabilities": {"tools": {}}, "serverInfo": {"name": "synthetic", "version": "1"}}
+                elif document["method"] == "ping": result = {}
+                elif document["method"] == "tools/list":
+                    result = {"tools": [{"name": name, "description": "Synthetic fixture", "inputSchema": {
+                        "type": "object", "additionalProperties": False, "properties": {}, "required": []}}
+                        for name in sorted(broker.MAIL_TOOLS)]}
+                data = json.dumps({"jsonrpc": "2.0", "id": document["id"], "result": result}).encode()
+                self.request.sendall(MailBrokerTest.reply(data))
+        owner = socketserver.ThreadingUnixStreamServer(str(parent / "owner.sock"), Handler)
+        owner.daemon_threads = True
+        os.chown(parent / "owner.sock", -1, os.getegid()); (parent / "owner.sock").chmod(0o660)
+        threading.Thread(target=owner.serve_forever, kwargs={"poll_interval": .01}, daemon=True).start()
+        self.owners.append(owner)
+        return calls, accepted, cancelled
+
+    @staticmethod
+    def reply(body, headers=None, status=200):
+        values = [("Content-Type", "application/json"), ("Content-Length", str(len(body))), ("Connection", "close")]
+        values = values if headers is None else headers
+        return (f"HTTP/1.1 {status} OK\r\n" + "".join(f"{k}: {v}\r\n" for k, v in values) + "\r\n").encode() + body
+
+    @staticmethod
+    def rpc(method="ping", params=None, identifier=1):
+        value = {"jsonrpc": "2.0", "method": method}
+        if identifier is not None: value["id"] = identifier
+        if params is not None: value["params"] = params
+        return value
+
+    def mail_broker(self, zone="internal", identity=None, **options):
+        identity = identity or broker.MailService(os.geteuid(), os.getegid(), os.getegid())
+        instance = broker.Broker(policy=self.default_policy(), zone=zone,
+            socket_path=str(self.tmp / options.pop("socket_name", zone + "-mail.sock")), mail=identity,
+            log=self.logs.append, **options)
+        instance.serve_in_thread(); self.brokers.append(instance)
+        return instance
+
+    def send(self, instance, document=None, **kwargs):
+        return self.post(instance, "/mail/mcp", self.rpc() if document is None else document,
+                         extra={"MCP-Protocol-Version": "2025-11-25", **kwargs.pop("extra", {})}, **kwargs)
+
+    def test_lifecycle_and_fixed_tools_both_zones(self):
+        for zone in ("internal", "confidential"):
+            calls, _, _ = self.owner(zone)
+            instance = self.mail_broker(zone)
+            documents = [self.rpc("initialize", {"protocolVersion": "2026-07-28", "capabilities": {},
+                "clientInfo": {"name": "synthetic", "version": "1"}}),
+                self.rpc("notifications/initialized", identifier=None), self.rpc(), self.rpc("tools/list")]
+            documents.extend(self.rpc("tools/call", {"name": tool, "arguments": {}}) for tool in sorted(broker.MAIL_TOOLS))
+            for document in documents:
+                status, _, body = self.send(instance, document)
+                self.assertEqual(status, 202 if document["method"].startswith("notifications/") else 200, body)
+                if body: self.assertEqual(json.loads(body)["id"], 1)
+            self.assertEqual(len(calls), len(documents))
+            for line, headers, _ in calls:
+                self.assertEqual(line, b"POST /mcp HTTP/1.1")
+                self.assertEqual(headers[b"host"], b"owner.invalid")
+                self.assertNotIn(b"authorization", headers)
+                self.assertNotIn(b"cookie", headers)
+
+    def test_disabled_path_method_headers_and_unknown_tools_never_contact_owner(self):
+        calls, _, _ = self.owner()
+        disabled = BrokerTest.start(self, socket_name="disabled.sock")
+        self.assert_denied(self.send(disabled), 403, "mail_disabled")
+        instance = self.mail_broker()
+        for method in ("mail/send", "server/discover", "config/set", "resources/read"):
+            self.assert_denied(self.send(instance, self.rpc(method)), 400)
+        for tool in ("mail", "agent_mail_send", "agent_mail_move", "agent_mail_search/config"):
+            self.assert_denied(self.send(instance, self.rpc("tools/call", {"name": tool, "arguments": {}})), 400)
+        for name in ("Authorization", "Cookie", "Origin", "Proxy-Authorization"):
+            self.assert_denied(self.send(instance, extra={name: "synthetic-secret"}), 400)
+        for path in ("/mail/mcp?", "/mail/mcp/", "/mail/mcp#x", "//mail/mcp", "http://owner.invalid/mcp"):
+            self.assert_denied(self.post(instance, path, self.rpc()), (400, 404))
+        for method in ("GET", "DELETE", "CONNECT", "PUT"):
+            self.assert_denied(exchange(instance.socket_path, request_bytes(method=method, path="/mail/mcp")), 405)
+        self.assertEqual(calls, [])
+
+    def test_kernel_peer_private_gid_and_inode_authority(self):
+        calls, _, _ = self.owner()
+        instance = self.mail_broker(identity=broker.MailService(os.geteuid(), os.getegid() + 10000, os.getegid()))
+        self.assert_denied(self.send(instance), 502, "mail_peer_denied")
+        self.assertEqual(calls, [])
+        instance = self.mail_broker(socket_name="wrong-uid.sock", identity=broker.MailService(os.geteuid()+10000, os.getegid(), os.getegid()))
+        self.assert_denied(self.send(instance), 502, "mail_unavailable")
+        self.assertEqual(calls, [])
+        parent = Path(broker.mail_socket_path("internal")).parent
+        parent.chmod(0o700)
+        good = self.mail_broker(socket_name="bad-mode.sock")
+        self.assert_denied(self.send(good), 502, "mail_unavailable")
+        parent.chmod(0o710)
+        path = parent / "owner.sock"
+        path.chmod(0o600)
+        self.assert_denied(self.send(good), 502, "mail_unavailable")
+        path.chmod(0o660)
+        self.assertEqual(self.send(good)[0], 200)
+        self.assertEqual(len(calls), 1)
+
+    def test_zone_and_symlink_boundaries(self):
+        calls, _, _ = self.owner("internal")
+        confidential = self.mail_broker("confidential")
+        self.assert_denied(self.send(confidential), 502)
+        parent = Path(broker.mail_socket_path("confidential")).parent
+        parent.parent.mkdir(parents=True)
+        parent.symlink_to(Path(broker.mail_socket_path("internal")).parent)
+        self.assert_denied(self.send(confidential), 502)
+        parent.unlink()
+        self.assertEqual(calls, [])
+
+    def test_actual_client_lifecycle_and_tracing_documents(self):
+        calls, _, _ = self.owner()
+        instance = self.mail_broker()
+        cases = [
+            ("pi", "1.4.0", "2025-11-25", {"roots": {}}, {}, {"progressToken": 0}),
+            ("codex-mcp-client", "0.165.0", "2025-06-18", {"elicitation": {"form": {}, "url": {}}}, {"title": "Codex"},
+             {"callId": "exec-test", "threadId": "thread", "sessionId": "session", "windowId": "window:0", "itemId": "item", "progressToken": 1,
+              "x-codex-turn-metadata": {"session_id": "session", "thread_id": "thread", "reasoning_effort": "medium", "turn_id": "turn", "model": "synthetic", "thread_source": "user", "turn_trigger": "exec", "sandbox": "seatbelt", "sandbox_mode": "read-only", "auto_review_enabled": False, "node_repl_auto_review_required": True, "node_repl_disabled": False, "turn_started_at_unix_ms": 1, "codex_version": "0.165.0"}}),
+            ("claude-code", "2.1.310", "2025-11-25", {"roots": {"listChanged": True}, "elicitation": {"form": {}, "url": {}}},
+             {"title": "Claude Code", "description": "Agentic coding tool", "websiteUrl": "https://example.org/claude"}, {"claudecode/toolUseId": "tool-test", "progressToken": 2}),
+        ]
+        for name, version, protocol, capabilities, extra, meta in cases:
+            params = {"protocolVersion": protocol, "capabilities": capabilities, "clientInfo": {"name": name, "version": version, **extra}}
+            self.assertEqual(self.send(instance, self.rpc("initialize", params))[0], 200)
+            self.assertEqual(self.send(instance, self.rpc("tools/list", {"_meta": {"progressToken": 0}}))[0], 200)
+            self.assertEqual(self.send(instance, self.rpc("tools/call", {"name": "agent_mail_search", "arguments": {"text": "", "limit": 1}, "_meta": meta}))[0], 200)
+            self.assertEqual(calls[-1][2]["params"]["_meta"], meta)
+        self.assertEqual(len(calls), 9)
+
+    def test_invalid_metadata_and_ids_never_contact_owner(self):
+        calls, _, _ = self.owner()
+        instance = self.mail_broker()
+        for meta in ({"config_path": "/tmp/secret"}, {"progressToken": None}, {"progressToken": True}, {"progressToken": 2**53},
+                     {"callId": "x"*129}, {"claudecode/toolUseId": {}}, {"x-codex-turn-metadata": {"sandbox": {"command": "x"}}},
+                     {"x-codex-turn-metadata": {"auto_review_enabled": "false"}}, {"x-codex-turn-metadata": {"turn_started_at_unix_ms": "1"}}):
+            self.assert_denied(self.send(instance, self.rpc("tools/call", {"name": "agent_mail_search", "arguments": {}, "_meta": meta})), 400)
+        for caps in ({"command": "x"}, {"roots": {"listChanged": "true"}}, {"sampling": {"tools": {"command": "x"}}}, {"experimental": {"x": "command"}}):
+            self.assert_denied(self.send(instance, self.rpc("initialize", {"protocolVersion": "2025-11-25", "capabilities": caps, "clientInfo": {"name": "x", "version": "1"}})), 400)
+        for identifier in (True, -1, 2**53, None):
+            self.assert_denied(self.send(instance, self.rpc(identifier=identifier)), 400)
+        bad = b'{"jsonrpc":"2.0","id":1,"method":"ping","method":"tools/list"}'
+        self.assert_denied(self.send(instance, bad), 400)
+        self.assertEqual(calls, [])
+
+    def test_optional_protocol_header_and_duplicate_refusal(self):
+        calls, _, _ = self.owner()
+        instance = self.mail_broker()
+        self.assertEqual(self.post(instance, "/mail/mcp", self.rpc())[0], 200)
+        for value in ("2099-01-01", "2025-11-25\r\nMCP-Protocol-Version: 2025-11-25"):
+            self.assert_denied(self.send(instance, extra={"MCP-Protocol-Version": value}), 400)
+        self.assertEqual(len(calls), 1)
+
+    def test_forwarded_unicode_stays_within_the_request_byte_budget(self):
+        calls, _, _ = self.owner()
+        instance = self.mail_broker()
+        document = self.rpc("tools/call", {"name": "agent_mail_draft", "arguments": {
+            "body": "é"*200000, "subject": "synthetic", "to": ["a@example.org"]}})
+        raw = json.dumps(document, ensure_ascii=False).encode("utf-8")
+        self.assertEqual(self.send(instance, raw)[0], 200)
+        self.assertLessEqual(int(calls[0][1][b"content-length"]), broker.MAX_REQUEST_BODY_BYTES)
+        self.assertEqual(calls[0][2], document)
+
+    def test_response_id_catalog_json_and_error_validation(self):
+        state = {"reply": self.reply(b'{"jsonrpc":"2.0","id":1,"result":{}}')}
+        calls, _, _ = self.owner(respond=lambda peer, document, cancelled: peer.sendall(state["reply"]))
+        instance = self.mail_broker()
+        values = [b'{"jsonrpc":"2.0","id":2,"result":{}}', b'{"jsonrpc":"2.0","id":true,"result":{}}',
+                  b'{"jsonrpc":"2.0","id":1,"result":{},"error":{}}', b'{"owner-secret":1,"owner-secret":2}', b'{"jsonrpc":"2.0","id":1,"result":NaN}']
+        for value in values:
+            state["reply"] = self.reply(value)
+            status, _, body = self.send(instance)
+            self.assertEqual(status, 502, body); self.assertNotIn(b"owner-secret", body)
+        state["reply"] = self.reply(b'{"jsonrpc":"2.0","id":1,"error":{"code":-32602,"message":"/private/synthetic-owner-secret","data":{"owner_key":"synthetic-secret"}}}')
+        status, _, body = self.send(instance)
+        self.assertEqual(status, 200)
+        self.assertEqual(json.loads(body), {"jsonrpc": "2.0", "id": 1, "error": {"code": -32602, "message": "mail request failed"}})
+        for canary in (b"/private", b"synthetic-owner-secret", b"owner_key", b"synthetic-secret"):
+            self.assertNotIn(canary, body)
+        state["reply"] = self.reply(b'{"jsonrpc":"2.0","id":1,"error":{"code":2147483648,"message":"synthetic"}}')
+        self.assert_denied(self.send(instance), 502)
+        for tools in ([{"name": "mail/send"}], [{"name": "agent_mail_get"}, {"name": "agent_mail_get"}], [{"name": "agent_mail_get", "config_path": "/secret"}]):
+            state["reply"] = self.reply(json.dumps({"jsonrpc": "2.0", "id": 1, "result": {"tools": tools}}).encode())
+            self.assert_denied(self.send(instance, self.rpc("tools/list")), 502)
+        for names, expected in ((broker.MAIL_TOOLS - {"agent_mail_draft"}, 200),
+                                (broker.MAIL_TOOLS - {"agent_mail_get"}, 502)):
+            tools = [{"name": name, "inputSchema": {"type": "object", "properties": {}, "required": [], "additionalProperties": False}} for name in sorted(names)]
+            state["reply"] = self.reply(json.dumps({"jsonrpc": "2.0", "id": 1, "result": {"tools": tools}}).encode())
+            self.assertEqual(self.send(instance, self.rpc("tools/list"))[0], expected)
+    def test_catalog_requires_closed_object_schema(self):
+        state = {"reply": b""}
+        self.owner(respond=lambda peer, document, cancelled: peer.sendall(state["reply"]))
+        instance = self.mail_broker()
+        for schema in ("owner-secret", None, {}, {"type": "object", "properties": {}, "required": ["command"], "additionalProperties": False},
+                       {"type": "object", "properties": {"x": {"$ref": "https://example.invalid/schema"}}, "required": [], "additionalProperties": False}):
+            tools = [{"name": name, "inputSchema": schema} for name in sorted(broker.MAIL_TOOLS - {"agent_mail_draft"})]
+            state["reply"] = self.reply(json.dumps({"jsonrpc": "2.0", "id": 1, "result": {"tools": tools}}).encode())
+            self.assert_denied(self.send(instance, self.rpc("tools/list")), 502)
+
+    def test_numeric_tokens_are_bounded_before_conversion(self):
+        state = {"reply": b""}
+        calls, _, _ = self.owner(respond=lambda peer, document, cancelled: peer.sendall(state["reply"]))
+        instance = self.mail_broker(request_deadline=.5)
+        for token in (b"1" * 300000, b"0." + b"1" * 300000, b"1e" + b"0" * 300000):
+            state["reply"] = self.reply(b'{"jsonrpc":"2.0","id":1,"result":{"number":' + token + b'}}')
+            started = time.monotonic()
+            self.assert_denied(self.send(instance), 502)
+            self.assertLess(time.monotonic() - started, .35)
+            count = len(calls)
+            request = b'{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"agent_mail_search","arguments":{"number":' + token + b'}}}'
+            self.assert_denied(self.send(instance, request), 400)
+            self.assertEqual(len(calls), count)
+        state["reply"] = self.reply(b'{"jsonrpc":"2.0","id":1,"result":{"number":9223372036854775807}}')
+        self.assertEqual(self.send(instance)[0], 200)
+
+    def test_validation_cannot_forward_success_after_deadline(self):
+        self.owner()
+        instance = self.mail_broker(request_deadline=.05)
+        validate = broker.validate_mail_reply
+        def delayed(*args):
+            body = validate(*args)
+            time.sleep(.08)
+            return body
+        with mock.patch.object(broker, "validate_mail_reply", side_effect=delayed):
+            self.assert_denied(self.send(instance), 504)
+
+    def test_exact_length_chunked_and_large_attachment(self):
+        value = {"jsonrpc": "2.0", "id": 1, "result": {"content": [{"type": "text", "text": "x"*(9*1024*1024)}]}}
+        raw = json.dumps(value).encode()
+        state = {"reply": self.reply(raw)}
+        self.owner(respond=lambda peer, document, cancelled: peer.sendall(state["reply"]))
+        instance = self.mail_broker()
+        status, _, body = self.send(instance, self.rpc("tools/call", {"name": "agent_mail_attachment", "arguments": {}}))
+        self.assertEqual(status, 200); self.assertEqual(body, raw)
+        raw = b'{"jsonrpc":"2.0","id":1,"result":{}}'
+        state["reply"] = self.reply(b"%x\r\n" % len(raw) + raw + b"\r\n0\r\n\r\n", [("Content-Type", "application/json"), ("Transfer-Encoding", "chunked")])
+        self.assertEqual(self.send(instance)[2], raw)
+
+    def test_malformed_framing_is_generic_and_complete(self):
+        raw = b'{"jsonrpc":"2.0","id":1,"result":{}}'
+        state = {"reply": b""}
+        self.owner(respond=lambda peer, document, cancelled: peer.sendall(state["reply"]))
+        instance = self.mail_broker()
+        values = [self.reply(raw[:-1], [("Content-Type", "application/json"), ("Content-Length", str(len(raw)))]),
+                  self.reply(raw+b"x"), self.reply(raw, [("Content-Type", "application/json"), ("Content-Length", str(len(raw))), ("Content-Length", str(len(raw)))]),
+                  self.reply(raw, [("Content-Type", "application/json"), ("Content-Length", str(len(raw))), ("Transfer-Encoding", "chunked")]),
+                  self.reply(b"1\r\nxXX0\r\n\r\n", [("Content-Type", "application/json"), ("Transfer-Encoding", "chunked")]),
+                  self.reply(b"1;ext=x\r\nx\r\n0\r\n\r\n", [("Content-Type", "application/json"), ("Transfer-Encoding", "chunked")]),
+                  self.reply(b"0\r\nOwner-Secret: x\r\n\r\n", [("Content-Type", "application/json"), ("Transfer-Encoding", "chunked")]),
+                  self.reply(b"", [("Content-Type", "application/json"), ("Content-Length", str(broker.MAX_MAIL_RESPONSE_BYTES+1))]),
+                  self.reply(raw).replace(b"\r\n", b"\n"), self.reply(raw, status=500)]
+        for value in values:
+            state["reply"] = value
+            status, _, body = self.send(instance)
+            self.assertEqual(status, 502, body); self.assertNotIn(b'"result"', body)
+        def delayed(peer, document, cancelled):
+            peer.sendall(self.reply(raw)); time.sleep(.04); peer.sendall(b"extra-owner-secret")
+        self.owner("confidential", respond=delayed)
+        self.assert_denied(self.send(self.mail_broker("confidential")), 502)
+
+    def test_absolute_deadline_and_disconnect_cancel_owner(self):
+        def wait(peer, document, cancelled):
+            peer.settimeout(2)
+            if peer.recv(1) == b"": cancelled.set()
+        _, accepted, cancelled = self.owner(respond=wait)
+        instance = self.mail_broker(request_deadline=.2, max_connections=1)
+        started = time.monotonic()
+        self.assert_denied(self.send(instance), 504)
+        self.assertLess(time.monotonic()-started, .7)
+        self.assertTrue(cancelled.wait(.5))
+        cancelled.clear(); accepted.clear()
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.connect(instance.socket_path)
+            client.sendall(request_bytes(path="/mail/mcp", body=json.dumps(self.rpc()).encode(), extra={"MCP-Protocol-Version": "2025-11-25"}))
+            self.assertTrue(accepted.wait(1))
+        self.assertTrue(cancelled.wait(.5))
+
+    def test_private_config_and_role_validation(self):
+        config = {"enabled": True, "uid": 700, "gid": 700, "socket_group": 701}
+        self.assertEqual(broker.validate_mail_config(config), broker.MailService(700, 700, 701))
+        self.assertIsNone(broker.validate_mail_config({**config, "enabled": False}))
+        for change in ({"enabled": 1}, {"uid": 0}, {"gid": 702}, {"socket_group": 700}, {"socket_group": True}, {"path": "/tmp"}):
+            with self.assertRaises(broker.PolicyError): broker.validate_mail_config({**config, **change})
+        for key in ("broker_uid", "private_gid", "guest_ipc_gid"):
+            with self.assertRaises(broker.PolicyError): broker.validate_mail_config(config, **{key: 700})
+            with self.assertRaises(broker.PolicyError): broker.validate_mail_config(config, **{key: 701})
+        with self.assertRaises(broker.PolicyError): broker.validate_mail_config(config, cloud_roles=(700,))
+        self.assertIsNone(broker.load_mail("internal", socket_group=703))
+        path = Path(broker.mail_config_path("internal")); path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(config)); path.chmod(0o640)
+        with self.assertRaises(broker.PolicyError): broker.load_mail("internal", socket_group=703)
+        with mock.patch.object(broker, "_read_protected_json", return_value=config):
+            self.assertEqual(broker.load_mail("internal", socket_group=703), broker.MailService(700, 700, 701))
+        path.unlink(); path.symlink_to(self.tmp / "missing")
+        with self.assertRaises(broker.PolicyError): broker.load_mail("internal", socket_group=703)
+
 if __name__ == "__main__":
     unittest.main()

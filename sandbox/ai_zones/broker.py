@@ -20,6 +20,14 @@ Optional internal-only service routes, enabled by protected services.json:
     GET  /codex/v1/models
     POST /claude/v1/messages?beta=true
 
+Restricted owner-mail route, disabled unless the zone's own protected
+``config/<zone>/mail.json`` enables it:
+
+    POST /mail/mcp     JSON-RPC 2.0 to the fixed owner socket of this zone
+
+Only the fixed MCP envelope and the four fixed mail tools reach the owner;
+the owner still authorizes every operation, folder and draft.
+
 The chat route delegates request and response validation to ModelGateway.
 It supports bounded text and guest-executed function tools, including validated
 Server-Sent Events. Every upstream origin and model remains fixed by policy.
@@ -39,7 +47,7 @@ only single-link regular files are handed to a guest.
 Scope, stated plainly: this process is **not** an OS egress sandbox.  It
 confines what a guest may ask *this broker* to do.  It does not confine the
 guest process itself, installs no network policy, performs no privileged
-actions, and integrates with no mail, file-sharing or other owner service.
+actions. Owner-mail access requires its separate fixed service identity.
 ``cpus``, ``memory_mib`` and ``disk_gib`` are validated; they are
 enforced outside this process by the OS (cgroups, quotas, the launcher).
 Anything not implemented here fails closed.
@@ -57,6 +65,7 @@ from __future__ import annotations
 import argparse
 import base64
 import ctypes
+import datetime
 import errno
 import json
 import math
@@ -75,7 +84,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Callable, Iterable, Optional, Sequence, Tuple
 
-from .model_gateway import GatewayError, ModelGateway
+from .model_gateway import GatewayError, ModelGateway, _validate_tools
 
 from .policy import (
     ModelEndpoint,
@@ -185,7 +194,7 @@ class _Handled(Exception):
 # --------------------------------------------------------------------------
 
 
-def strict_json_loads(raw: bytes, *, where: str = "request") -> Any:
+def strict_json_loads(raw: bytes, *, where: str = "request", number_chars: Optional[int] = None) -> Any:
     """Parse JSON rejecting duplicate keys, NaN/Infinity and non-UTF-8."""
 
     def pairs(pairs: list) -> dict:
@@ -196,7 +205,14 @@ def strict_json_loads(raw: bytes, *, where: str = "request") -> Any:
             seen.add(key)
         return dict(pairs)
 
+    def bounded_integer(raw: str) -> int:
+        if number_chars is not None and len(raw) > number_chars:
+            raise BrokerError(400, "invalid_number", f"{where}: numeric token exceeds the limit")
+        return int(raw)
+
     def finite_float(raw: str) -> float:
+        if number_chars is not None and len(raw) > number_chars:
+            raise BrokerError(400, "invalid_number", f"{where}: numeric token exceeds the limit")
         value = float(raw)
         if not math.isfinite(value):
             raise BrokerError(400, "invalid_number", f"{where}: number is not finite")
@@ -210,7 +226,7 @@ def strict_json_loads(raw: bytes, *, where: str = "request") -> Any:
     except UnicodeDecodeError as exc:
         raise BrokerError(400, "invalid_encoding", f"{where}: not valid UTF-8") from exc
     try:
-        return json.loads(text, object_pairs_hook=pairs, parse_constant=constant, parse_float=finite_float)
+        return json.loads(text, object_pairs_hook=pairs, parse_constant=constant, parse_float=finite_float, parse_int=bounded_integer)
     except BrokerError:
         raise
     except (ValueError, RecursionError) as exc:
@@ -400,35 +416,45 @@ def validate_services(document: Any, *, socket_group: Optional[int] = None) -> S
     return Services(**roles)
 
 
-def _read_services(path: str) -> Any:
+def _read_protected_json(path: str, *, where: str, limit: int = MAX_SERVICES_BYTES) -> Any:
+    """Read the bytes of one protected configuration file and nothing else.
+
+    The inode checked is the inode opened, the size and timestamps of the
+    opened inode are the ones parsed, and the byte ceiling holds while the
+    bytes arrive.  Every failure is a launch refusal, never a fallback.
+    """
     _, named = _assert_protected_stat(path)
     fd = os.open(path, os.O_RDONLY | _O_NOFOLLOW | _O_CLOEXEC | _O_NONBLOCK)
     try:
         opened = os.fstat(fd)
         identity = lambda st: (st.st_dev, st.st_ino, st.st_uid, st.st_gid, st.st_mode, st.st_nlink)
         if identity(opened) != identity(named) or not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1:
-            raise PolicyError("services: opened object differs from the checked file")
+            raise PolicyError(f"{where}: opened object differs from the checked file")
         if opened.st_uid != 0 or opened.st_gid != os.getegid() or stat.S_IMODE(opened.st_mode) != 0o640:
-            raise PolicyError("services: expected root-owned mode 0640 in the broker private group")
+            raise PolicyError(f"{where}: expected root-owned mode 0640 in the broker private group")
         assert_no_mutating_acl(path, fd=fd)
         chunks, total = [], 0
         while True:
-            chunk = os.read(fd, min(4096, MAX_SERVICES_BYTES + 1 - total))
+            chunk = os.read(fd, min(4096, limit + 1 - total))
             if not chunk:
                 break
             total += len(chunk)
-            if total > MAX_SERVICES_BYTES:
-                raise PolicyError("services: configuration exceeds the byte limit")
+            if total > limit:
+                raise PolicyError(f"{where}: configuration exceeds the byte limit")
             chunks.append(chunk)
         after = os.fstat(fd)
         if (opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns) != (total, after.st_mtime_ns, after.st_ctime_ns):
-            raise PolicyError("services: configuration changed while reading")
+            raise PolicyError(f"{where}: configuration changed while reading")
         try:
-            return strict_json_loads(b"".join(chunks), where="services")
+            return strict_json_loads(b"".join(chunks), where=where)
         except BrokerError:
-            raise PolicyError("services: invalid JSON") from None
+            raise PolicyError(f"{where}: invalid JSON") from None
     finally:
         os.close(fd)
+
+
+def _read_services(path: str) -> Any:
+    return _read_protected_json(path, where="services")
 
 
 def load_services(zone: str, *, socket_group: Optional[int] = None) -> Services:
@@ -489,6 +515,571 @@ def _peer_identity(connection: socket.socket) -> Tuple[int, int]:
         _, uid, gid = struct.unpack("3i", connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")))
         return uid, gid
     raise OSError("cloud service peer credentials are unsupported")
+
+
+# --------------------------------------------------------------------------
+# Owner mail: one fixed MCP route to one fixed per-zone owner socket
+# --------------------------------------------------------------------------
+
+#: The only mail surface a guest sees, and the only path the broker writes to.
+MAIL_ROUTE = "/mail/mcp"
+MAIL_UPSTREAM_TARGET = "/mcp"
+MAIL_UPSTREAM_HOST = "owner.invalid"
+#: Known owner revisions; this fixed transport forwards complete JSON only.
+MAIL_PROTOCOL_VERSIONS = frozenset({"2024-11-05", "2025-03-26", "2025-06-18", "2025-11-25"})
+MAIL_METHODS = frozenset({
+    "initialize",
+    "notifications/initialized",
+    "ping",
+    "tools/list",
+    "tools/call",
+})
+MAIL_NOTIFICATIONS = frozenset({"notifications/initialized"})
+#: The fixed tool names.  Which of them the owner lists, and what each one
+#: may read, is the owner's decision; a name outside this set never reaches a
+#: guest and a guest cannot name one outside it.
+MAIL_TOOLS = frozenset({
+    "agent_mail_search",
+    "agent_mail_get",
+    "agent_mail_attachment",
+    "agent_mail_draft",
+})
+MAIL_TOOL_FIELDS = frozenset({"name", "title", "description", "inputSchema", "outputSchema", "annotations"})
+MAIL_RESPONSE_HEADERS = frozenset({
+    b"date", b"content-type", b"content-length", b"transfer-encoding", b"connection", b"mcp-protocol-version",
+})
+MAX_MAIL_ID_CHARS = 128
+MAX_MAIL_ERROR_CHARS = 8192
+MAX_MAIL_TOOLS = 4
+#: One complete reply: an 8 MiB attachment arrives as about 11 MiB of base64.
+MAX_MAIL_RESPONSE_BYTES = 12 * 1024 * 1024
+#: Catalog metadata is inert and bounded independently of attachment content.
+MAX_MAIL_METADATA_DEPTH = 4
+MAX_MAIL_METADATA_ITEMS = 32
+MAX_MAIL_METADATA_STRING_CHARS = 2048
+
+
+def mail_config_path(zone: str) -> str:
+    """Protected configuration of the mail route of one fixed zone."""
+    if zone not in ZONES:
+        raise PolicyError("mail: unknown fixed zone")
+    return PREFIX + "/config/" + zone + "/mail.json"
+
+
+def mail_socket_path(zone: str) -> str:
+    """Owner socket of one fixed zone; no guest input enters this string."""
+    if zone not in ZONES:
+        raise PolicyError("mail: unknown fixed zone")
+    return PREFIX + "/run/" + zone + "/mail/owner.sock"
+
+
+@dataclass(frozen=True)
+class MailService:
+    """Fixed owner identity of the mail route of one zone.
+
+    ``uid``/``gid`` are the owner service's kernel identity, checked against
+    the connected peer; ``socket_group`` is the group that owns the owner's
+    directory and socket and that this broker must hold to reach them.
+    """
+
+    uid: int
+    gid: int
+    socket_group: int
+
+
+@dataclass(frozen=True)
+class MailRequest:
+    method: str
+    id: Any
+    notification: bool
+
+
+def validate_mail_config(document: Any, *, broker_uid: Optional[int] = None, private_gid: Optional[int] = None,
+                         guest_ipc_gid: Optional[int] = None, cloud_roles: Sequence[int] = ()) -> Optional[MailService]:
+    """Exact schema of ``config/<zone>/mail.json``; disabled when not enabled.
+
+    The owner is a dedicated non-root role in 600..999, distinct from this
+    broker's own identity, from the group the broker grants its guests and from
+    every enabled cloud role, so no two authorities on the host share an id.
+    """
+    if type(document) is not dict or set(document) != {"enabled", "uid", "gid", "socket_group"}:
+        raise PolicyError("mail: expected exactly enabled, uid, gid and socket_group")
+    if type(document["enabled"]) is not bool:
+        raise PolicyError("mail: enabled must be boolean")
+    uid, gid, group = document["uid"], document["gid"], document["socket_group"]
+    for name, value in (("uid", uid), ("gid", gid), ("socket_group", group)):
+        if type(value) is not int or not 600 <= value <= 999:
+            raise PolicyError(f"mail: {name} must be a non-root id in 600 through 999")
+    if uid != gid:
+        raise PolicyError("mail: the owner role requires a matching UID and GID")
+    held = {value for value in (broker_uid, private_gid, guest_ipc_gid, *cloud_roles) if value is not None}
+    if uid in held:
+        raise PolicyError("mail: the owner id must differ from the broker, guest and enabled cloud ids")
+    if group in held:
+        raise PolicyError("mail: the owner socket group must differ from the broker private and guest groups")
+    if group == uid:
+        raise PolicyError("mail: the owner socket group must differ from the owner id")
+    return MailService(uid, gid, group) if document["enabled"] else None
+
+
+def load_mail(zone: str, *, socket_group: Optional[int] = None, services: Optional[Services] = None) -> Optional[MailService]:
+    """Load the mail route of one fixed zone; a missing file means disabled."""
+    if zone not in ZONES:
+        raise PolicyError("mail: unknown fixed zone")
+    if services is not None and not isinstance(services, Services):
+        raise PolicyError("mail: services must be the fixed immutable service view")
+    path = mail_config_path(zone)
+    try:
+        os.lstat(path)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        raise PolicyError("mail: protected configuration is unavailable") from None
+    private_gid = os.getegid()
+    if private_gid == 0 or private_gid == socket_group:
+        raise PolicyError("mail: broker private group must differ from its socket group")
+    roles = () if services is None else tuple(
+        identity.uid for identity in (services.codex, services.anthropic) if identity is not None)
+    try:
+        return validate_mail_config(_read_protected_json(path, where="mail"), broker_uid=os.geteuid(),
+                                     private_gid=private_gid, guest_ipc_gid=socket_group, cloud_roles=roles)
+    except OSError:
+        raise PolicyError("mail: protected configuration is unavailable") from None
+
+
+def check_mail_socket(path: str, identity: MailService) -> None:
+    """Pin and verify the owner's directory and socket before connecting.
+
+    The final directory belongs to the owner service and to the configured
+    owner group, mode 0710: the group reaches the socket, nobody else lists or
+    replaces it.  Every ancestor above it is root-protected.  The socket must
+    be a single-link socket of the same owner and group, mode 0660.
+    """
+    if not isinstance(identity, MailService):
+        raise PolicyError("mail: fixed owner identity required")
+    parent = os.path.dirname(path)
+    assert_protected(os.path.dirname(parent), directory=True)
+    named = os.lstat(parent)
+    fd = os.open(parent, os.O_RDONLY | _O_DIRECTORY | _O_NOFOLLOW | _O_CLOEXEC)
+    try:
+        info = os.fstat(fd)
+        if (info.st_dev, info.st_ino) != (named.st_dev, named.st_ino) or not stat.S_ISDIR(info.st_mode):
+            raise PolicyError("mail service directory changed")
+        if info.st_uid != identity.uid or info.st_gid != identity.socket_group:
+            raise PolicyError("mail service directory has the wrong authority")
+        if stat.S_IMODE(info.st_mode) != 0o710:
+            raise PolicyError("mail service directory must be mode 0710")
+        assert_no_mutating_acl(parent, fd=fd)
+        node = os.stat("owner.sock", dir_fd=fd, follow_symlinks=False)
+        if not stat.S_ISSOCK(node.st_mode) or node.st_nlink != 1:
+            raise PolicyError("mail service socket is not a single-link socket")
+        if node.st_uid != identity.uid or node.st_gid != info.st_gid or stat.S_IMODE(node.st_mode) != 0o660:
+            raise PolicyError("mail service socket has the wrong authority")
+        assert_no_mutating_acl(path)
+    finally:
+        os.close(fd)
+
+
+def holds_group(group: int) -> None:
+    """This process must actually belong to the group it reaches the owner by."""
+    if group == os.getegid():
+        return
+    try:
+        supplementary = set(os.getgroups())
+    except OSError:
+        supplementary = set()
+    if group not in supplementary:
+        raise PolicyError("mail: this process does not hold the owner socket group")
+
+
+def check_mail_metadata(value: Any, *, where: str, depth: int = 0) -> None:
+    """Bounded inert metadata: shallow, small, and never an authority."""
+    if depth > MAX_MAIL_METADATA_DEPTH:
+        raise BrokerError(400, "mail_metadata_denied", f"{where}: metadata is nested too deeply")
+    if isinstance(value, dict):
+        if len(value) > MAX_MAIL_METADATA_ITEMS:
+            raise BrokerError(400, "mail_metadata_denied", f"{where}: metadata has too many fields")
+        for key, item in value.items():
+            if not isinstance(key, str) or not key or len(key) > MAX_MAIL_ID_CHARS:
+                raise BrokerError(400, "mail_metadata_denied", f"{where}: metadata field name refused")
+            check_mail_metadata(item, where=where + "." + key, depth=depth + 1)
+    elif isinstance(value, list):
+        if len(value) > MAX_MAIL_METADATA_ITEMS:
+            raise BrokerError(400, "mail_metadata_denied", f"{where}: metadata has too many entries")
+        for item in value:
+            check_mail_metadata(item, where=where, depth=depth + 1)
+    elif isinstance(value, str):
+        if len(value) > MAX_MAIL_METADATA_STRING_CHARS or not value.isprintable():
+            raise BrokerError(400, "mail_metadata_denied", f"{where}: metadata value refused")
+    elif value is not None and not isinstance(value, (bool, int, float)):
+        raise BrokerError(400, "mail_metadata_denied", f"{where}: metadata value refused")
+
+
+def check_mail_id(value: Any) -> Any:
+    """A request id: a non-negative integer or a bounded printable string."""
+    if isinstance(value, bool):
+        raise BrokerError(400, "mail_id_denied", "id must not be a boolean")
+    if isinstance(value, int):
+        if not 0 <= value <= 9007199254740991:
+            raise BrokerError(400, "mail_id_denied", "id is outside the interoperable integer range")
+        return value
+    if isinstance(value, str) and value and len(value) <= MAX_MAIL_ID_CHARS and value.isprintable():
+        return value
+    raise BrokerError(400, "mail_id_denied", "id must be a non-negative integer or a bounded string")
+
+
+def _mail_object(value: Any, allowed: Iterable[str], required: Iterable[str] = ()) -> dict:
+    if type(value) is not dict:
+        raise BrokerError(400, "mail_metadata_denied", "mail metadata must be an object")
+    expect_fields(value, allowed, "mail metadata")
+    for name in required:
+        field(value, name, "mail metadata")
+    return value
+
+
+def _mail_text(value: Any, limit: int, *, optional: bool = False) -> None:
+    if not isinstance(value, str) or (not value and not optional) or any(c in value for c in "\x00\r\n"):
+        raise BrokerError(400, "mail_metadata_denied", "mail metadata text refused")
+    try:
+        size = len(value.encode("utf-8"))
+    except UnicodeError:
+        raise BrokerError(400, "mail_metadata_denied", "mail metadata text refused") from None
+    if size > limit:
+        raise BrokerError(400, "mail_metadata_denied", "mail metadata text exceeds the limit")
+
+
+def _mail_json_size(value: Any, limit: int) -> None:
+    try:
+        size = len(json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode("utf-8"))
+    except (UnicodeError, ValueError):
+        raise BrokerError(400, "mail_metadata_denied", "mail JSON refused") from None
+    if size > limit:
+        raise BrokerError(400, "mail_metadata_denied", "mail metadata exceeds the byte limit")
+
+
+def _mail_initialize(params: dict) -> None:
+    _mail_object(params, {"protocolVersion", "capabilities", "clientInfo"},
+                 {"protocolVersion", "capabilities", "clientInfo"})
+    _mail_json_size(params, 16384)
+    version = params["protocolVersion"]
+    try:
+        if not isinstance(version, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", version):
+            raise ValueError()
+        datetime.date.fromisoformat(version)
+    except ValueError:
+        raise BrokerError(400, "mail_protocol_denied", "malformed MCP protocol version") from None
+    capabilities = _mail_object(params["capabilities"], {"roots", "elicitation", "sampling", "experimental"})
+    if "roots" in capabilities:
+        roots = _mail_object(capabilities["roots"], {"listChanged"})
+        if "listChanged" in roots and type(roots["listChanged"]) is not bool:
+            raise BrokerError(400, "mail_metadata_denied", "mail roots metadata refused")
+    for name, allowed in (("elicitation", {"form", "url"}), ("sampling", {"context", "tools"})):
+        if name in capabilities:
+            values = _mail_object(capabilities[name], allowed)
+            for value in values.values():
+                _mail_object(value, ())
+    if "experimental" in capabilities:
+        values = capabilities["experimental"]
+        if type(values) is not dict or len(values) > 16:
+            raise BrokerError(400, "mail_metadata_denied", "mail experimental metadata refused")
+        for name, value in values.items():
+            _mail_text(name, 128)
+            _mail_object(value, ())
+    info = _mail_object(params["clientInfo"], {"name", "version", "title", "description", "websiteUrl", "icons"},
+                        {"name", "version"})
+    for name, limit in (("name", 128), ("version", 128), ("title", 256), ("description", 2048), ("websiteUrl", 2048)):
+        if name in info:
+            _mail_text(info[name], limit, optional=name not in ("name", "version"))
+    if "icons" in info:
+        icons = info["icons"]
+        if type(icons) is not list or len(icons) > 4:
+            raise BrokerError(400, "mail_metadata_denied", "mail icons metadata refused")
+        for value in icons:
+            icon = _mail_object(value, {"src", "mimeType", "sizes", "theme"}, {"src"})
+            _mail_text(icon["src"], 2048)
+            if "mimeType" in icon:
+                _mail_text(icon["mimeType"], 128, optional=True)
+            if "theme" in icon and icon["theme"] not in ("", "light", "dark"):
+                raise BrokerError(400, "mail_metadata_denied", "mail icon theme refused")
+            if "sizes" in icon:
+                if type(icon["sizes"]) is not list or len(icon["sizes"]) > 8:
+                    raise BrokerError(400, "mail_metadata_denied", "mail icon sizes refused")
+                for size in icon["sizes"]:
+                    _mail_text(size, 32)
+
+
+def _mail_call_metadata(value: Any, *, tool_call: bool) -> None:
+    ids = {"callId", "threadId", "sessionId", "windowId", "itemId", "claudecode/toolUseId"}
+    allowed = {"progressToken"} | (ids | {"x-codex-turn-metadata"} if tool_call else set())
+    values = _mail_object(value, allowed)
+    if len(values) > 8:
+        raise BrokerError(400, "mail_metadata_denied", "mail call metadata exceeds the field limit")
+    _mail_json_size(values, 8192)
+    if "progressToken" in values:
+        check_mail_id(values["progressToken"])
+    for name in ids & set(values):
+        _mail_text(values[name], 128)
+    if "x-codex-turn-metadata" in values:
+        strings = {"session_id", "thread_id", "reasoning_effort", "turn_id", "model", "thread_source",
+                   "turn_trigger", "sandbox", "sandbox_mode", "codex_version"}
+        booleans = {"auto_review_enabled", "node_repl_auto_review_required", "node_repl_disabled"}
+        trace = _mail_object(values["x-codex-turn-metadata"], strings | booleans | {"turn_started_at_unix_ms"})
+        for name in strings & set(trace):
+            _mail_text(trace[name], 128, optional=True)
+        for name in booleans & set(trace):
+            if type(trace[name]) is not bool:
+                raise BrokerError(400, "mail_metadata_denied", "mail trace flag refused")
+        if "turn_started_at_unix_ms" in trace:
+            check_mail_id(trace["turn_started_at_unix_ms"])
+            if type(trace["turn_started_at_unix_ms"]) is not int:
+                raise BrokerError(400, "mail_metadata_denied", "mail trace timestamp refused")
+
+
+def validate_mail_request(document: dict) -> MailRequest:
+    """Only fixed mail operations and inert lifecycle metadata reach the owner."""
+    _mail_json_size(document, MAX_REQUEST_BODY_BYTES)
+    expect_fields(document, {"jsonrpc", "id", "method", "params"}, "mail request")
+    if document.get("jsonrpc") != "2.0":
+        raise BrokerError(400, "mail_protocol_denied", 'jsonrpc must be the literal "2.0"')
+    method = document.get("method")
+    if not isinstance(method, str) or method not in MAIL_METHODS:
+        raise BrokerError(400, "mail_method_denied", "only the fixed mail methods are served")
+    notification = method in MAIL_NOTIFICATIONS
+    if notification == ("id" in document):
+        raise BrokerError(400, "mail_id_denied", "requests need an id and notifications carry none")
+    identifier = None if notification else check_mail_id(document["id"])
+    params = document.get("params", {})
+    if method == "initialize":
+        _mail_initialize(params)
+    elif method == "tools/call":
+        _mail_object(params, {"name", "arguments", "_meta"}, {"name", "arguments"})
+        if not isinstance(params["name"], str) or params["name"] not in MAIL_TOOLS:
+            raise BrokerError(400, "mail_tool_denied", "only the fixed mail tools are served")
+        if type(params["arguments"]) is not dict:
+            raise BrokerError(400, "invalid_arguments", "arguments must be a JSON object")
+    else:
+        _mail_object(params, {"_meta"} if method == "tools/list" else ())
+    if "_meta" in params:
+        _mail_call_metadata(params["_meta"], tool_call=method == "tools/call")
+    return MailRequest(method, identifier, notification)
+
+
+def mail_protocol_header(names: dict) -> Optional[str]:
+    """One optional MCP-Protocol-Version header, from the supported dates."""
+    values = names.get("mcp-protocol-version", [])
+    if len(values) > 1:
+        raise BrokerError(400, "duplicate_header", "MCP-Protocol-Version appears more than once")
+    if not values:
+        return None
+    try:
+        text = values[0].decode("ascii")
+    except UnicodeDecodeError:
+        raise BrokerError(400, "mail_protocol_denied", "unsupported MCP protocol version") from None
+    if text not in MAIL_PROTOCOL_VERSIONS:
+        raise BrokerError(400, "mail_protocol_denied", "unsupported MCP protocol version")
+    return text
+
+
+def validate_mail_catalog(result: Any) -> None:
+    """The owner's catalog: three or four fixed names, nothing else."""
+    if type(result) is not dict:
+        raise BrokerError(502, "mail_response_invalid", "mail response refused")
+    expect_fields(result, {"tools"}, "mail tools/list")
+    tools = field(result, "tools", "mail tools/list")
+    if type(tools) is not list or not 1 <= len(tools) <= MAX_MAIL_TOOLS:
+        raise BrokerError(502, "mail_response_invalid", "mail tool catalog refused")
+    seen: set = set()
+    for tool in tools:
+        if type(tool) is not dict:
+            raise BrokerError(502, "mail_response_invalid", "mail tool catalog refused")
+        expect_fields(tool, MAIL_TOOL_FIELDS, "mail tool")
+        name = field(tool, "name", "mail tool")
+        if not isinstance(name, str) or name not in MAIL_TOOLS or name in seen:
+            raise BrokerError(502, "mail_response_invalid", "mail tool catalog refused")
+        seen.add(name)
+        schema = field(tool, "inputSchema", "mail tool")
+        if (type(schema) is not dict or schema.get("type") != "object" or
+                schema.get("additionalProperties") is not False or type(schema.get("properties")) is not dict or
+                type(schema.get("required")) is not list):
+            raise BrokerError(502, "mail_response_invalid", "mail tool schema refused")
+        try:
+            _validate_tools([{"type": "function", "function": {"name": name, "parameters": schema}}])
+        except GatewayError:
+            raise BrokerError(502, "mail_response_invalid", "mail tool schema refused") from None
+        if any(value not in schema["properties"] for value in schema["required"]):
+            raise BrokerError(502, "mail_response_invalid", "mail tool schema refused")
+        for key, value in tool.items():
+            if key != "name":
+                check_mail_metadata(value, where="mail tool " + key)
+    if seen not in (MAIL_TOOLS, MAIL_TOOLS - {"agent_mail_draft"}):
+        raise BrokerError(502, "mail_response_invalid", "mail tool catalog refused")
+
+
+def validate_mail_reply(reply: "_MailReply", request: MailRequest) -> bytes:
+    """A complete validated JSON-RPC answer, or nothing at all is forwarded."""
+    if request.notification:
+        if reply.status != 202 or reply.body:
+            raise BrokerError(502, "mail_response_invalid", "mail response refused")
+        return b""
+    if reply.status != 200:
+        raise BrokerError(502, "mail_response_invalid", "mail response refused")
+    document = strict_json_loads(reply.body, where="mail response", number_chars=128)
+    check_depth(document, where="mail response")
+    if type(document) is not dict:
+        raise BrokerError(502, "mail_response_invalid", "mail response refused")
+    expect_fields(document, {"jsonrpc", "id", "result", "error"}, "mail response")
+    if document.get("jsonrpc") != "2.0":
+        raise BrokerError(502, "mail_response_invalid", "mail response refused")
+    if "id" not in document or type(document["id"]) is not type(request.id) or document["id"] != request.id:
+        raise BrokerError(502, "mail_response_invalid", "mail response refused")
+    if ("result" in document) == ("error" in document):
+        raise BrokerError(502, "mail_response_invalid", "mail response refused")
+    if "error" in document:
+        error = document["error"]
+        if type(error) is not dict:
+            raise BrokerError(502, "mail_response_invalid", "mail response refused")
+        expect_fields(error, {"code", "message", "data"}, "mail error")
+        code = field(error, "code", "mail error")
+        if type(code) is not int or not -(2**31) <= code < 2**31:
+            raise BrokerError(502, "mail_response_invalid", "mail response refused")
+        message = field(error, "message", "mail error")
+        if not isinstance(message, str) or not message or len(message) > MAX_MAIL_ERROR_CHARS:
+            raise BrokerError(502, "mail_response_invalid", "mail response refused")
+        if "data" in error:
+            check_depth(error["data"], where="mail error data")
+        # Provider diagnostics can contain paths or secrets even in a valid RPC error.
+        return json.dumps({"jsonrpc": "2.0", "id": request.id,
+                           "error": {"code": code, "message": "mail request failed"}}, separators=(",", ":")).encode("utf-8")
+    if request.method == "tools/list":
+        validate_mail_catalog(document["result"])
+    return reply.body
+
+
+class _MailReply:
+    def __init__(self, status: int, body: bytes) -> None:
+        self.status = status
+        self.body = body
+
+
+class _MailResponse:
+    """One complete bounded JSON answer from the fixed owner endpoint.
+
+    Framing is read by :class:`_Framer`, never by the permissive standard
+    library reader: exact CRLF, one length or exact chunk framing, no chunk
+    extensions, no trailers, no second length.  The bytes are kept whole and
+    are only ever forwarded after the caller has validated them.
+    """
+
+    def __init__(self, connection: socket.socket, deadline: float, header_timeout: float) -> None:
+        self.reader = _Framer(connection, min(deadline, time.monotonic() + header_timeout))
+        self.deadline = deadline
+        try:
+            self.status, headers = self._read_head()
+            self.reader._deadline = deadline
+            self.body = self._read_body(headers)
+            self._finish()
+        except BrokerError as exc:
+            if exc.code == "deadline_exceeded":
+                raise BrokerError(504, "deadline_exceeded", "mail response took too long") from None
+            raise BrokerError(502, "mail_response_invalid", "mail response refused") from None
+        except (socket.timeout, OSError):
+            raise BrokerError(502, "mail_response_invalid", "mail response refused") from None
+
+    def _read_head(self) -> Tuple[int, dict]:
+        status_line = self.reader.readline(MAX_REQUEST_LINE_BYTES)
+        parts = status_line.split(b" ", 2)
+        if len(parts) != 3 or parts[0] != b"HTTP/1.1" or len(parts[1]) != 3 or not parts[1].isdigit():
+            raise BrokerError(502, "mail_response_invalid", "mail response refused")
+        headers: dict = {}
+        total = len(status_line) + 2
+        for _ in range(MAX_REQUEST_HEADERS):
+            line = self.reader.readline(MAX_HEADER_LINE_BYTES)
+            total += len(line) + 2
+            if total > MAX_REQUEST_HEADER_BYTES:
+                raise BrokerError(502, "mail_response_invalid", "mail response headers exceed the limit")
+            if not line:
+                break
+            name, separator, value = line.partition(b":")
+            if not separator or not name or any(byte not in _HEADER_TOKEN for byte in name):
+                raise BrokerError(502, "mail_response_invalid", "mail response refused")
+            value = value.strip(b" \t")
+            if any(byte < 32 or byte > 126 for byte in value):
+                raise BrokerError(502, "mail_response_invalid", "mail response refused")
+            name = name.lower()
+            if name in headers or name not in MAIL_RESPONSE_HEADERS:
+                raise BrokerError(502, "mail_response_invalid", "mail response refused")
+            headers[name] = value
+        else:
+            raise BrokerError(502, "mail_response_invalid", "mail response headers exceed the limit")
+        return int(parts[1]), headers
+
+    def _read_body(self, headers: dict) -> bytes:
+        status = self.status
+        if status not in (200, 202):
+            # Any host status of its own is a host failure: no bytes, no header.
+            raise BrokerError(502, "mail_response_invalid", "mail response refused")
+        if b"connection" in headers and headers[b"connection"].lower() not in (b"close", b"keep-alive"):
+            raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+        if status == 202:
+            if headers.get(b"content-length", b"0") != b"0" or b"transfer-encoding" in headers:
+                raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+            if self.reader._buffer:
+                raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+            return b""
+        if headers.get(b"content-type", b"").split(b";")[0].strip().lower() != b"application/json":
+            raise BrokerError(502, "mail_response_invalid", "mail response content refused")
+        if b"transfer-encoding" in headers and b"content-length" in headers:
+            raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+        if b"transfer-encoding" in headers:
+            if headers[b"transfer-encoding"].lower() != b"chunked":
+                raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+            return self._read_chunked()
+        return self._read_length(headers.get(b"content-length"))
+
+    def _read_length(self, value: Optional[bytes]) -> bytes:
+        if value is None or not value or any(byte not in _DIGITS for byte in value) or value[0:1] == b"0":
+            raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+        size = int(value.decode("ascii"))
+        if size > MAX_MAIL_RESPONSE_BYTES:
+            raise BrokerError(502, "mail_response_invalid", "mail response exceeds the byte limit")
+        body = self.reader.read_body(size, self.deadline)
+        if self.reader._buffer:
+            raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+        return body
+
+    def _finish(self) -> None:
+        # The fixed request asks for close; EOF rejects delayed trailing bytes.
+        if self.reader._buffer:
+            raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+        self.reader._time_left()
+        if self.reader._conn.recv(1):
+            raise BrokerError(502, "mail_response_invalid", "mail response framing refused")
+
+    def _read_chunked(self) -> bytes:
+        chunks: list = []
+        total = 0
+        while True:
+            raw = self.reader.readline(32)
+            if not raw or len(raw) > 8 or any(byte not in b"0123456789abcdefABCDEF" for byte in raw):
+                raise BrokerError(502, "mail_response_invalid", "mail chunk refused")
+            size = int(raw, 16)
+            if size == 0:
+                if self.reader.readline(2) != b"" or self.reader._buffer:
+                    raise BrokerError(502, "mail_response_invalid", "mail chunk terminator refused")
+                return b"".join(chunks)
+            total += size
+            if total > MAX_MAIL_RESPONSE_BYTES:
+                raise BrokerError(502, "mail_response_invalid", "mail response exceeds the byte limit")
+            chunks.append(self.reader.read_body(size, self.deadline))
+            if self.reader.read_body(2, self.deadline) != b"\r\n":
+                raise BrokerError(502, "mail_response_invalid", "mail chunk terminator refused")
+
+    def close(self) -> None:
+        try:
+            self.reader._conn.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+        self.reader._conn.close()
 
 
 # --------------------------------------------------------------------------
@@ -1267,7 +1858,7 @@ class ZoneRequestHandler(socketserver.BaseRequestHandler):
             raise BrokerError(400, "query_denied", "query strings are not accepted")
         if method != "POST" and cloud_route is None:
             raise BrokerError(405, "method_not_allowed", "only POST is served")
-        if path not in ENDPOINTS and cloud_route is None:
+        if path not in ENDPOINTS and cloud_route is None and path != MAIL_ROUTE:
             raise BrokerError(404, "unknown_endpoint", "no such endpoint")
 
         names: dict = {}
@@ -1317,13 +1908,15 @@ class ZoneRequestHandler(socketserver.BaseRequestHandler):
         self._phase = "body"
         body = framer.read_body(size, min(deadline, time.monotonic() + broker.body_timeout))
         self._phase = "dispatch"
-        document = strict_json_loads(body)
+        document = strict_json_loads(body, number_chars=128 if path == MAIL_ROUTE else None)
         if path != "/v1/chat/completions" and cloud_route is None:
             check_depth(document, where="request")
         if not isinstance(document, dict):
             raise BrokerError(400, "invalid_json", "request body must be a JSON object")
         if cloud_route is not None:
             self._cloud(broker, connection, cloud_route, method, document, deadline)
+        elif path == MAIL_ROUTE:
+            self._mail(broker, connection, document, names, deadline)
         elif path == "/v1/chat/completions":
             self._chat(broker, connection, document, deadline)
         else:
@@ -1396,6 +1989,82 @@ class ZoneRequestHandler(socketserver.BaseRequestHandler):
             if time.monotonic() >= deadline:
                 raise BrokerError(504, "deadline_exceeded", "the request took too long") from None
             raise BrokerError(502, "cloud_unavailable", "fixed cloud service unavailable") from None
+        finally:
+            watcher.close()
+            if response is not None:
+                response.close()
+            else:
+                child.close()
+        raise _Handled()
+
+    def _mail(self, broker: "Broker", connection: socket.socket, document: dict, names: dict, deadline: float) -> None:
+        """One fixed MCP call to the fixed owner socket of this zone.
+
+        Nothing the guest sends names a path, an upstream, a credential or a
+        header that is forwarded: the request line, host and framing are built
+        here, the reply is forwarded only once it is complete and validated,
+        and a fresh connection is used for every request.
+        """
+        if any(name in names for name in ("authorization", "cookie", "origin", "proxy-authorization")):
+            raise BrokerError(400, "mail_header_denied", "mail authorization headers are unavailable")
+        request = validate_mail_request(document)
+        version = mail_protocol_header(names)
+        mail = broker.mail
+        if mail is None:
+            raise BrokerError(403, "mail_disabled", "owner mail is disabled for this zone")
+        self._phase = "mail service"
+        path = mail_socket_path(broker.config.zone)
+        child = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        response: Optional[_MailResponse] = None
+        cancelled = threading.Event()
+
+        def cancel() -> None:
+            cancelled.set()
+            _interrupt_socket(child)
+
+        watcher = _ClientWatcher(connection, cancel, deadline)
+        try:
+            if cancelled.is_set():
+                raise BrokerError(400, "request_cancelled", "request cancelled")
+            if deadline - time.monotonic() <= 0:
+                raise BrokerError(504, "deadline_exceeded", "the request took too long")
+            check_mail_socket(path, mail)
+            holds_group(mail.socket_group)
+            _connect_service(child, path, cancelled, deadline)
+            if _peer_identity(child) != (mail.uid, mail.gid):
+                raise BrokerError(502, "mail_peer_denied", "mail service identity refused")
+            body = json.dumps(document, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+            head = ("POST " + MAIL_UPSTREAM_TARGET + " HTTP/1.1\r\nHost: " + MAIL_UPSTREAM_HOST
+                    + "\r\nAccept: application/json\r\nContent-Type: application/json\r\nConnection: close\r\n")
+            if version is not None:
+                head += "MCP-Protocol-Version: " + version + "\r\n"
+            head += "Content-Length: %d\r\n\r\n" % len(body)
+            if cancelled.is_set():
+                raise BrokerError(400, "request_cancelled", "request cancelled")
+            self._model_send(child, head.encode("ascii") + body, deadline)
+            response = _MailResponse(child, deadline, broker.header_timeout)
+            try:
+                body = validate_mail_reply(response, request)
+            except BrokerError:
+                raise BrokerError(502, "mail_response_invalid", "mail response refused") from None
+            if time.monotonic() >= deadline:
+                raise BrokerError(504, "deadline_exceeded", "the request took too long")
+            if cancelled.is_set():
+                raise BrokerError(400, "request_cancelled", "request cancelled")
+            self._send(broker, connection, response.status, body)
+            broker.log(f"{broker.config.zone} mail {response.status}")
+        except BrokerError as exc:
+            if exc.code == "deadline_exceeded" or (time.monotonic() >= deadline and exc.status in (400, 408, 502, 504)):
+                raise BrokerError(504, "deadline_exceeded", "the request took too long") from None
+            raise
+        except PolicyError:
+            raise BrokerError(502, "mail_unavailable", "fixed mail service unavailable") from None
+        except socket.timeout:
+            raise BrokerError(504, "deadline_exceeded", "the request took too long") from None
+        except OSError:
+            if time.monotonic() >= deadline:
+                raise BrokerError(504, "deadline_exceeded", "the request took too long") from None
+            raise BrokerError(502, "mail_unavailable", "fixed mail service unavailable") from None
         finally:
             watcher.close()
             if response is not None:
@@ -1502,6 +2171,7 @@ def _prepend(first: bytes, rest: Iterable[bytes]) -> Iterable[bytes]:
 def _reason(status: int) -> str:
     return {
         200: "OK",
+        202: "Accepted",
         400: "Bad Request",
         403: "Forbidden",
         404: "Not Found",
@@ -1785,12 +2455,17 @@ class Broker:
         request_deadline: float = REQUEST_DEADLINE_SECONDS,
         max_connections: int = MAX_ACTIVE_CONNECTIONS,
         services: Optional[Services] = None,
+        mail: Optional[MailService] = None,
         log: Optional[Callable[[str], None]] = None,
     ) -> None:
         self.config = project_zone(policy, zone)
         if services is not None and not isinstance(services, Services):
             raise PolicyError("services must be the fixed immutable service view")
+        if mail is not None and not isinstance(mail, MailService):
+            raise PolicyError("mail must be the fixed immutable owner identity")
         self.services = Services() if zone == "confidential" else services or Services()
+        #: The owner mail route of this zone, or None while it is disabled.
+        self.mail = mail
         self.socket_path = socket_path
         if self.config.files_root is not None:
             excluded = [socket_path]
@@ -1843,6 +2518,7 @@ class Broker:
             f"serving (protocol {PROTOCOL}, zone={self.config.zone}, "
             f"files={'rw' if self.config.files_writable else 'ro' if self.config.files_root else 'off'}, "
             f"model={'on' if self.config.model else 'off'}, "
+            f"mail={'on' if self.mail is not None else 'off'}, "
             f"socket={'group' if self.socket_group is not None else 'owner-only'})"
         )
         installed = self._install_stop_handlers()
@@ -1943,6 +2619,7 @@ def main(argv: Optional[list] = None, *, broker_factory: Optional[Callable[..., 
         group = None if args.socket_group is None else parse_socket_group(args.socket_group)
         policy = load_policy_file(args.policy)
         services = load_services(args.zone, socket_group=group)
+        mail = load_mail(args.zone, socket_group=group, services=services)
         selected = policy.zones[args.zone]
         if selected.files is not None:
             _exclude_control_overlap(selected.files.root, [args.policy])
@@ -1951,7 +2628,8 @@ def main(argv: Optional[list] = None, *, broker_factory: Optional[Callable[..., 
         return 2
     try:
         broker = (broker_factory or Broker)(
-            policy=policy, zone=args.zone, socket_path=args.socket, socket_group=group, services=services
+            policy=policy, zone=args.zone, socket_path=args.socket, socket_group=group,
+            services=services, mail=mail,
         )
     except (PolicyError, OSError) as exc:
         sys.stderr.write(f"broker: {exc}\n")
