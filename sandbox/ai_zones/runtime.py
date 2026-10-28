@@ -468,15 +468,21 @@ def verify_installed_runtime(prefix):
             os.close(fd)
 
 
-def install_runtime(bundle, prefix, root_public_key):
+def install_runtime(bundle, prefix, root_public_key, *, expected_manifest_sha256=None):
     """Root frozen-core API. No archive extraction, payload execution or hooks.
 
     The exact fixed prefix and key location are part of the approved core.
     No existing runtime is overwritten. Selection changes only after every
-    staged byte and link has matched the signed manifest twice.
+    staged byte and link has matched the signed manifest twice. An optional
+    independently approved manifest hash binds the exact retained signed bytes
+    before any installation write.
     """
     if os.geteuid() != 0:
         raise RuntimeError("runtime installation requires root")
+    if expected_manifest_sha256 is not None and (
+            not isinstance(expected_manifest_sha256, str) or
+            not re.fullmatch(r"[0-9a-fA-F]{64}", expected_manifest_sha256)):
+        raise RuntimeError("expected manifest SHA256 must be 64 hexadecimal characters")
     prefix = release._abs(os.fspath(prefix))
     if prefix not in _INSTALL_PREFIXES.get(sys.platform, frozenset()):
         raise RuntimeError("runtime prefix is not approved in the core")
@@ -496,6 +502,9 @@ def install_runtime(bundle, prefix, root_public_key):
         _check_current(prefix, prefix_fd)
         bundle_fd = release._open_absolute_dir(os.fspath(bundle)); descriptors.append(bundle_fd)
         doc, raw, signature = _load(bundle_fd, key)
+        if (expected_manifest_sha256 is not None and
+                hashlib.sha256(raw).hexdigest() != expected_manifest_sha256.lower()):
+            raise RuntimeError("runtime differs from the independently approved manifest")
         try:
             os.mkdir(RUNTIMES, 0o755, dir_fd=prefix_fd)
         except FileExistsError:

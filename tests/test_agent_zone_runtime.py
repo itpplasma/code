@@ -1,6 +1,7 @@
 """Synthetic RSA-signed runtimes; no payload runs and no root changes."""
 import copy
 import contextlib
+import hashlib
 import json
 import os
 import shutil
@@ -282,6 +283,73 @@ class RuntimeTests(unittest.TestCase):
                 runtime.install_runtime(str(self.bundle), "/Library/AgentSandbox", "/Library/AgentSandbox/trust/runtime.pub")
             walk.assert_not_called()
         with self.assertRaises(policy.PolicyError): policy.assert_protected(str(self.public))
+
+    @contextlib.contextmanager
+    def install_authority(self):
+        """Only root authority is mocked; no privileged copy is performed."""
+        prefix = Path(self.tmp.name).resolve() / "install-prefix"
+        (prefix / "trust").mkdir(parents=True)
+        key = prefix / "trust/runtime.pub"
+        shutil.copyfile(self.public, key)
+        with mock.patch.object(runtime.os, "geteuid", return_value=0), \
+             mock.patch.object(runtime, "_INSTALL_PREFIXES", {sys.platform: {str(prefix)}}), \
+             mock.patch.object(runtime, "_protected_core", return_value=str(prefix)), \
+             mock.patch.object(policy, "_assert_protected_stat", side_effect=lambda p, directory=False: (os.fspath(p), os.lstat(p))):
+            yield prefix, key
+
+    def test_approved_manifest_denies_valid_signed_bundle_substitution_before_writes(self):
+        self.sign()
+        bundle_a = Path(self.tmp.name).resolve() / "bundle-a"
+        shutil.copytree(self.bundle, bundle_a, symlinks=True)
+        approved = hashlib.sha256((bundle_a / "manifest.json").read_bytes()).hexdigest()
+        (self.payload / "lib/stdlib.py").write_text("different valid bundle B")
+        self.sign()
+        runtime.verify_runtime_bundle(str(bundle_a), str(self.public))
+        self.verify()
+        with self.install_authority() as (prefix, key):
+            original_mkdir = os.mkdir
+            def no_install_write(name, *args, **kwargs):
+                if name == runtime.RUNTIMES or os.fspath(name).startswith(str(prefix) + "/"):
+                    self.fail("installation wrote before checking the approved manifest")
+                return original_mkdir(name, *args, **kwargs)
+            with mock.patch.object(runtime.os, "mkdir", side_effect=no_install_write), \
+                 mock.patch.object(runtime.os, "symlink") as symlink, \
+                 mock.patch.object(runtime.os, "replace") as replace, \
+                 mock.patch.object(runtime, "_walk") as walk:
+                with self.assertRaisesRegex(runtime.RuntimeError, "approved manifest"):
+                    runtime.install_runtime(str(self.bundle), str(prefix), str(key),
+                        expected_manifest_sha256=approved)
+                symlink.assert_not_called(); replace.assert_not_called(); walk.assert_not_called()
+            self.assertEqual(sorted(str(p.relative_to(prefix)) for p in prefix.rglob("*")),
+                ["trust", "trust/runtime.pub"])
+
+    def test_matching_approved_manifest_and_default_reach_first_write(self):
+        self.sign()
+        digest = hashlib.sha256((self.bundle / "manifest.json").read_bytes()).hexdigest()
+        class FirstInstallWrite(Exception): pass
+        with self.install_authority() as (prefix, key):
+            original_mkdir = os.mkdir
+            def stop_at_install_write(name, *args, **kwargs):
+                if name == runtime.RUNTIMES: raise FirstInstallWrite()
+                return original_mkdir(name, *args, **kwargs)
+            for expected in (digest, digest.upper(), None):
+                with self.subTest(expected=expected), \
+                     mock.patch.object(runtime.os, "mkdir", side_effect=stop_at_install_write):
+                    with self.assertRaises(FirstInstallWrite):
+                        runtime.install_runtime(str(self.bundle), str(prefix), str(key),
+                            expected_manifest_sha256=expected)
+            self.assertFalse((prefix / runtime.RUNTIMES).exists())
+
+    def test_malformed_approved_manifest_hash_refused_before_loading(self):
+        for expected in ("", "f" * 63, "g" * 64, "f" * 64 + "\n", 123, b"f" * 64):
+            with self.subTest(expected=expected), \
+                 mock.patch.object(runtime.os, "geteuid", return_value=0), \
+                 mock.patch.object(runtime, "_load") as load, \
+                 mock.patch.object(runtime.os, "mkdir") as mkdir:
+                with self.assertRaisesRegex(runtime.RuntimeError, "manifest SHA256"):
+                    runtime.install_runtime(str(self.bundle), "/Library/AgentSandbox",
+                        "/Library/AgentSandbox/trust/runtime.pub", expected_manifest_sha256=expected)
+                load.assert_not_called(); mkdir.assert_not_called()
 
     @contextlib.contextmanager
     def installed_fixture(self):

@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+case "$(/usr/bin/uname -s)" in
+  Darwin) exec /Library/AgentSandbox/bin/ai "$@" ;;
+  Linux) exec /opt/agent-sandbox/bin/ai "$@" ;;
+  *) echo 'REFUSED: unsupported platform' >&2; exit 1 ;;
+esac
