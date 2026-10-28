@@ -1,0 +1,109 @@
+{
+  "architectures": {
+    "amd64": {
+      "base": {
+        "integrity": "sha512:8be7b291d7925fa4de317a69875767c8c81dc8434eee6b1bf457c9ced33d20078a2d27e91ef8c074548573e8b6889aef7805885d6a3bd3a06568138a6bf6178f",
+        "package_manifest_integrity": "sha512:084e1850df36fe5960c614ce30a4b341dd4a7f3b684d858d58e6a09276c6044d1dc9f59116e0cae88d08a2d5d6092831fa227a80eea321d58561da8750ceee6c",
+        "package_manifest_url": "https://cloud.debian.org/images/cloud/trixie/20261026-2643/debian-13-genericcloud-amd64-20261026-2643.json",
+        "url": "https://cloud.debian.org/images/cloud/trixie/20261026-2643/debian-13-genericcloud-amd64-20261026-2643.raw"
+      },
+      "package_index": {
+        "integrity": "sha256:7778d3e3f303b7ddb8ce0fe7c8d57473a076c6bf2e8f241f75421d2396352498",
+        "url": "https://snapshot.debian.org/archive/debian/20261027T000000Z/dists/trixie/main/binary-amd64/Packages.xz"
+      },
+      "packages": {
+        "base": {
+          "ca-certificates": "20250419+deb13u1",
+          "cloud-init": "25.1.4-1+deb13u1",
+          "curl": "8.14.1-2+deb13u7",
+          "openssh-server": "1:10.0p1-7+deb13u4",
+          "python3": "3.13.5-1",
+          "sudo": "1.9.16p2-3+deb13u2",
+          "xz-utils": "5.8.1-1+deb13u2"
+        },
+        "install": {
+          "git": "1:2.47.3-0+deb13u1",
+          "ripgrep": "14.1.1-1+b4"
+        }
+      },
+      "tools": {
+        "claude": {
+          "integrity": "sha512-CuzpJrMBbqaR3+1SiLrBtPV3w/cFvcqBfhe9kNskzZ2Fm6KXa7v0l7tM+Ln6l5QLb79WoU0CcacXnYtsygbe6A==",
+          "member": "package/claude",
+          "release_commit": "b70dc4113ad72e0ee44f7b1b95afaf510b53ee98",
+          "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.310.tgz",
+          "version": "2.1.310"
+        },
+        "codex": {
+          "integrity": "sha256:be635d3486a5bd060d0fff582ae6d30160280c31344dd85719707fa920e187f0",
+          "member": "codex-x86_64-unknown-linux-musl",
+          "release_commit": "360319d8dee62d87e2d59fc0c21805d79519cfed",
+          "url": "https://github.com/openai/codex/releases/download/rust-v0.165.0/codex-x86_64-unknown-linux-musl.tar.gz",
+          "version": "0.165.0"
+        },
+        "pi": {
+          "integrity": "sha256:f2e4e4329603223d03260cdb8bd5033dbdc1f73ba58ab8939db2e56546e115d2",
+          "member": "pi/pi",
+          "release_commit": "4a080252f06caf63a525d7873c5d94d3c23887e0",
+          "url": "https://github.com/earendil-works/pi/releases/download/v1.4.0/pi-linux-x64.tar.gz",
+          "version": "1.4.0"
+        }
+      }
+    },
+    "arm64": {
+      "base": {
+        "integrity": "sha512:1541a4016476e6de49a22438a14e87b451147be991b4d529f194ee3a07ee6dc6c1f5b09fb239c574e33a8d894a568f2221a9fdd150b94623147f964006ef6f39",
+        "package_manifest_integrity": "sha512:9bec119664be323d4a2b1157d92f25f59d1a585fd1c3f1c917bb4e5a112c72fdd73c47b40e737ad872042614c1cbac525755020e95fa52c264e0dbbce24edc86",
+        "package_manifest_url": "https://cloud.debian.org/images/cloud/trixie/20261026-2643/debian-13-genericcloud-arm64-20261026-2643.json",
+        "url": "https://cloud.debian.org/images/cloud/trixie/20261026-2643/debian-13-genericcloud-arm64-20261026-2643.raw"
+      },
+      "package_index": {
+        "integrity": "sha256:be16b37b2f740f066ea93d35d56f04f94d63693e5a3eb421b052bf86fae75bcd",
+        "url": "https://snapshot.debian.org/archive/debian/20261027T000000Z/dists/trixie/main/binary-arm64/Packages.xz"
+      },
+      "packages": {
+        "base": {
+          "ca-certificates": "20250419+deb13u1",
+          "cloud-init": "25.1.4-1+deb13u1",
+          "curl": "8.14.1-2+deb13u7",
+          "openssh-server": "1:10.0p1-7+deb13u4",
+          "python3": "3.13.5-1",
+          "sudo": "1.9.16p2-3+deb13u2",
+          "xz-utils": "5.8.1-1+deb13u2"
+        },
+        "install": {
+          "git": "1:2.47.3-0+deb13u1",
+          "ripgrep": "14.1.1-1+b4"
+        }
+      },
+      "tools": {
+        "claude": {
+          "integrity": "sha512-iAukGiGmsInasuW34o4ExD8Gqh3b/CPUp6kjxsWIBT8tFBrVFxtWGfI7wfRy3owWrbuRekBCaHQFMiI2ddWUpA==",
+          "member": "package/claude",
+          "release_commit": "b70dc4113ad72e0ee44f7b1b95afaf510b53ee98",
+          "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-arm64/-/claude-code-linux-arm64-2.1.310.tgz",
+          "version": "2.1.310"
+        },
+        "codex": {
+          "integrity": "sha256:6522e056d0be7f531da915c9a81ae05bc70811b782542499cc0a9776d3abf5d3",
+          "member": "codex-aarch64-unknown-linux-musl",
+          "release_commit": "360319d8dee62d87e2d59fc0c21805d79519cfed",
+          "url": "https://github.com/openai/codex/releases/download/rust-v0.165.0/codex-aarch64-unknown-linux-musl.tar.gz",
+          "version": "0.165.0"
+        },
+        "pi": {
+          "integrity": "sha256:fa5829c7ef83ffeaebba015715c8306220f89b2aa8a00154efbba98dd5440156",
+          "member": "pi/pi",
+          "release_commit": "4a080252f06caf63a525d7873c5d94d3c23887e0",
+          "url": "https://github.com/earendil-works/pi/releases/download/v1.4.0/pi-linux-arm64.tar.gz",
+          "version": "1.4.0"
+        }
+      }
+    }
+  },
+  "distribution": "debian",
+  "release": "13",
+  "snapshot": "20261027T000000Z",
+  "status": "proposal",
+  "version": 1
+}

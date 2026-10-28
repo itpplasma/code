@@ -13,6 +13,7 @@ always refuses in this generation: the `ai` client cannot yet open a guest sessi
 | [`release.py`](ai_zones/release.py) | Offline public-key signature and payload-hash verification; root-only tool installation from retained verified bytes with atomic `current` selection. |
 | [`vm.py`](ai_zones/vm.py) | Fixed vfkit and QEMU command builders, resource validation and distinct Secure Shell (SSH) transport helpers; builders never launch a VM. |
 | [`guest.py`](ai_zones/guest.py) | Debian 13 raw-image checksum verification, NoCloud seed generation and fixed guest relay source and units. |
+| [`image_builder.py`](ai_zones/image_builder.py), [`guest-tools.lock.json`](guest-tools.lock.json) | Pinned Debian package and native client inputs, disposable build recipes and powered-off image consistency checks. |
 | [`confinement.py`](ai_zones/confinement.py) | macOS Seatbelt profile and launch-argument generation with a tested-build gate; an explicitly untested Linux systemd namespace fragment. |
 | [`runtime.py`](ai_zones/runtime.py) | Bounded signed Python runtime manifests and verification, plus a root-only installation interface separate from the tool updater. |
 | [`deploy.py`](ai_zones/deploy.py) | Read-only plans, explicit offline staging, first-runtime bootstrap and guarded host preparation; activation remains disabled. |
@@ -115,6 +116,32 @@ defaults for the fixed guest broker at `127.0.0.1:5001`, so commands do not depe
 on loading a shell profile. Authentication values in these files are dummy
 values; provider credentials stay outside the guest. Confidential seeds write
 only Pi defaults. Guest settings provide convenience; host policy enforces access.
+
+## Candidate Debian images
+
+The image builder pins official Debian 13 cloud-image builds, a Debian package
+snapshot and native Pi, Codex and Claude artifacts for Arm64 and x86-64.
+Internal images contain all three clients; confidential images contain Pi only.
+The lock file proposes exact inputs; it does not approve them.
+
+Inspect the offline commands from the repository root:
+
+```sh
+PYTHONPATH=sandbox python3 -m ai_zones.image_builder --help
+```
+
+Build only in a fresh disposable VM with temporary networking, no provider credentials
+and no host shares. Cleanup stops persistent writers, exposes the disk directory
+hidden by Debian's temporary `/tmp` filesystem, removes the build identity and
+checks the scrubbed state before shutdown. Unexpected mounts covering scrub
+targets or symbolic-link ancestors of those targets fail the build. Failure
+diagnostics remain available for inspection.
+
+After shutdown, inspect the disk without booting it and compare its files with
+the pinned archives. The unsigned manifest establishes consistency, not approval.
+An Arm64 internal candidate passed these checks; a boot with the final guest seed,
+the confidential image and independent Linux acceptance remain separate gates.
+Sign and promote an image only after its required checks and human review.
 
 ## Model services
 
