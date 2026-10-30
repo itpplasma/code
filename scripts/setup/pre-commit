@@ -71,7 +71,11 @@ native_hook="$common_dir/hooks/pre-commit"
 if [[ -x "$native_hook" && ! "$native_hook" -ef "$0" ]]; then
   exec "$native_hook" "$@"
 fi
-if [[ -f .pre-commit-config.yaml ]]; then
+# Some upstream repositories ship a configuration their contributors never run,
+# whose formatters would rewrite whole files; such checkouts opt out.
+if [[ -f .pre-commit-config.yaml && "$(git config --bool hooks.repoPreCommit || true)" == false ]]; then
+  echo 'hooks.repoPreCommit=false: repository hook checks skipped' >&2
+elif [[ -f .pre-commit-config.yaml ]]; then
   if command -v prek >/dev/null; then
     exec prek run --hook-stage pre-commit
   elif command -v pre-commit >/dev/null; then
