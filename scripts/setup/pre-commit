@@ -62,7 +62,9 @@ except (OSError, ValueError, KeyError, AttributeError):
     pass
 ' "$hook_dir/fo-latest.json" || true
     fi
-    fo hook pre-commit --bounded
+    # Unbounded: --bounded accepts only a complete fast tier within its deadline,
+    # which projects with many fast tests never reach, so it blocks every commit.
+    fo hook pre-commit
   fi
 fi
 
