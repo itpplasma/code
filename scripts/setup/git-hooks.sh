@@ -10,7 +10,7 @@ for tool in git python3 curl install mktemp; do
 done
 revision=632eff5452fe5c828bc0fb0224c992534567c776
 checker_sha256=56561f64c2054899da968d96f0676e4ae10a00f72e3920f0f69cb5e594cf8af5
-hook_sha256=ef024b5c725de166cbb64e7894d57b60e164443c92cfa315c14b0f74dce28e4a
+hook_sha256=effe43885a5f5b4fe67d3bfe15de208406552e60facaf35f8aa3c145f19b7b10
 dest="$HOME/.local/share/git-hooks"
 if [[ "${1:-}" == --dry-run ]]; then
   printf 'Would install global repository hygiene %s at %s\n' "$revision" "$dest"

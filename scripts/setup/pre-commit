@@ -39,7 +39,11 @@ elif git cat-file -e :CMakeLists.txt 2>/dev/null; then
     fortran=true
   fi
 fi
-if $fortran; then
+# A subproject that only builds inside its superbuild (SIESTA in Stellarator-Tools)
+# cannot pass a standalone build check; such checkouts opt out.
+if $fortran && [[ "$(git config --bool hooks.foCheck || true)" == false ]]; then
+  echo 'hooks.foCheck=false: fo build/test pre-commit checks skipped' >&2
+elif $fortran; then
   if ! command -v fo >/dev/null; then
     echo 'fo not found: build/test pre-commit checks skipped; install: https://github.com/lazy-fortran/fo' >&2
   elif ! fo hook --help 2>/dev/null | grep -q 'fo hook pre-commit'; then
