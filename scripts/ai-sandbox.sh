@@ -381,7 +381,7 @@ if [[ $# -gt 0 ]]; then
     # configured.  Other tools receive exactly the arguments supplied by the
     # caller.
     case "$1" in
-        claude) set -- claude --dangerously-skip-permissions "${@:2}" ;;
+        claude) set -- claude --permission-mode auto "${@:2}" ;;
         codex)  set -- codex --yolo --search "${@:2}" ;;
         opencode|opencode2)
             OPENCODE_SERVICE_CLEANUP=1

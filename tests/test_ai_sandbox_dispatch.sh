@@ -44,7 +44,7 @@ run() {
 
 default_call="$(run claude --help)"
 grep -Fq 'exec ai-cloud' <<<"${default_call}"
-grep -Fq -- 'claude --dangerously-skip-permissions --help' <<<"${default_call}"
+grep -Fq -- 'claude --permission-mode auto --help' <<<"${default_call}"
 
 cloud_call="$(run cloud codex inspect)"
 grep -Fq 'exec ai-cloud' <<<"${cloud_call}"
