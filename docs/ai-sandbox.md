@@ -76,7 +76,7 @@ ai prune                  # drop mounts whose sessions are gone
 ai stop
 ```
 
-The launcher prepends `--dangerously-skip-permissions` to `claude` and
+The launcher prepends `--permission-mode auto` to `claude` and
 `--yolo --search` to `codex`; `dsh`, `opencode`, and `pi` receive supplied
 arguments unchanged. The profile setup may add an Incus proxy device for the
 host llama.cpp endpoint (`AI_LLAMA_PORT`, default `8080`). The proxy listens
